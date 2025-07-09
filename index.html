@@ -1,57 +1,43 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
-  <meta charset="utf-8">
-  <title>Пример сайта с меню</title>
-  <style>
-    ul {
-      list-style: none;
-      display: flex;
-    }
-    li {
-      margin-right: 30px;
-    }
-    .theme-buttons {
-      position: absolute;
-      top: 30px;
-      right: 10px;
-    }
-  </style>
-  <script>
-    function setLightTheme() {
-      document.body.style.color = 'black';
-      document.body.style.backgroundColor = 'white';
-    }
-    
-    function setDarkTheme() {
-      document.body.style.color = 'white';
-      document.body.style.backgroundColor = 'darkgrey';
-    }
-  </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Основы веб-разработки</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="script.js" defer></script>
 </head>
 <body>
-  <div class="theme-buttons">
-    <button onclick="setLightTheme()">Светлая тема</button>
-    <button onclick="setDarkTheme()">Тёмная тема</button>
-  </div>
-  <img src="img/sergeyslesarev.jpg">
-  <ul>
-    <li>
-      <a href="https://output.jsbin.com/jizufuh">Главная страница</a>
-    </li>
-    <li>
-      <a href="https://jsbin.com/hiwiqar">Проекты студентов</a>
-    </li>
-  </ul>
-  
-  <h1>Проекты студентов</h1>
-  <ol>
-    <li>Говард: 
-      <a href="https://output.jsbin.com/cificurihe/" target="_blank">
-        Список любимых книг, фильмов и т.д.
-      </a>
-    <li>
-  <ol>
-  
+  <header>
+    <h1>Основы веб-разработки</h1>
+    <nav>
+      <ul>
+        <li><a href="index.html" class="active">Главная</a></li>
+        <li><a href="html.html">HTML</a></li>
+        <li><a href="css.html">CSS</a></li>
+        <li><a href="javascript.html">JavaScript</a></li>
+      </ul>
+    </nav>
+    <button id="theme-toggle" class="theme-toggle">🌓</button>
+  </header>
+
+  <main>
+    <section>
+      <h2>Добро пожаловать на курс!</h2>
+      <p>Этот курс познакомит вас с основами веб-разработки.</p>
+      <div class="card">
+        <h3>Что вы узнаете:</h3>
+        <ul>
+          <li>Основы HTML</li>
+          <li>Принципы CSS</li>
+          <li>Базовый JavaScript</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>© 2023 Курс "Основы веб-разработки"</p>
+  </footer>
 </body>
 </html>
