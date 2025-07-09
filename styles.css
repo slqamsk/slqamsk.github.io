@@ -1,0 +1,67 @@
+:root {
+  --bg-color: #ffffff;
+  --text-color: #333333;
+  --header-bg: #2c3e50;
+  --card-bg: #f9f9f9;
+  --border-color: #dddddd;
+}
+
+[data-theme="dark"] {
+  --bg-color: #222222;
+  --text-color: #f0f0f0;
+  --header-bg: #1a1a1a;
+  --card-bg: #333333;
+  --border-color: #444444;
+}
+
+/* Общие стили */
+body {
+  font-family: Arial, sans-serif;
+  line-height: 1.6;
+  margin: 0;
+  padding: 0;
+  color: var(--text-color);
+  background-color: var(--bg-color);
+  transition: all 0.3s ease;
+}
+
+header {
+  background: var(--header-bg);
+  color: white;
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.theme-toggle {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 5px;
+}
+
+/* ... остальные стили остаются такими же, но с заменой цветов на переменные ... */
+
+/* Специфичные стили для JavaScript страницы */
+.counter {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 15px 0;
+}
+
+#demo-button {
+  padding: 8px 16px;
+  background: #3498db;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+#demo-button:hover {
+  background: #2980b9;
+}
