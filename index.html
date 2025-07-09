@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Пример сайта с меню</title>
+  <style>
+    ul {
+      list-style: none;
+      display: flex;
+    }
+    li {
+      margin-right: 30px;
+    }
+    .theme-buttons {
+      position: absolute;
+      top: 30px;
+      right: 10px;
+    }
+  </style>
+  <script>
+    function setLightTheme() {
+      document.body.style.color = 'black';
+      document.body.style.backgroundColor = 'white';
+    }
+    
+    function setDarkTheme() {
+      document.body.style.color = 'white';
+      document.body.style.backgroundColor = 'darkgrey';
+    }
+  </script>
+</head>
+<body>
+     <div class="theme-buttons">
+      <button onclick="setLightTheme()">Светлая тема</button>
+      <button onclick="setDarkTheme()">Тёмная тема</button>
+   </div>
+  <ul>
+    <li>
+      <a href="https://output.jsbin.com/jizufuh">Главная страница</a>
+    </li>
+    <li>
+      <a href="https://jsbin.com/hiwiqar">Проекты студентов</a>
+    </li>
+  </ul>
+  
+  <h1>Проекты студентов</h1>
+  <ol>
+    <li>Говард: 
+      <a href="https://output.jsbin.com/cificurihe/" target="_blank">
+        Список любимых книг, фильмов и т.д.
+      </a>
+    <li>
+  <ol>
+  
+</body>
+</html>
