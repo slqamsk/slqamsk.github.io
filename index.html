@@ -9,35 +9,56 @@
 </head>
 <body>
   <header>
-    <h1>Основы веб-разработки</h1>
-    <nav>
-      <ul>
-        <li><a href="index.html" class="active">Главная</a></li>
-        <li><a href="html.html">HTML</a></li>
-        <li><a href="css.html">CSS</a></li>
-        <li><a href="javascript.html">JavaScript</a></li>
-      </ul>
-    </nav>
-    <button id="theme-toggle" class="theme-toggle">🌓</button>
+    <div class="header-container">
+      <h1>Основы веб-разработки</h1>
+      <nav class="main-nav">
+        <ul>
+          <li><a href="index.html" class="active">Главная</a></li>
+          <li><a href="html.html">HTML</a></li>
+          <li><a href="css.html">CSS</a></li>
+          <li><a href="javascript.html">JavaScript</a></li>
+        </ul>
+      </nav>
+      <div class="theme-switcher">
+        <span class="theme-label">Светлая</span>
+        <label class="switch">
+          <input type="checkbox" id="theme-toggle">
+          <span class="slider round"></span>
+        </label>
+        <span class="theme-label">Тёмная</span>
+      </div>
+    </div>
   </header>
 
   <main>
-    <section>
-      <h2>Добро пожаловать на курс!</h2>
-      <p>Этот курс познакомит вас с основами веб-разработки.</p>
-      <div class="card">
-        <h3>Что вы узнаете:</h3>
-        <ul>
-          <li>Основы HTML</li>
-          <li>Принципы CSS</li>
-          <li>Базовый JavaScript</li>
-        </ul>
+    <section class="intro-section">
+      <h2>Добро пожаловать на курс веб-разработки!</h2>
+      <p>Этот курс познакомит вас с фундаментальными технологиями современной веб-разработки.</p>
+      
+      <div class="tech-cards">
+        <div class="tech-card">
+          <h3>HTML</h3>
+          <p>Язык разметки для создания структуры веб-страниц. Определяет содержание и базовую структуру.</p>
+          <a href="html.html" class="learn-more">Узнать больше →</a>
+        </div>
+        
+        <div class="tech-card">
+          <h3>CSS</h3>
+          <p>Язык стилей для оформления HTML-документов. Позволяет создавать адаптивные дизайны.</p>
+          <a href="css.html" class="learn-more">Узнать больше →</a>
+        </div>
+        
+        <div class="tech-card">
+          <h3>JavaScript</h3>
+          <p>Язык программирования для добавления интерактивности на веб-страницы.</p>
+          <a href="javascript.html" class="learn-more">Узнать больше →</a>
+        </div>
       </div>
     </section>
   </main>
 
   <footer>
-    <p>© 2023 Курс "Основы веб-разработки"</p>
+    <p>© 2023 Курс "Основы веб-разработки" | Все права защищены</p>
   </footer>
 </body>
 </html>
