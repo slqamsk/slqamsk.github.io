@@ -9,52 +9,136 @@
 </head>
 <body>
   <header>
-    <h1>JavaScript Основы</h1>
-    <nav>
-      <ul>
-        <li><a href="index.html">Главная</a></li>
-        <li><a href="html.html">HTML</a></li>
-        <li><a href="css.html">CSS</a></li>
-        <li><a href="javascript.html" class="active">JavaScript</a></li>
-      </ul>
-    </nav>
-    <button id="theme-toggle" class="theme-toggle">🌓</button>
+    <div class="header-container">
+      <h1>JavaScript Основы</h1>
+      <nav class="main-nav">
+        <ul>
+          <li><a href="index.html">Главная</a></li>
+          <li><a href="html.html">HTML</a></li>
+          <li><a href="css.html">CSS</a></li>
+          <li><a href="javascript.html" class="active">JavaScript</a></li>
+        </ul>
+      </nav>
+      <div class="theme-switcher">
+        <span class="theme-label">Светлая</span>
+        <label class="switch">
+          <input type="checkbox" id="theme-toggle">
+          <span class="slider round"></span>
+        </label>
+        <span class="theme-label">Тёмная</span>
+      </div>
+    </div>
   </header>
 
   <main>
-    <section>
-      <h2>Основы JavaScript</h2>
+    <section class="content-section">
       <article>
-        <h3>Пример кода</h3>
-        <pre><code>// Переменные
-let message = "Привет, мир!";
-const PI = 3.14;
-
-// Функция
-function showAlert() {
-  alert(message);
-}
-
-// Обработчик событий
-document.getElementById('myButton')
-  .addEventListener('click', showAlert);</code></pre>
+        <h2>Что такое JavaScript?</h2>
+        <p>JavaScript - это язык программирования, который позволяет создавать динамически обновляемый контент, управлять мультимедиа, анимировать изображения и многое другое. Это одна из основных технологий веба наряду с HTML и CSS.</p>
       </article>
 
       <article>
-        <h3>Попробуйте сами</h3>
-        <button id="demo-button">Нажми меня</button>
-        <div class="counter">
-          <button id="decrement">-</button>
-          <span id="count">0</span>
-          <button id="increment">+</button>
+        <h3>Основы синтаксиса</h3>
+        <div class="code-example">
+          <h4>Переменные и типы данных</h4>
+          <pre><code>// Объявление переменных
+let message = "Привет, мир!"; // Строка
+const PI = 3.14;              // Число, константа
+var isActive = true;          // Булево значение
+
+// Объекты
+const user = {
+  name: "Алексей",
+  age: 30,
+  isAdmin: false
+};
+
+// Массивы
+const colors = ["красный", "зелёный", "синий"];</code></pre>
         </div>
-        <p id="current-time"></p>
+
+        <div class="code-example">
+          <h4>Функции</h4>
+          <pre><code>// Объявление функции
+function greet(name) {
+  return `Привет, ${name}!`;
+}
+
+// Стрелочная функция
+const sum = (a, b) => a + b;
+
+// Вызов функций
+greet("Мир"); // "Привет, Мир!"
+sum(2, 3);    // 5</code></pre>
+        </div>
+      </article>
+
+      <article>
+        <h3>Работа с DOM</h3>
+        <p>DOM (Document Object Model) - это программный интерфейс для HTML и XML документов, который представляет страницу в виде дерева объектов.</p>
+        
+        <div class="code-example">
+          <h4>Примеры работы с DOM</h4>
+          <pre><code>// Получение элементов
+const header = document.querySelector('header');
+const buttons = document.querySelectorAll('button');
+
+// Изменение контента
+document.getElementById('title').textContent = 'Новый заголовок';
+
+// Обработчики событий
+document.getElementById('myButton').addEventListener('click', () => {
+  alert('Кнопка нажата!');
+});
+
+// Создание элементов
+const newDiv = document.createElement('div');
+newDiv.className = 'alert';
+newDiv.textContent = 'Важное сообщение';
+document.body.appendChild(newDiv);</code></pre>
+        </div>
+      </article>
+
+      <article class="interactive-examples">
+        <h3>Интерактивные примеры</h3>
+        
+        <div class="example-box">
+          <h4>Счётчик</h4>
+          <div class="counter">
+            <button id="decrement">-</button>
+            <span id="count">0</span>
+            <button id="increment">+</button>
+          </div>
+        </div>
+
+        <div class="example-box">
+          <h4>Текущее время</h4>
+          <p id="current-time"></p>
+          <button id="update-time">Обновить время</button>
+        </div>
+
+        <div class="example-box">
+          <h4>Форма обратной связи</h4>
+          <form id="feedback-form">
+            <label for="name">Имя:</label>
+            <input type="text" id="name" required>
+            
+            <label for="email">Email:</label>
+            <input type="email" id="email" required>
+            
+            <label for="message">Сообщение:</label>
+            <textarea id="message" required></textarea>
+            
+            <button type="submit">Отправить</button>
+          </form>
+          <div id="form-result"></div>
+        </div>
       </article>
     </section>
   </main>
 
   <footer>
-    <p>© 2023 Курс "Основы веб-разработки"</p>
+    <p>© 2025 Курс "Основы веб-разработки" | Все права защищены</p>
   </footer>
 </body>
 </html>
