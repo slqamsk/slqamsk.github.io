@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HTML Основы</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <header>
+    <div class="header-container">
+      <h1>HTML Основы</h1>
+      <nav class="main-nav">
+        <ul>
+          <li><a href="index.html">Главная</a></li>
+          <li><a href="html.html" class="active">HTML</a></li>
+          <li><a href="css.html">CSS</a></li>
+          <li><a href="javascript.html">JavaScript</a></li>
+        </ul>
+      </nav>
+      <div class="theme-switcher">
+        <span class="theme-label">Светлая</span>
+        <label class="switch">
+          <input type="checkbox" id="theme-toggle">
+          <span class="slider round"></span>
+        </label>
+        <span class="theme-label">Тёмная</span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="content-section">
+      <article>
+        <h2>Что такое HTML?</h2>
+        <p>HTML (HyperText Markup Language) - это стандартный язык разметки для создания веб-страниц. Он определяет структуру и содержание веб-страницы с помощью системы тегов и атрибутов.</p>
+      </article>
+
+      <article>
+        <h3>Основные элементы HTML</h3>
+        <div class="code-example">
+          <h4>Структура документа</h4>
+          <pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang="ru"&gt;
+&lt;head&gt;
+  &lt;meta charset="UTF-8"&gt;
+  &lt;title&gt;Заголовок страницы&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;Мой первый заголовок&lt;/h1&gt;
+  &lt;p&gt;Мой первый абзац.&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+        </div>
+
+        <div class="code-example">
+          <h4>Текстовые элементы</h4>
+          <pre><code>&lt;h1&gt;-&lt;h6&gt; - Заголовки разных уровней
+&lt;p&gt; - Абзац текста
+&lt;a href="url"&gt; - Ссылка
+&lt;strong&gt; - Важный текст
+&lt;em&gt; - Акцентированный текст</code></pre>
+        </div>
+      </article>
+
+      <article>
+        <h3>Списки и таблицы</h3>
+        <div class="code-example">
+          <h4>Нумерованный список</h4>
+          <pre><code>&lt;ol&gt;
+  &lt;li&gt;Первый пункт&lt;/li&gt;
+  &lt;li&gt;Второй пункт&lt;/li&gt;
+&lt;/ol&gt;</code></pre>
+        </div>
+
+        <div class="code-example">
+          <h4>Таблица</h4>
+          <pre><code>&lt;table&gt;
+  &lt;tr&gt;
+    &lt;th&gt;Заголовок 1&lt;/th&gt;
+    &lt;th&gt;Заголовок 2&lt;/th&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+    &lt;td&gt;Данные 1&lt;/td&gt;
+    &lt;td&gt;Данные 2&lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/table&gt;</code></pre>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <footer>
+    <p>© 2023 Курс "Основы веб-разработки" | Все права защищены</p>
+  </footer>
+</body>
+</html>
