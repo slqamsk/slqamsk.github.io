@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JavaScript Основы</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <header>
+    <h1>JavaScript Основы</h1>
+    <nav>
+      <ul>
+        <li><a href="index.html">Главная</a></li>
+        <li><a href="html.html">HTML</a></li>
+        <li><a href="css.html">CSS</a></li>
+        <li><a href="javascript.html" class="active">JavaScript</a></li>
+      </ul>
+    </nav>
+    <button id="theme-toggle" class="theme-toggle">🌓</button>
+  </header>
+
+  <main>
+    <section>
+      <h2>Основы JavaScript</h2>
+      <article>
+        <h3>Пример кода</h3>
+        <pre><code>// Переменные
+let message = "Привет, мир!";
+const PI = 3.14;
+
+// Функция
+function showAlert() {
+  alert(message);
+}
+
+// Обработчик событий
+document.getElementById('myButton')
+  .addEventListener('click', showAlert);</code></pre>
+      </article>
+
+      <article>
+        <h3>Попробуйте сами</h3>
+        <button id="demo-button">Нажми меня</button>
+        <div class="counter">
+          <button id="decrement">-</button>
+          <span id="count">0</span>
+          <button id="increment">+</button>
+        </div>
+        <p id="current-time"></p>
+      </article>
+    </section>
+  </main>
+
+  <footer>
+    <p>© 2023 Курс "Основы веб-разработки"</p>
+  </footer>
+</body>
+</html>
