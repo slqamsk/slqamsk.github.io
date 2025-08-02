@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
       <div class="layout-page">
         <header class="layout-header">
           <div class="header-left">
-            <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+            <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar" aria-expanded="true">✕</button>
           </div>
           <div class="header-center">
             <span class="logo">Мой сайт</span>
@@ -26,7 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <nav class="sidebar-menu">
               <ul>
                 <li class="menu-group">
-                  <a href="#" class="menu-item">Продукция</a>
+                  <a href="#" class="menu-item" aria-haspopup="true">Продукция</a>
                   <ul class="submenu">
                     <li><a href="#">Телефоны</a></li>
                     <li><a href="#">Ноутбуки</a></li>
@@ -34,7 +34,7 @@ document.addEventListener("DOMContentLoaded", () => {
                   </ul>
                 </li>
                 <li class="menu-group">
-                  <a href="#" class="menu-item">Услуги</a>
+                  <a href="#" class="menu-item" aria-haspopup="true">Услуги</a>
                   <ul class="submenu">
                     <li><a href="#">Ремонт</a></li>
                     <li><a href="#">Обслуживание</a></li>
@@ -42,7 +42,7 @@ document.addEventListener("DOMContentLoaded", () => {
                   </ul>
                 </li>
                 <li class="menu-group">
-                  <a href="#" class="menu-item">Поддержка</a>
+                  <a href="#" class="menu-item" aria-haspopup="true">Поддержка</a>
                   <ul class="submenu">
                     <li><a href="#">FAQ</a></li>
                     <li><a href="#">Документация</a></li>
@@ -66,50 +66,44 @@ document.addEventListener("DOMContentLoaded", () => {
 
     layout.outerHTML = template;
 
-    // Обработчики для меню
     const sidebarToggle = document.getElementById('sidebarToggle');
     const sidebar = document.getElementById('sidebar');
     
-    // Сворачивание/разворачивание сайдбара
     sidebarToggle.addEventListener('click', (e) => {
       e.stopPropagation();
-      sidebar.classList.toggle('hidden');
-      document.body.classList.toggle('sidebar-hidden');
-      sidebarToggle.textContent = sidebar.classList.contains('hidden') ? '☰' : '✕';
+      const isHidden = sidebar.classList.toggle('hidden');
+      sidebarToggle.textContent = isHidden ? '☰' : '✕';
+      sidebarToggle.setAttribute('aria-expanded', !isHidden);
     });
 
-    // Работа с подменю
+    document.addEventListener('click', (e) => {
+      if (!sidebar.classList.contains('hidden')) {
+        const menuItems = document.querySelectorAll('.menu-item');
+        menuItems.forEach(item => {
+          const submenu = item.nextElementSibling;
+          if (submenu && submenu.classList.contains('submenu')) {
+            const isClickInside = e.target.closest('.menu-group') === item.parentElement;
+            if (!isClickInside) {
+              submenu.classList.remove('active');
+              item.parentElement.classList.remove('open');
+            }
+          }
+        });
+      }
+    });
+
     document.querySelectorAll('.menu-item').forEach(item => {
       item.addEventListener('click', function(e) {
-        // Открываем/закрываем подменю только при клике на пункт 1-го уровня
         if (!e.target.parentElement.classList.contains('submenu')) {
           e.preventDefault();
           e.stopPropagation();
           const submenu = this.nextElementSibling;
-          submenu.classList.toggle('active');
-          this.parentElement.classList.toggle('open');
+          if (submenu && submenu.classList.contains('submenu')) {
+            submenu.classList.toggle('active');
+            this.parentElement.classList.toggle('open');
+          }
         }
       });
-    });
-
-    // Обработчики для пунктов подменю (чтобы не закрывалось при клике)
-    document.querySelectorAll('.submenu a').forEach(link => {
-      link.addEventListener('click', function(e) {
-        e.stopPropagation(); // Предотвращаем всплытие события
-      });
-    });
-
-    // Закрытие меню при клике вне его
-    document.addEventListener('click', (e) => {
-      if (!sidebar.classList.contains('hidden')) {
-        // Закрываем подменю только если клик был не по меню
-        if (!e.target.closest('.sidebar-menu')) {
-          document.querySelectorAll('.submenu').forEach(menu => {
-            menu.classList.remove('active');
-            menu.parentElement.classList.remove('open');
-          });
-        }
-      }
     });
   });
 });
