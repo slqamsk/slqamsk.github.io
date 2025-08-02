@@ -5,30 +5,52 @@
   min-height: 100vh;
   margin: 0;
   font-family: Arial, sans-serif;
+  background-color: #f5f5f5; /* светло-серый фон для всей страницы */
+  color: #000000; /* черный текст */
 }
 
 .layout-header {
-  background: #333;
-  color: white;
+  background: #e1f5fe; /* светло-голубой */
+  color: #000000; /* черный текст */
   padding: 1rem;
   text-align: center;
+  border-bottom: 1px solid #b3e5fc; /* граница светло-голубого оттенка */
 }
 
 .layout-header nav a {
-  color: white;
+  color: #000000; /* черный текст */
   margin: 0 10px;
   text-decoration: none;
+  font-weight: 500;
+}
+
+.layout-header nav a:hover {
+  color: #0077cc; /* голубой при наведении */
 }
 
 .layout-main {
   flex: 1;
   padding: 20px;
   text-align: center;
+  background-color: #ffffff; /* белый фон для основного контента */
+  margin: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* легкая тень для объема */
 }
 
 .layout-footer {
-  background: #222;
-  color: white;
+  background: #e0e0e0; /* светло-серый */
+  color: #000000; /* черный текст */
   padding: 1rem;
   text-align: center;
+  border-top: 1px solid #bdbdbd; /* серая граница */
+}
+
+.layout-footer a {
+  color: #0077cc; /* голубой для ссылок */
+  text-decoration: none;
+}
+
+.layout-footer a:hover {
+  text-decoration: underline;
 }
