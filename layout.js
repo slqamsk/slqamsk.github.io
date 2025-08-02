@@ -24,7 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
         </main>
 
         <footer class="layout-footer">
-          <p>&copy; 2025 Мой сайт. Все права защищены.</p>
+          <p>&copy; 2025 <a href="https://t.me/sergeyslesarev">Сергей Слесарев</a></p>
         </footer>
       </div>
     `;
