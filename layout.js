@@ -15,8 +15,8 @@ document.addEventListener("DOMContentLoaded", () => {
             <span class="logo">Мой сайт</span>
           </div>
           <nav class="header-right">
-            <a href="#">Главная</a>
-            <a href="#">О нас</a>
+            <a href="index.html">Главная</a>
+            <a href="about.html">О нас</a>
             <a href="#">Контакты</a>
           </nav>
         </header>
