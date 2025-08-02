@@ -1,13 +1,13 @@
-/* python.css - Стили для статей о Python */
+/* python.css - Стили для статей о Python с фиксированной панелью кнопок */
 
-/* Основной текст */
+/* === Основные стили === */
 .layout-main {
     color: #000000;
     line-height: 1.6;
     padding: 20px;
+    background-color: #f0f0f0;
 }
 
-/* 1. Заголовки статей */
 .article-title {
     font-size: 2.2rem;
     font-weight: 700;
@@ -17,7 +17,6 @@
     border-bottom: 2px solid #3498db;
 }
 
-/* 2. Заголовки разделов */
 .section-title {
     font-size: 1.8rem;
     font-weight: 600;
@@ -32,24 +31,20 @@
     margin: 1.5rem 0 0.8rem 0;
 }
 
-/* 3. Выделение жирным в тексте */
 .strong-text {
     font-weight: bold;
     color: #000000;
 }
 
-/* 4. Выделение жирным курсивом в тексте */
 .strong-italic {
     font-weight: bold;
     font-style: italic;
     color: #000000;
 }
 
-/* 5. Стиль для команд в командной строке */
+/* Командная строка */
 .command-line {
     display: block;
-    background-color: #f5f5f5;
-    color: #333333;
     padding: 0.8rem 1rem;
     border-radius: 0 0 4px 4px;
     font-family: 'Courier New', monospace;
@@ -66,46 +61,75 @@
     color: #666;
 }
 
-/* Контейнер для блоков кода */
-.code-block-container {
-    position: relative;
+/* === Обёртка для блока кода и панели === */
+.code-block-wrapper {
     margin: 1.5rem 0;
-    border: 1px solid #ddd;
     border-radius: 4px;
-    background-color: #f8f9fa;
+    overflow: hidden;
+    background-color: transparent;
 }
 
-/* Панель управления кодом */
+/* Панель управления — НАД блоком, с фиксированным стилем (как GitHub) */
 .code-controls {
     display: flex;
-    justify-content: flex-end; /* Ключевое изменение — выравнивание по правому краю */
-    gap: 5px;
-    padding: 8px 10px;
-    background-color: #e1f5fe;
-    border-bottom: 1px solid #b3e5fc;
+    justify-content: flex-end; /* КНОПКИ ВПРАВО */
+    gap: 6px;
+    padding: 4px 10px; /* Уменьшена высота (было 6px) */
     border-radius: 4px 4px 0 0;
+    font-size: 12px;
+    background-color: #f1f3f5; /* Фиксированный фон, как в GitHub */
+    border: 1px solid #d0d7de;
+    border-bottom: none;
 }
 
 .code-control-btn {
     background: #ffffff;
-    border: 1px solid #b3e5fc;
-    border-radius: 3px;
-    padding: 5px 10px;
-    font-size: 12px;
+    border: 1px solid #d0d7de;
+    border-radius: 6px;
+    padding: 3px 8px; /* Уменьшены отступы — кнопки компактнее */
     cursor: pointer;
-    transition: all 0.2s;
-    color: #01579b;
     font-family: Arial, sans-serif;
+    transition: all 0.2s ease;
+    min-width: 50px;
+    text-align: center;
+    font-size: 11px;
+    color: #24292f; /* Текст как в GitHub */
 }
 
 .code-control-btn:hover {
-    background: #b3e5fc;
-    color: #01579b;
+    background: #f6f8fa;
+    border-color: #6c757d;
+    color: #000;
 }
 
-/* 6. Стили для раскраски синтаксиса Python */
+/* === Темы оформления (только для самого кода) === */
+
+/* Светлая */
+.theme-light .code-block,
+.theme-light .command-line {
+    background-color: #ffffff;
+    color: #000000;
+    border-color: #ddd;
+}
+
+/* Тёмная */
+.theme-dark .code-block,
+.theme-dark .command-line {
+    background-color: #1e1e1e;
+    color: #d4d4d4;
+    border-color: #333;
+}
+
+/* GitHub */
+.theme-github .code-block,
+.theme-github .command-line {
+    background-color: #f6f8fa;
+    color: #24292f;
+    border-color: #d0d7de;
+}
+
+/* === Подсветка синтаксиса === */
 .code-block {
-    background-color: #f8f9fa;
     border: none;
     border-radius: 0 0 4px 4px;
     padding: 1rem;
@@ -117,17 +141,17 @@
     transition: font-size 0.2s, font-weight 0.2s;
 }
 
-/* Стили для подсветки синтаксиса */
-.keyword { color: #9b59b6; font-weight: bold; }
-.function { color: #3498db; }
-.string { color: #e74c3c; }
-.number { color: #f39c12; }
-.comment { color: #95a5a6; font-style: italic; }
-.operator { color: #2c3e50; font-weight: bold; }
-.class-name { color: #2980b9; font-weight: bold; }
-.decorator { color: #16a085; }
+/* Цвета по темам — остаются */
+.keyword { color: #8942b3; font-weight: bold; }
+.function { color: #0056b3; }
+.string { color: #d63384; }
+.number { color: #b36f00; }
+.comment { color: #6c757d; font-style: italic; }
+.operator { color: #000000; font-weight: bold; }
+.class-name { color: #0056b3; font-weight: bold; }
+.decorator { color: #1a73e8; }
 .exception { color: #c0392b; }
-.boolean { color: #9b59b6; }
+.boolean { color: #8942b3; }
 .none { color: #7f8c8d; }
 .self { color: #27ae60; }
 .import { color: #d35400; }
@@ -153,30 +177,24 @@
 }
 
 .output-block {
-    background-color: #f5f5f5;
-    border-left: 4px solid #7f8c8d;
+    background-color: #f8f9fa;
+    border-left: 4px solid #6c757d;
     padding: 1rem;
     margin: 1rem 0;
     font-family: 'Courier New', monospace;
     color: #000000;
+    font-size: 0.95em;
 }
 
-/* Адаптивные стили */
+/* Адаптив */
 @media (max-width: 768px) {
     .code-controls {
-        flex-wrap: wrap;
+        gap: 4px;
+        padding: 4px 8px;
     }
-    
     .code-control-btn {
+        font-size: 10px;
         padding: 3px 6px;
-        font-size: 11px;
-    }
-    
-    .article-title {
-        font-size: 1.8rem;
-    }
-    
-    .section-title {
-        font-size: 1.5rem;
+        min-width: 45px;
     }
 }
