@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Основы Python - Мой сайт</title>
+  <script src="layout.js" defer></script>
+</head>
+<body>
+  <my-layout>
+    <h1 class="article-title">Основные операторы в Python</h1>
+    
+    <p>Python - это мощный и удобный язык программирования с простым синтаксисом. В этой статье рассмотрим основные операторы Python с примерами кода.</p>
+    
+    <section>
+      <h2 class="section-title">1. Арифметические операторы</h2>
+      <p>Python поддерживает все основные арифметические операции:</p>
+      
+      <div class="code-block">
+        <span class="comment"># Сложение, вычитание, умножение, деление</span><br>
+        <span class="keyword">print</span>(<span class="number">10</span> <span class="operator">+</span> <span class="number">5</span>)  <span class="comment"># 15</span><br>
+        <span class="keyword">print</span>(<span class="number">10</span> <span class="operator">-</span> <span class="number">5</span>)  <span class="comment"># 5</span><br>
+        <span class="keyword">print</span>(<span class="number">10</span> <span class="operator">*</span> <span class="number">5</span>)  <span class="comment"># 50</span><br>
+        <span class="keyword">print</span>(<span class="number">10</span> <span class="operator">/</span> <span class="number">5</span>)  <span class="comment"># 2.0</span><br><br>
+        
+        <span class="comment"># Целочисленное деление и остаток от деления</span><br>
+        <span class="keyword">print</span>(<span class="number">10</span> <span class="operator">//</span> <span class="number">3</span>) <span class="comment"># 3</span><br>
+        <span class="keyword">print</span>(<span class="number">10</span> <span class="operator">%</span> <span class="number">3</span>)  <span class="comment"># 1</span><br><br>
+        
+        <span class="comment"># Возведение в степень</span><br>
+        <span class="keyword">print</span>(<span class="number">2</span> <span class="operator">**</span> <span class="number">3</span>)  <span class="comment"># 8</span>
+      </div>
+    </section>
+    
+    <section>
+      <h2 class="section-title">2. Операторы сравнения</h2>
+      <p>Используются для сравнения двух значений и возвращают <span class="boolean">True</span> или <span class="boolean">False</span>:</p>
+      
+      <div class="code-block">
+        <span class="keyword">print</span>(<span class="number">10</span> <span class="operator">==</span> <span class="number">10</span>)  <span class="comment"># True</span><br>
+        <span class="keyword">print</span>(<span class="number">10</span> <span class="operator">!=</span> <span class="number">5</span>)   <span class="comment"># True</span><br>
+        <span class="keyword">print</span>(<span class="number">10</span> <span class="operator">></span> <span class="number">5</span>)    <span class="comment"># True</span><br>
+        <span class="keyword">print</span>(<span class="number">10</span> <span class="operator"><</span> <span class="number">5</span>)    <span class="comment"># False</span><br>
+        <span class="keyword">print</span>(<span class="number">10</span> <span class="operator">>=</span> <span class="number">10</span>)  <span class="comment"># True</span><br>
+        <span class="keyword">print</span>(<span class="number">10</span> <span class="operator"><=</span> <span class="number">5</span>)   <span class="comment"># False</span>
+      </div>
+    </section>
+    
+    <section>
+      <h2 class="section-title">3. Логические операторы</h2>
+      <p>Используются для комбинирования условных операторов:</p>
+      
+      <div class="code-block">
+        <span class="comment"># and - логическое И</span><br>
+        <span class="keyword">print</span>(<span class="boolean">True</span> <span class="operator">and</span> <span class="boolean">False</span>)  <span class="comment"># False</span><br><br>
+        
+        <span class="comment"># or - логическое ИЛИ</span><br>
+        <span class="keyword">print</span>(<span class="boolean">True</span> <span class="operator">or</span> <span class="boolean">False</span>)   <span class="comment"># True</span><br><br>
+        
+        <span class="comment"># not - логическое НЕ</span><br>
+        <span class="keyword">print</span>(<span class="operator">not</span> <span class="boolean">True</span>)       <span class="comment"># False</span>
+      </div>
+      
+      <h3 class="subsection-title">Пример использования в условии</h3>
+      <div class="code-block">
+        <span class="keyword">if</span> age <span class="operator">>=</span> <span class="number">18</span> <span class="operator">and</span> age <span class="operator"><=</span> <span class="number">65</span>:<br>
+        <span class="indent-1 keyword">print</span>(<span class="string">"Вы можете работать"</span>)
+      </div>
+    </section>
+    
+    <section>
+      <h2 class="section-title">4. Операторы присваивания</h2>
+      <p>Используются для присваивания значений переменным:</p>
+      
+      <div class="code-block">
+        <span class="comment"># Простое присваивание</span><br>
+        x <span class="operator">=</span> <span class="number">10</span><br><br>
+        
+        <span class="comment"># Комбинированные операторы</span><br>
+        x <span class="operator">+=</span> <span class="number">5</span>   <span class="comment"># x = x + 5</span><br>
+        x <span class="operator">-=</span> <span class="number">3</span>   <span class="comment"># x = x - 3</span><br>
+        x <span class="operator">*=</span> <span class="number">2</span>   <span class="comment"># x = x * 2</span><br>
+        x <span class="operator">/=</span> <span class="number">4</span>   <span class="comment"># x = x / 4</span>
+      </div>
+    </section>
+    
+    <section>
+      <h2 class="section-title">5. Операторы принадлежности</h2>
+      <p>Проверяют, есть ли значение в последовательности:</p>
+      
+      <div class="code-block">
+        numbers <span class="operator">=</span> [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]<br>
+        <span class="keyword">print</span>(<span class="number">3</span> <span class="operator">in</span> numbers)      <span class="comment"># True</span><br>
+        <span class="keyword">print</span>(<span class="number">6</span> <span class="operator">not in</span> numbers)  <span class="comment"># True</span>
+      </div>
+    </section>
+    
+    <section>
+      <h2 class="section-title">6. Операторы идентичности</h2>
+      <p>Проверяют, ссылаются ли переменные на один и тот же объект:</p>
+      
+      <div class="code-block">
+        x <span class="operator">=</span> [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]<br>
+        y <span class="operator">=</span> x<br>
+        z <span class="operator">=</span> [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]<br><br>
+        
+        <span class="keyword">print</span>(x <span class="operator">is</span> y)      <span class="comment"># True (это один и тот же объект)</span><br>
+        <span class="keyword">print</span>(x <span class="operator">is</span> z)      <span class="comment"># False (разные объекты с одинаковым содержимым)</span><br>
+        <span class="keyword">print</span>(x <span class="operator">is not</span> z)  <span class="comment"># True</span>
+      </div>
+    </section>
+    
+    <section>
+      <h2 class="section-title">7. Установка Python и запуск скриптов</h2>
+      <p>Для работы с Python его нужно сначала установить. Вот как это сделать в разных ОС:</p>
+      
+      <h3 class="subsection-title">Установка на Windows</h3>
+      <p class="strong-text">Рекомендуется использовать официальный установщик с сайта python.org</p>
+      <p>После установки проверьте версию Python:</p>
+      
+      <div class="command-line">python --version</div>
+      
+      <h3 class="subsection-title">Запуск скриптов</h3>
+      <p>Чтобы выполнить Python-скрипт, используйте команду:</p>
+      
+      <div class="command-line">python script.py</div>
+      
+      <p class="strong-italic">Где script.py - имя вашего файла с кодом.</p>
+    </section>
+    
+    <section>
+      <h2 class="section-title">8. Пример программы</h2>
+      <p>Вот пример простой программы на Python, использующей несколько операторов:</p>
+      
+      <div class="code-block">
+        <span class="comment"># Программа проверяет, является ли число простым</span><br>
+        <span class="keyword">def</span> <span class="function">is_prime</span>(n):<br>
+        <span class="indent-1 keyword">if</span> n <span class="operator"><=</span> <span class="number">1</span>:<br>
+        <span class="indent-2 keyword">return</span> <span class="boolean">False</span><br>
+        <span class="indent-1 keyword">for</span> i <span class="keyword">in</span> <span class="function">range</span>(<span class="number">2</span>, <span class="function">int</span>(n<span class="operator">**</span><span class="number">0.5</span>) <span class="operator">+</span> <span class="number">1</span>):<br>
+        <span class="indent-2 keyword">if</span> n <span class="operator">%</span> i <span class="operator">==</span> <span class="number">0</span>:<br>
+        <span class="indent-3 keyword">return</span> <span class="boolean">False</span><br>
+        <span class="indent-1 keyword">return</span> <span class="boolean">True</span><br><br>
+        
+        <span class="comment"># Проверка работы функции</span><br>
+        number <span class="operator">=</span> <span class="function">int</span>(<span class="function">input</span>(<span class="string">"Введите число: "</span>))<br>
+        <span class="keyword">if</span> <span class="function">is_prime</span>(number):<br>
+        <span class="indent-1 keyword">print</span>(<span class="string">f"Число {number} является простым"</span>)<br>
+        <span class="keyword">else</span>:<br>
+        <span class="indent-1 keyword">print</span>(<span class="string">f"Число {number} не является простым"</span>)
+      </div>
+      
+      <div class="output-block">
+        <span class="comment"># Пример вывода программы:</span><br>
+        Введите число: 17<br>
+        Число 17 является простым
+      </div>
+    </section>
+    
+    <section>
+      <h2 class="section-title">Заключение</h2>
+      <p>Мы рассмотрели <span class="strong-text">основные операторы Python</span>, которые являются фундаментом для написания любых программ на этом языке.</p>
+      <p class="strong-italic">Для более глубокого изучения Python рекомендуется практиковаться и изучать официальную документацию.</p>
+    </section>
+  </my-layout>
+</body>
+</html>

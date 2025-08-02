@@ -1,0 +1,170 @@
+/* python.css - Стили для статей о Python */
+
+/* 1. Заголовки статей */
+.article-title {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #3498db;
+}
+
+/* 2. Заголовки разделов */
+.section-title {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: #2980b9;
+    margin: 2rem 0 1rem 0;
+}
+
+.subsection-title {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #16a085;
+    margin: 1.5rem 0 0.8rem 0;
+}
+
+/* 3. Выделение жирным в тексте */
+.strong-text {
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+/* 4. Выделение жирным курсивом в тексте */
+.strong-italic {
+    font-weight: bold;
+    font-style: italic;
+    color: #e74c3c;
+}
+
+/* 5. Стиль для команд в командной строке */
+.command-line {
+    display: block;
+    background-color: #2c3e50;
+    color: #ecf0f1;
+    padding: 0.8rem 1rem;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    margin: 1rem 0;
+    overflow-x: auto;
+    white-space: nowrap;
+}
+
+.command-line::before {
+    content: '$ ';
+    color: #95a5a6;
+}
+
+/* 6. Стили для раскраски синтаксиса Python */
+.code-block {
+    background-color: #f8f9fa;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 1rem;
+    margin: 1rem 0;
+    overflow-x: auto;
+    font-family: 'Courier New', monospace;
+    line-height: 1.5;
+}
+
+/* Ключевые слова Python */
+.keyword {
+    color: #9b59b6;
+    font-weight: bold;
+}
+
+/* Имена функций */
+.function {
+    color: #3498db;
+}
+
+/* Строки */
+.string {
+    color: #e74c3c;
+}
+
+/* Числа */
+.number {
+    color: #f39c12;
+}
+
+/* Комментарии */
+.comment {
+    color: #95a5a6;
+    font-style: italic;
+}
+
+/* Операторы */
+.operator {
+    color: #2c3e50;
+    font-weight: bold;
+}
+
+/* Имена классов */
+.class-name {
+    color: #2980b9;
+    font-weight: bold;
+}
+
+/* Декораторы */
+.decorator {
+    color: #16a085;
+}
+
+/* Исключения */
+.exception {
+    color: #c0392b;
+}
+
+/* Булевы значения */
+.boolean {
+    color: #9b59b6;
+}
+
+/* None */
+.none {
+    color: #7f8c8d;
+}
+
+/* Self */
+.self {
+    color: #27ae60;
+}
+
+/* Импорты */
+.import {
+    color: #d35400;
+}
+
+/* Дополнительные стили для лучшего отображения кода */
+.indent-1 { padding-left: 1em; }
+.indent-2 { padding-left: 2em; }
+.indent-3 { padding-left: 3em; }
+.indent-4 { padding-left: 4em; }
+
+/* Подсветка важных частей кода */
+.highlight {
+    background-color: #fffde7;
+    padding: 0 0.2em;
+    border-radius: 2px;
+}
+
+/* Стиль для inline кода */
+.inline-code {
+    background-color: #f0f0f0;
+    padding: 0.2em 0.4em;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+    color: #c7254e;
+}
+
+/* Стиль для блоков с примерами вывода */
+.output-block {
+    background-color: #f5f5f5;
+    border-left: 4px solid #7f8c8d;
+    padding: 1rem;
+    margin: 1rem 0;
+    font-family: 'Courier New', monospace;
+}
