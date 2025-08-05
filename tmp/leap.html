@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Unit-тесты</title>
+</head>
+<body>
+  <header>
+    <h1>Unit-тесты</h1>
+    <div class="controls"></div>
+  </header>
+
+
+  <h2>1. Пример. Високосный год</h2>
+  <p>Функция для определения, является ли год високосным.</p>
+
+  <pre class="line-numbers"><code class="language-python"># -*- coding: utf-8 -*-
+# файл: utils.py
+# get_year_type возвращает "високосный" для високосных годов
+# и "обычный" для не високосных
+def get_year_type(year):
+    if not isinstance(year, int):
+        return "Год должен быть целым числом"
+    if year < 1:
+        return "Год должен быть натуральным (>= 1)"
+    if year % 400 == 0:
+        return "високосный"
+    if year % 100 == 0:
+        return "обычный"
+    if year % 4 == 0:
+        return "високосный"
+    return "обычный"
+  </code></pre>
+
+  <p>Скопируйте её себе.</p>
+
+  <script src="scripts.js"></script>
+</body>
+</html>
