@@ -1,0 +1,166 @@
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  padding: 20px;
+  max-width: 900px;
+  margin: 0 auto;
+  line-height: 1.6;
+  color: #333;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+h1, h2, h3 {
+  color: #2c3e50;
+}
+
+.controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.theme-buttons {
+  display: flex;
+  gap: 6px;
+}
+
+.theme-btn {
+  padding: 6px 10px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  background: #f8f9fa;
+  color: #333;
+  border-radius: 6px;
+  cursor: pointer;
+  min-width: 80px;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.theme-btn:hover {
+  background: #e9ecef;
+}
+
+.theme-btn.active {
+  background: #007acc !important;
+  color: white !important;
+  border-color: #007acc !important;
+  box-shadow: 0 0 0 2px rgba(0, 122, 204, 0.3);
+}
+
+.btn-theme-solarizedlight { background: #fdf6e3; color: #657b83; }
+.btn-theme-solarizedlight:hover { border-color: #eee8d5; }
+.btn-theme-coy { background: #fdfdfd; color: #333; }
+.btn-theme-coy:hover { border-color: #e5e5e5; }
+.btn-theme-okaidia { background: #2d2d2d; color: #cccccc; }
+.btn-theme-okaidia:hover { border-color: #555; }
+.btn-theme-tomorrow { background: #1d1f21; color: #c5c8c6; }
+.btn-theme-tomorrow:hover { border-color: #333; }
+
+p, ul, ol, blockquote {
+  margin: 1em 0;
+}
+
+ul, ol {
+  padding-left: 2em;
+}
+
+blockquote {
+  padding: 0.5em 1em;
+  background: #f5f5f5;
+  border-left: 4px solid #ccc;
+  color: #555;
+  font-style: italic;
+}
+
+.font-controls {
+  display: flex;
+  gap: 6px;
+}
+
+.font-btn {
+  padding: 4px 8px;
+  font-size: 16px;
+  cursor: pointer;
+  background: #007acc;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  width: 36px;
+  height: 36px;
+  font-weight: bold;
+}
+
+.font-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+code {
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: 15px;
+  line-height: 1.4;
+}
+
+pre {
+  position: relative;
+  margin: 1.5em 0;
+  border-radius: 6px;
+  overflow: hidden;
+  padding-top: 35px;
+}
+
+.copy-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #444;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  font-size: 0.85em;
+  cursor: pointer;
+  border-radius: 4px;
+  opacity: 0.9;
+  transition: opacity 0.2s, background 0.2s;
+  z-index: 10;
+}
+
+.copy-button:hover {
+  opacity: 1;
+  background: #222;
+}
+
+.copy-button.copied {
+  background: #4CAF50;
+}
+
+.copy-button::after {
+  content: "Скопировать в буфер";
+  position: absolute;
+  bottom: 100%;
+  right: 0;
+  transform: translateY(-8px);
+  background: #333;
+  color: white;
+  padding: 4px 8px;
+  font-size: 13px;
+  border-radius: 4px;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.2s;
+  z-index: 20;
+  font-family: sans-serif;
+  pointer-events: none;
+}
+
+.copy-button:hover::after {
+  opacity: 1;
+}

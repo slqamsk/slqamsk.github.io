@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Prism.js — Полная демонстрация</title>
+</head>
+<body>
+  <header>
+    <h1>Prism.js — Демонстрация подсветки кода</h1>
+    <div class="controls"></div>
+  </header>
+
+  <p>Эта страница демонстрирует возможности библиотеки <strong>Prism.js</strong> — подсветку синтаксиса, переключение тем, копирование кода и управление размером шрифта. Ниже — примеры кода на Python, HTML, CSS и JavaScript.</p>
+
+  <blockquote>Вы можете переключать темы, чтобы посмотреть, как они влияют на читаемость кода и обычного текста.</blockquote>
+
+  <h2>1. Пример на Python: Рекурсия</h2>
+  <p>Функция для вычисления факториала с помощью рекурсии.</p>
+
+  <pre class="line-numbers"><code class="language-python">
+def factorial(n):
+    if n == 0:
+        return 1
+    return n * factorial(n - 1)
+
+# Вызов
+result = factorial(5)
+print(f"Факториал 5 = {result}")
+  </code></pre>
+
+  <p>Рекурсия — мощный инструмент, но требует осторожности: при большом числе вызовов возможен переполнение стека.</p>
+
+  <h2>2. Пример на HTML</h2>
+  <p>Простая структура HTML-страницы.</p>
+
+  <pre class="line-numbers"><code class="language-html">
+&lt;!DOCTYPE html&gt;
+&lt;html lang="ru"&gt;
+&lt;head&gt;
+  &lt;meta charset="UTF-8" /&gt;
+  &lt;title&gt;Пример&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;Здравствуй, мир!&lt;/h1&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+  </code></pre>
+
+  <h2>3. Пример на CSS</h2>
+  <p>Стили для кнопки с плавным эффектом.</p>
+
+  <pre class="line-numbers"><code class="language-css">
+.button {
+  padding: 10px 20px;
+  background: #007acc;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.button:hover {
+  background: #005a99;
+}
+  </code></pre>
+
+  <h2>4. Пример на JavaScript</h2>
+  <p>Функция для поиска максимального числа в массиве.</p>
+
+  <pre class="line-numbers"><code class="language-javascript">
+function findMax(arr) {
+  if (arr.length === 0) return null;
+  return Math.max(...arr);
+}
+
+const numbers = [3, 7, 2, 9, 1];
+console.log("Максимум:", findMax(numbers));
+  </code></pre>
+
+  <p>Функция использует spread-оператор <code>...</code> и встроенную функцию <code>Math.max()</code>.</p>
+
+  <blockquote>Prism.js автоматически подсвечивает синтаксис всех поддерживаемых языков: Python, HTML, CSS, JavaScript, Bash и многие другие.</blockquote>
+
+  <h2>5. Команда Windows (cmd)</h2>
+  <p>Поиск всех текстовых файлов в папке пользователя.</p>
+
+  <pre><code class="language-batch">
+dir /s /b C:\Users\*.txt
+  </code></pre>
+
+  <p>Эта команда полезна для поиска файлов по расширению.</p>
+
+  <script src="scripts.js"></script>
+</body>
+</html>
