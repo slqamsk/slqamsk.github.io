@@ -12,13 +12,12 @@
   </header>
 
 
-  <h2>1. Пример. Високосный год</h2>
-  <p>Функция для определения, является ли год високосным.</p>
-
+  <h2>1. Пример. Функция get_year_type</h2>
+  <p>Функция для определения, является ли год високосным. Файл utils.py</p>
   <pre class="line-numbers"><code class="language-python"># -*- coding: utf-8 -*-
 # файл: utils.py
-# get_year_type возвращает "високосный" для високосных годов
-# и "обычный" для не високосных
+# get_year_type для високосных годов возвращает "високосный", 
+# а для не високосных возвращает "обычный" 
 def get_year_type(year):
     if not isinstance(year, int):
         return "Год должен быть целым числом"
@@ -33,8 +32,95 @@ def get_year_type(year):
     return "обычный"
   </code></pre>
 
-  <p>Скопируйте её себе.</p>
 
+  <h2>2. Пример. Юнит-тесты для функции get_year_type</h2>
+  <p>Юнит-тесты для тестирования этой функции. Файл test_get_year_type.py</p>
+  <pre class="line-numbers"><code class="language-python"># -*- coding: utf-8 -*-
+# файл: test_utils.py
+from utils import get_year_type
+
+def test_non_leap_year():
+    assert get_year_type(2023) == "обычный"
+
+def test_leap_year():
+    assert get_year_type(2024) == "високосный"
+
+def test_divisible_by_100_but_not_400():
+    assert get_year_type(1900) == "обычный"
+
+def test_leap_year_divisible_by_400():
+    assert get_year_type(1600) == "високосный"
+
+def test_negative_year():
+    assert get_year_type(-1) == "Год должен быть натуральным (>= 1)"
+
+def test_zero_year():
+    assert get_year_type(0) == "Год должен быть натуральным (>= 1)"
+
+def test_float_input():
+    assert get_year_type(2020.5) == "Год должен быть целым числом"
+
+def test_string_input():
+    assert get_year_type("2020") == "Год должен быть целым числом"
+  </code></pre>
+
+  <h2>3. Собираем всё вместе </h2>
+  <p>Создайте проект UnitTest. <br>
+  Файл utils.py разместите в корне проекта. <br>
+  Файл test_utils.py разместите в папке tests. <br>
+  Для того, чтобы срабатывал импорт <span class="inline-code">from utils import get_year_type</span>, 
+    в папку tests надо добавить файл __init__.py</p>
+  <p>В итоге структура проекта будет выглядеть так: </p>
+  <pre><code class="language-text">
+C:/
+└── AT-Python/
+    └── UnitTest/
+        ├── utils.py
+        └── tests/
+            ├── __init__.py
+            └── test_utils.py
+  </code></pre>
+  <p>Запустите юнит-тесты, убедитесь, что они успешно выполняются.</p>
+  <p>Закомментируйте в функции get_year_type проверки, убедитесь, что соответствующие юнит-тесты падают.</p>
+  <p></p>
+
+  <h2>4. Дополнительное задание - площадь треугольника</h2>
+  <p>Напишите функцию, которая получает 3 числа - длины сторон треугольника и вычисляет площать треугольника по формуле Герона: </p>
+  <div style="border: 1px solid #ccc; border-radius: 8px; padding: 16px; background: #f9f9f9; font-family: Arial, sans-serif; max-width: 500px; margin: 10px auto;">
+    <h3 style="color: #2c3e50; margin-top: 0;">Формула Герона</h3>
+    <p style="margin-bottom: 0;">Площадь треугольника со сторонами <i>a</i>, <i>b</i>, <i>c</i>:</p>
+    <math xmlns="http://www.w3.org/1998/Math/MathML" display="block" style="margin: 12px 0;">
+      <mi>S</mi>
+      <mo>=</mo>
+      <msqrt>
+        <mi>p</mi>
+        <mo>⋅</mo>
+        <mo>(</mo>
+        <mi>p</mi>
+        <mo>−</mo>
+        <mi>a</mi>
+        <mo>)</mo>
+        <mo>⋅</mo>
+        <mo>(</mo>
+        <mi>p</mi>
+        <mo>−</mo>
+        <mi>b</mi>
+        <mo>)</mo>
+        <mo>⋅</mo>
+        <mo>(</mo>
+        <mi>p</mi>
+        <mo>−</mo>
+        <mi>c</mi>
+        <mo>)</mo>
+      </msqrt>
+    </math>
+    <p style="margin-top: 0;">где <math><mi>p</mi><mo>=</mo><mfrac><mrow><mi>a</mi><mo>+</mo><mi>b</mi><mo>+</mo><mi>c</mi></mrow><mn>2</mn></mfrac></math> — полупериметр.</p>
+  </div>
+  <p>
+    Полупериметр: p = (a + b + c) / 2 <br>
+    Площадь: s = (p * (p - a) * (p - b) * (p - c)) ** 0.5
+  </p>
+  <p>И для этой функции напишите юнит-тесты.</p>
   <script src="scripts.js"></script>
 </body>
 </html>

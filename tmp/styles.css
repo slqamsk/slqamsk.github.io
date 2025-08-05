@@ -20,6 +20,17 @@ h1, h2, h3 {
   color: #2c3e50;
 }
 
+
+.inline-code {
+    white-space: nowrap;
+    background-color: #f0f0f0;
+    padding: 0.2em 0.4em;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+    color: #c7254e;
+}
+
 .controls {
   display: flex;
   gap: 10px;

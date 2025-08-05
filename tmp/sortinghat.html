@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Переключение между окнами</title>
+</head>
+<body>
+  <header>
+    <h1>Переключение между окнами</h1>
+    <div class="controls"></div>
+  </header>
+
+
+  <h2>1. Пример. Переключение между окнами.</h2>
+  <p>Как тестировать, если ссылка открыла новую вкладку: </p>
+  <pre class="line-numbers"><code class="language-python"># -*- coding: utf-8 -*-
+# файл: test_sorting_hat.py
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
+URL = "https://slqa.ru/cases/SortingHat/versions.html"
+VERSION = "02"
+
+def test_open_page_in_new_window():
+    driver = webdriver.Chrome()
+    driver.get(URL)
+    version_link = driver.find_element(By.LINK_TEXT, "Версия " + VERSION)
+    print("\nЧисло окон (вкладок) до клика: ", len(driver.window_handles))
+    version_link.click()
+    # Ждем появления второго окна
+    WebDriverWait(driver, 10).until(EC.number_of_windows_to_be(2))
+    print("\nЧисло окон (вкладок) после клика: ", len(driver.window_handles))
+    # Переключаемся на новое окно (индекс 1 - второе окно)
+    driver.switch_to.window(driver.window_handles[1])
+    # Проверяем заголовок новой страницы
+    assert driver.title == "Распределяющая Шляпа - Выбор факультета Хогвартса"
+    # Проверяем наличие основного заголовка на странице
+    start_title = driver.find_element(By.ID, "start-title")
+    assert start_title.text == "Распределяющая Шляпа"
+    # Закрываем новое окно
+    driver.close()
+    print("\nЧисло окон (вкладок) после закрытия окна: ", len(driver.window_handles))
+    # Переключаемся обратно на исходное окно (индекс 0 - первое окно)
+    driver.switch_to.window(driver.window_handles[0])
+    assert driver.title == "Распределяющая Шляпа - Все версии"
+    driver.quit()
+  </code></pre>
+
+  <p>Создайте новый проект SortingHat, в нём файл для тесто test_sorting_hat.py, скопируйте текст, 
+    запустите автотесты, убедитесь, что всё работает и вы понимаете, как всё работает.</p>
+
+  <h2>2. Задание на работу с несколькими окнами (вкладками):</h2>
+  <p>Напишите автотесты, которые на странице https://top-bootcamp-2025.github.io/ нажмут на любую кнопку "Открыть", 
+    после этого убедятся, что заголовки двух открытых окон (вкладок) - тег title - будут разные. 
+  </p>
+
+  <script src="scripts.js"></script>
+</body>
+</html>
