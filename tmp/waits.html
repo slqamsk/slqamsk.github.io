@@ -66,7 +66,7 @@ def test_dl_hidden():
   </code></pre>
 
 
-  <h2>2. Пример. Создание явного ожидания - невидимость.</h2>
+  <h2>3. Пример. Создание явного ожидания - невидимость.</h2>
   <p>
     Для предыдущего примера добавьте в конце автотеста нажатие кнопки "Скрыть" и проверки, что элемент с id равным message стал невидимым.
   </p>
@@ -107,18 +107,120 @@ def test_dl_hidden():
     driver.quit()
   </code></pre>
 
+  <h2>4. Пример. Создание явного ожидания - существование элемента.</h2>
+  <p>
+    Для страницы <a href="https://slqamsk.github.io/tmp/dl_removed.html">https://slqamsk.github.io/tmp/dl_removed.html</a> 
+    напишите автотест, который нажмёмт на кнопку "Добавить", дождётся, что элемент с id равным message появится 
+    и проверит, что он появился. 
+   </p>
+  <pre class="line-numbers"><code class="language-python"># -*- coding: utf-8 -*-
+# файл: test_sorting_hat.py
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions
 
+# URL тестовой страницы
+URL_HIDDEN = "https://slqamsk.github.io/tmp/dl_hidden.html"
+URL_REMOVED = "https://slqamsk.github.io/tmp/dl_removed.html"
+def test_dl_removed():
+    # Инициализация драйвера Chrome
+    driver = webdriver.Chrome()
+    # Ожидание с таймаутом 10 секунд
+    wait = WebDriverWait(driver, 10)
+    # Локатор элемента с сообщением
+    locator = (By.ID, "message")
+    # Открытие тестовой страницы
+    driver.get(URL_REMOVED)
+    # Нажатие кнопки "Показать"
+    driver.find_element(By.ID, "addBtn").click()
+    # Ожидание появления элемента
+    condition = expected_conditions.presence_of_element_located(locator)
+    wait.until(condition)
+    # Проверка, что элемента нет
+    elements = driver.find_elements(*locator)
+    assert len(elements) == 1
+    # Закрытие браузера (неявно происходит при завершении функции)
+    driver.quit()
+  </code></pre>
 
-  <h2>2. Задание на работу с несколькими окнами (вкладками):</h2>
-  <p>Напишите автотесты, которые на странице https://the-internet.herokuapp.com/windows нажмут на ссылку "Click Here", 
-    после этого убедятся, что в новом окне есть элемент h3 с текстом "New Window". 
+    <h2>5. Пример. Создание явного ожидания - исчезновение элемента.</h2>
+  <p>
+    Для предыдущего примера добавьте в конце автотеста нажатие кнопки "Удалить" и проверки, 
+    что элемент с id равным message исчез со страницы.
   </p>
+  <pre class="line-numbers"><code class="language-python"># -*- coding: utf-8 -*-
+# файл: test_sorting_hat.py
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions
 
-  <h2>3. Дополнительное задание на работу с несколькими окнами (вкладками):</h2>
-  <p>Напишите автотесты, которые на странице https://top-bootcamp-2025.github.io/ нажмут на любую ссылку "Открыть", 
-    после этого убедятся, что заголовки двух открытых окон (вкладок) - тег title - будут разные. 
-  </p>
-  
+# URL тестовой страницы
+URL_HIDDEN = "https://slqamsk.github.io/tmp/dl_hidden.html"
+URL_REMOVED = "https://slqamsk.github.io/tmp/dl_removed.html"
+def test_dl_removed():
+    # Инициализация драйвера Chrome
+    driver = webdriver.Chrome()
+    # Ожидание с таймаутом 10 секунд
+    wait = WebDriverWait(driver, 10)
+    # Локатор элемента с сообщением
+    locator = (By.ID, "message")
+    # Открытие тестовой страницы
+    driver.get(URL_REMOVED)
+    # Нажатие кнопки "Показать"
+    driver.find_element(By.ID, "addBtn").click()
+    # Ожидание появления элемента
+    condition = expected_conditions.presence_of_element_located(locator)
+    wait.until(condition)
+    # Проверка, что элемента нет
+    elements = driver.find_elements(*locator)
+    assert len(elements) == 1
+    # Нажатие кнопки "Скрыть"
+    driver.find_element(By.ID, "removeBtn").click()
+    # Ожидание, когда элемент пропадёт
+    condition = expected_conditions.presence_of_element_located(locator)
+    wait.until_not(condition)
+    # Проверка, что элемент есть
+    elements = driver.find_elements(*locator)
+    assert len(elements) == 0
+    # Закрытие браузера (неявно происходит при завершении функции)
+    driver.quit()
+  </code></pre>
+
+  <h2>6. Самостоятельное задание на ожидание видимости элемента</h2>
+  <p>
+    Для страницы <a href="https://the-internet.herokuapp.com/dynamic_loading/1">
+      https://the-internet.herokuapp.com/dynamic_loading/1</a> 
+    напишите автотест, который нажмёмт на кнопку "Start", дождётся, 
+    что появился текст Hello World! 
+   </p>
+
+  <h2>7. Самостоятельное задание на ожидание появления элемента</h2>
+  <p>
+    Для страницы <a href="https://the-internet.herokuapp.com/dynamic_loading/2">
+      https://the-internet.herokuapp.com/dynamic_loading/2</a> 
+    напишите автотест, который нажмёмт на кнопку "Start", дождётся, 
+    что появился текст Hello World! 
+   </p>
+
+
+  <h2>8. Самостоятельное задание на ожидание появления элемента</h2>
+  <p>
+    Для страницы <a href="https://the-internet.herokuapp.com/dynamic_controls">
+      https://the-internet.herokuapp.com/dynamic_controls</a> 
+    напишите автотест, который нажмёмт на кнопки "Remove", "Add" и дождётся, 
+    удаления, появления элемента чек-бокс.
+   </p>
+
+  <h2>9. Самостоятельное задание на ожидание доступности элемента</h2>
+  <p>
+    Для страницы <a href="https://the-internet.herokuapp.com/dynamic_controls">
+      https://the-internet.herokuapp.com/dynamic_controls</a> 
+    напишите автотест, который нажмёмт на кнопки "Enable" и дождётся, 
+    когда поле редактирования станет доступным для редактирования и после этого 
+    напечатайте в нём своё имя.
+   </p>
 
   <script src="scripts.js"></script>
 </body>
