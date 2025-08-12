@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Явные ожидания</title>
+</head>
+<body>
+  <header>
+    <h1>Явные ожидания</h1>
+    <div class="controls"></div>
+  </header>
+
+  <h2>1. Предварительное задание.</h2>
+
+  <p>Создайте новый проект ExplicitWaits. Выполните 2 команды: </p>
+
+  <pre><code class="language-batch">
+python -m pip install --upgrade pip
+  </code></pre>
+
+  <pre><code class="language-batch">
+pip install pytest selenium
+  </code></pre>
+
+  <p>В проекте ExplicitWaits создайте папку tests, в ней файл для тестов test_explicit_waits.py, 
+    добавьте в этот файл тест, который откроет страницу: 
+    <a href="https://slqamsk.github.io/tmp/dl_hidden.html">https://slqamsk.github.io/tmp/dl_hidden.html</a>, 
+    нажмёт кнопку показать и проверит, что элемент с id равным message видим на странице. <br>
+    Запустите автотест, убедитесь, что без наличия явных ожиданий возникает ошибка.
+  </p>
+
+  <h2>2. Пример. Создание явного ожидания - видимость.</h2>
+  <p>
+    Для страницы <a href="https://slqamsk.github.io/tmp/dl_hidden.html">https://slqamsk.github.io/tmp/dl_hidden.html</a> 
+    напишите автотест, который нажмёмт на кнопку "Показать", дождётся, что элемент с id равным message станет видимым и проверит, что он видимый. 
+  </p>
+  <pre class="line-numbers"><code class="language-python"># -*- coding: utf-8 -*-
+# файл: test_explicit_waits.py
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions
+
+# URL тестовой страницы
+URL = "https://slqamsk.github.io/tmp/dl_hidden.html"
+
+def test_dl_hidden():
+    # Инициализация драйвера Chrome
+    driver = webdriver.Chrome()
+    # Ожидание с таймаутом 10 секунд
+    wait = WebDriverWait(driver, 10)
+    # Локатор элемента с сообщением
+    locator = (By.ID, "message")
+    # Открытие тестовой страницы
+    driver.get(URL)
+    # Нажатие кнопки "Показать"
+    driver.find_element(By.ID, "showBtn").click()
+    # Ожидание видимости элемента
+    condition = expected_conditions.visibility_of_element_located(locator)
+    wait.until(condition)
+    # Проверка, что элемент отображается
+    assert driver.find_element(*locator).is_displayed()
+    # Закрытие браузера (неявно происходит при завершении функции)
+    driver.quit()
+  </code></pre>
+
+
+  <h2>2. Пример. Создание явного ожидания - невидимость.</h2>
+  <p>
+    Для предыдущего примера добавьте в конце автотеста нажатие кнопки "Скрыть" и проверки, что элемент с id равным message стал невидимым.
+  </p>
+  <pre class="line-numbers"><code class="language-python"># -*- coding: utf-8 -*-
+# файл: test_explicit_waits.py
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions
+
+# URL тестовой страницы
+URL = "https://slqamsk.github.io/tmp/dl_hidden.html"
+
+def test_dl_hidden():
+    # Инициализация драйвера Chrome
+    driver = webdriver.Chrome()
+    # Ожидание с таймаутом 10 секунд
+    wait = WebDriverWait(driver, 10)
+    # Локатор элемента с сообщением
+    locator = (By.ID, "message")
+    # Открытие тестовой страницы
+    driver.get(URL)
+    # Нажатие кнопки "Показать"
+    driver.find_element(By.ID, "showBtn").click()
+    # Ожидание видимости элемента
+    condition = expected_conditions.visibility_of_element_located(locator)
+    wait.until(condition)
+    # Проверка, что элемент отображается
+    assert driver.find_element(*locator).is_displayed()
+    # Нажатие кнопки "Скрыть"
+    driver.find_element(By.ID, "hideBtn").click()
+    # Ожидание невидимости элемента
+    condition = expected_conditions.invisibility_of_element_located(locator)
+    wait.until(condition)
+    # Проверка, что элемент не отображается
+    assert not driver.find_element(*locator).is_displayed()
+    # Закрытие браузера (неявно происходит при завершении функции)
+    driver.quit()
+  </code></pre>
+
+
+
+  <h2>2. Задание на работу с несколькими окнами (вкладками):</h2>
+  <p>Напишите автотесты, которые на странице https://the-internet.herokuapp.com/windows нажмут на ссылку "Click Here", 
+    после этого убедятся, что в новом окне есть элемент h3 с текстом "New Window". 
+  </p>
+
+  <h2>3. Дополнительное задание на работу с несколькими окнами (вкладками):</h2>
+  <p>Напишите автотесты, которые на странице https://top-bootcamp-2025.github.io/ нажмут на любую ссылку "Открыть", 
+    после этого убедятся, что заголовки двух открытых окон (вкладок) - тег title - будут разные. 
+  </p>
+  
+
+  <script src="scripts.js"></script>
+</body>
+</html>
