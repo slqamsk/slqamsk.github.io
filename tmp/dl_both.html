@@ -50,6 +50,11 @@
             font-weight: bold;
             font-size: 18px;
         }
+        .message {
+            color: #2196F3;
+            font-weight: bold;
+            font-size: 18px;
+        }
     </style>
 </head>
 <body>
@@ -57,7 +62,7 @@
     <p>Используйте кнопки для управления видимостью элемента</p>
     
     <div class="content-box">
-        <div id="message">Hello World!</div>
+        <div id="message1">Hello World!</div>
     </div>
     
     <div class="buttons">
@@ -67,9 +72,24 @@
     
     <div id="loading">Загрузка...</div>
 
+
+
+    <p>Используйте кнопки для добавления и удаления элемента</p>
+    
+    <div class="content-box" id="container">
+        <!-- Элемент будет добавляться сюда динамически -->
+    </div>
+    
+    <div class="buttons">
+        <button id="addBtn">Добавить</button>
+        <button id="removeBtn">Удалить</button>
+    </div>
+    
+    <div id="loading">Загрузка...</div>
+    
     <script>
         const loadingDiv = document.getElementById('loading');
-        const messageDiv = document.getElementById('message');
+        const messageDiv = document.getElementById('message1');
         const showBtn = document.getElementById('showBtn');
         const hideBtn = document.getElementById('hideBtn');
         
@@ -89,6 +109,45 @@
                 loadingDiv.style.display = 'none';
                 messageDiv.style.display = 'none';
             }, 5000);
+        });
+    </script>
+    <script>
+        const loadingDiv = document.getElementById('loading');
+        const container = document.getElementById('container');
+        const addBtn = document.getElementById('addBtn');
+        const removeBtn = document.getElementById('removeBtn');
+        
+        // Функция для создания элемента сообщения
+        function createMessageElement() {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message2';
+            messageDiv.id = 'message2';
+            messageDiv.textContent = 'Hello World!';
+            return messageDiv;
+        }
+        
+        addBtn.addEventListener('click', function() {
+            // Проверяем, нет ли уже сообщения
+            if (!document.getElementById('message2')) {
+                loadingDiv.style.display = 'block';
+                
+                setTimeout(function() {
+                    loadingDiv.style.display = 'none';
+                    container.appendChild(createMessageElement());
+                }, 5000);
+            }
+        });
+        
+        removeBtn.addEventListener('click', function() {
+            const messageDiv = document.getElementById('message2');
+            if (messageDiv) {
+                loadingDiv.style.display = 'block';
+                
+                setTimeout(function() {
+                    loadingDiv.style.display = 'none';
+                    container.removeChild(messageDiv);
+                }, 5000);
+            }
         });
     </script>
 </body>
