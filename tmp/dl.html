@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Динамическая загрузка элементов</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        .buttons {
+            margin: 20px auto;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        #showBtn {
+            background-color: #4CAF50;
+            color: white;
+        }
+        #hideBtn {
+            background-color: #f44336;
+            color: white;
+        }
+        button:hover {
+            opacity: 0.9;
+        }
+        #loading {
+            display: none;
+            margin: 20px auto;
+            color: #555;
+        }
+        .content-box {
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            width: 300px;
+            height: 100px;
+            margin: 20px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f9f9f9;
+        }
+        #message {
+            display: none;
+            color: #2196F3;
+            font-weight: bold;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Динамическая загрузка элементов</h2>
+    <p>Используйте кнопки для управления видимостью элемента</p>
+    
+    <div class="content-box">
+        <div id="message">Hello World!</div>
+    </div>
+    
+    <div class="buttons">
+        <button id="showBtn">Показать</button>
+        <button id="hideBtn">Скрыть</button>
+    </div>
+    
+    <div id="loading">Загрузка...</div>
+
+    <script>
+        const loadingDiv = document.getElementById('loading');
+        const messageDiv = document.getElementById('message');
+        const showBtn = document.getElementById('showBtn');
+        const hideBtn = document.getElementById('hideBtn');
+        
+        showBtn.addEventListener('click', function() {
+            loadingDiv.style.display = 'block';
+            hideBtn.disabled = false;
+            
+            setTimeout(function() {
+                loadingDiv.style.display = 'none';
+                messageDiv.style.display = 'block';
+                showBtn.disabled = true;
+            }, 5000);
+        });
+        
+        hideBtn.addEventListener('click', function() {
+            loadingDiv.style.display = 'block';
+            showBtn.disabled = false;
+            
+            setTimeout(function() {
+                loadingDiv.style.display = 'none';
+                messageDiv.style.display = 'none';
+                hideBtn.disabled = true;
+            }, 5000);
+        });
+        
+        // Изначально скрываем кнопку "Скрыть"
+        hideBtn.disabled = true;
+    </script>
+</body>
+</html>
