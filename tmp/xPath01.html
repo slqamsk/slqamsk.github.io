@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Учебная страница с XPath</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+        }
+
+        .content {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 800px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .paragraph {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .special-paragraph {
+            color: #e74c3c;
+            font-weight: bold;
+            border-left: 3px solid #e74c3c;
+            padding-left: 10px;
+        }
+
+        .info-text {
+            color: #3498db;
+            font-style: italic;
+        }
+
+        .external-link {
+            color: #27ae60;
+            text-decoration: none;
+        }
+
+        .external-link:hover {
+            text-decoration: underline;
+        }
+
+        .internal-link {
+            color: #9b59b6;
+        }
+
+        .order-btn {
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        .cancel-btn {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        #message {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 4px;
+            display: none;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input[type="text"],
+        input[type="email"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .checkbox-group {
+            margin: 15px 0;
+        }
+
+        .checkbox-item {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        .checkbox-item input {
+            margin-right: 10px;
+        }
+
+        .pizza-label {
+            font-weight: normal;
+        }
+    </style>
+</head>
+<body>
+    <h1>Учебная страница для XPath</h1>
+
+    <div class="content">
+        <p class="paragraph">Это обычный параграф текста.</p>
+        
+        <p class="special-paragraph">Этот параграф особенный - он единственный на странице с таким классом.</p>
+        
+        <p class="info-text">Это первый информационный текст.</p>
+        <p class="info-text">Это второй информационный текст.</p>
+        <p class="info-text">Это третий информационный текст.</p>
+
+        <a href="https://example.com" class="external-link">Внешняя ссылка (Example)</a><br>
+        <a href="/about" class="internal-link">Внутренняя ссылка (О нас)</a><br>
+        <a href="https://google.com" class="external-link">Внешняя ссылка (Google)</a>
+    </div>
+
+    <div class="content">
+        <form id="orderForm">
+            <div class="form-group">
+                <label for="name">Ваше имя:</label>
+                <input type="text" id="name" placeholder="Иван Иванов">
+            </div>
+
+            <div class="form-group">
+                <label for="email">Ваш email:</label>
+                <input type="email" id="email" placeholder="ivan@example.com">
+            </div>
+
+            <div class="form-group">
+                <label>Выберите пиццу:</label>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="pizza1" name="pizza" value="Маргарита">
+                        <label for="pizza1" class="pizza-label">Маргарита - 450 ₽ (томатный соус, моцарелла, базилик)</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="pizza2" name="pizza" value="Пепперони">
+                        <label for="pizza2" class="pizza-label">Пепперони - 550 ₽ (томатный соус, моцарелла, пепперони)</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="pizza3" name="pizza" value="Гавайская">
+                        <label for="pizza3" class="pizza-label">Гавайская - 500 ₽ (томатный соус, моцарелла, курица, ананас)</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="pizza4" name="pizza" value="Четыре сыра">
+                        <label for="pizza4" class="pizza-label">Четыре сыра - 600 ₽ (сливочный соус, моцарелла, пармезан, дор блю, чеддер)</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="pizza5" name="pizza" value="Вегетарианская">
+                        <label for="pizza5" class="pizza-label">Вегетарианская - 500 ₽ (томатный соус, моцарелла, перец, грибы, оливки, кукуруза)</label>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="order-btn">Заказать</button>
+            <button type="reset" class="cancel-btn">Очистить</button>
+        </form>
+
+        <div id="message"></div>
+    </div>
+
+    <script>
+        document.getElementById('orderForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const checkboxes = document.querySelectorAll('input[name="pizza"]:checked');
+            
+            // Проверка заполнения полей
+            if (!name || !email) {
+                const errorMessage = !name && !email 
+                    ? 'Пожалуйста, введите ваше имя и email!'
+                    : !name 
+                        ? 'Пожалуйста, введите ваше имя!'
+                        : 'Пожалуйста, введите ваш email!';
+                
+                showMessage(errorMessage, 'error');
+                return;
+            }
+            
+            if (checkboxes.length === 0) {
+                showMessage('Пожалуйста, выберите хотя бы одну пиццу!', 'error');
+                return;
+            }
+            
+            const selectedPizzas = Array.from(checkboxes).map(cb => cb.value);
+            
+            const message = `
+                <strong>Заказ пиццы оформлен!</strong><br><br>
+                <strong>Имя:</strong> ${name}<br>
+                <strong>Email:</strong> ${email}<br>
+                <strong>Выбранные пиццы:</strong>
+                <ul>${selectedPizzas.map(p => `<li>${p}</li>`).join('')}</ul>
+                Спасибо за ваш заказ! Мы свяжемся с вами для подтверждения.
+            `;
+            
+            showMessage(message, 'success');
+        });
+
+        function showMessage(text, type) {
+            const messageElement = document.getElementById('message');
+            messageElement.innerHTML = text;
+            messageElement.style.display = 'block';
+            
+            if (type === 'success') {
+                messageElement.style.backgroundColor = '#d4edda';
+                messageElement.style.color = '#155724';
+                messageElement.style.border = '1px solid #c3e6cb';
+            } else {
+                messageElement.style.backgroundColor = '#f8d7da';
+                messageElement.style.color = '#721c24';
+                messageElement.style.border = '1px solid #f5c6cb';
+            }
+        }
+    </script>
+</body>
+</html>
