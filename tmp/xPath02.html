@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Пиццерия - Оформление заказа</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f5f5f5;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        h1, h2 {
+            color: #2c3e50;
+            text-align: center;
+        }
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 20px 0;
+            justify-content: center;
+        }
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            width: 220px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+            width: 100%;
+        }
+        .btn:hover {
+            background: #2980b9;
+        }
+        .notification-area {
+            height: 60px;
+            margin: 20px 0;
+            padding: 10px;
+            background: white;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .notification {
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 5px;
+        }
+        .info-notification {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        .error-notification {
+            background: #ffebee;
+            color: #c62828;
+        }
+        .cart {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .cart-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .quantity-btn {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            border: none;
+            background: #f0f0f0;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .quantity-btn:hover {
+            background: #e0e0e0;
+        }
+        .order-info {
+            background: #e8f5e9;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 20px;
+            display: none;
+        }
+        .order-form {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .form-group label {
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .total-price {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 15px 0;
+            text-align: right;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+        .order-btn {
+            background: #2ecc71;
+        }
+        .order-btn:hover {
+            background: #27ae60;
+        }
+        .clear-btn {
+            background: #e74c3c;
+        }
+        .clear-btn:hover {
+            background: #c0392b;
+        }
+        .price {
+            color: #e74c3c;
+            font-weight: bold;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Пиццерия "Итальянский уголок"</h1>
+    
+    <div class="container">
+        <!-- Карточки пиццы без id и name -->
+        <div class="card">
+            <h3>Маргарита</h3>
+            <p>Томатный соус, моцарелла, базилик</p>
+            <div class="price">450 ₽</div>
+            <button class="btn">Добавить</button>
+        </div>
+        
+        <div class="card">
+            <h3>Пепперони</h3>
+            <p>Томатный соус, моцарелла, пепперони</p>
+            <div class="price">550 ₽</div>
+            <button class="btn">Добавить</button>
+        </div>
+        
+        <div class="card">
+            <h3>Гавайская</h3>
+            <p>Томатный соус, моцарелла, курица, ананас</p>
+            <div class="price">500 ₽</div>
+            <button class="btn">Добавить</button>
+        </div>
+        
+        <div class="card">
+            <h3>Четыре сыра</h3>
+            <p>Сливочный соус, моцарелла, пармезан, дор блю, чеддер</p>
+            <div class="price">600 ₽</div>
+            <button class="btn">Добавить</button>
+        </div>
+        
+        <div class="card">
+            <h3>Вегетарианская</h3>
+            <p>Томатный соус, моцарелла, перец, грибы, оливки, кукуруза</p>
+            <div class="price">500 ₽</div>
+            <button class="btn">Добавить</button>
+        </div>
+    </div>
+
+    <div class="notification-area" id="notification-area">
+        <!-- Здесь будет только одно сообщение -->
+    </div>
+
+    <div class="cart">
+        <h2>Ваша корзина</h2>
+        <div id="cart-items">
+            <p>Корзина пуста</p>
+        </div>
+        
+        <div class="total-price" id="total-price">
+            Итого: 0 ₽
+        </div>
+        
+        <div class="order-form">
+            <div class="form-group">
+                <label for="customer-name">Ваше имя:</label>
+                <input type="text" id="customer-name" placeholder="Иван Иванов">
+            </div>
+            
+            <div class="form-group">
+                <label for="customer-email">Ваш email:</label>
+                <input type="email" id="customer-email" placeholder="ivan@example.com">
+            </div>
+            
+            <div class="action-buttons">
+                <button class="btn clear-btn" id="clear-cart">Очистить корзину</button>
+                <button class="btn order-btn" id="place-order">Заказать</button>
+            </div>
+        </div>
+
+        <div class="order-info" id="order-info">
+            <!-- Здесь будет информация о заказе -->
+        </div>
+    </div>
+
+    <script>
+        const cart = {};
+        const prices = {
+            "Маргарита": 450,
+            "Пепперони": 550,
+            "Гавайская": 500,
+            "Четыре сыра": 600,
+            "Вегетарианская": 500
+        };
+        const notificationArea = document.getElementById('notification-area');
+        const cartItemsEl = document.getElementById('cart-items');
+        const totalPriceEl = document.getElementById('total-price');
+        const orderInfoEl = document.getElementById('order-info');
+        const clearBtn = document.getElementById('clear-cart');
+        const orderBtn = document.getElementById('place-order');
+
+        // Обработчик для кнопок "Добавить"
+        document.querySelectorAll('.btn:not(#clear-cart):not(#place-order)').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const card = this.closest('.card');
+                const productName = card.querySelector('h3').textContent;
+                
+                // Добавляем товар в корзину
+                cart[productName] = (cart[productName] || 0) + 1;
+                
+                // Показываем сообщение
+                showNotification(`Добавлено: ${productName}`, 'info');
+                
+                // Обновляем корзину
+                updateCart();
+            });
+        });
+
+        // Очистка корзины
+        clearBtn.addEventListener('click', function() {
+            for (const key in cart) {
+                delete cart[key];
+            }
+            updateCart();
+            showNotification('Корзина очищена', 'info');
+            orderInfoEl.style.display = 'none';
+        });
+
+        // Оформление заказа
+        orderBtn.addEventListener('click', function() {
+            const name = document.getElementById('customer-name').value;
+            const email = document.getElementById('customer-email').value;
+            
+            if (!name || !email) {
+                showNotification('Пожалуйста, заполните все поля!', 'error');
+                return;
+            }
+            
+            if (Object.keys(cart).length === 0) {
+                showNotification('Корзина пуста!', 'error');
+                return;
+            }
+            
+            let orderDetails = `
+                <h3>Заказ пиццы оформлен!</h3>
+                <p><strong>Имя:</strong> ${name}</p>
+                <p><strong>Email:</strong> ${email}</p>
+                <p><strong>Выбранные пиццы:</strong></p>
+                <ul>
+            `;
+            
+            for (const [name, quantity] of Object.entries(cart)) {
+                orderDetails += `<li>${name} - ${quantity} шт. (${prices[name] * quantity} ₽)</li>`;
+            }
+            
+            orderDetails += `
+                </ul>
+                <p><strong>Общая стоимость:</strong> ${calculateTotal()} ₽</p>
+                <p>Спасибо за ваш заказ! Мы свяжемся с вами для подтверждения.</p>
+            `;
+            
+            orderInfoEl.innerHTML = orderDetails;
+            orderInfoEl.style.display = 'block';
+            showNotification('Заказ успешно оформлен!', 'info');
+        });
+
+        // Обновление корзины
+        function updateCart() {
+            if (Object.keys(cart).length === 0) {
+                cartItemsEl.innerHTML = '<p>Корзина пуста</p>';
+                totalPriceEl.textContent = 'Итого: 0 ₽';
+                return;
+            }
+            
+            let html = '';
+            for (const [name, quantity] of Object.entries(cart)) {
+                html += `
+                <div class="cart-item">
+                    <span>${name}</span>
+                    <div class="cart-controls">
+                        <button class="quantity-btn minus" data-name="${name}">-</button>
+                        <span>${quantity}</span>
+                        <button class="quantity-btn plus" data-name="${name}">+</button>
+                    </div>
+                </div>
+                `;
+            }
+            cartItemsEl.innerHTML = html;
+            totalPriceEl.textContent = `Итого: ${calculateTotal()} ₽`;
+            
+            // Добавляем обработчики для кнопок +/-
+            document.querySelectorAll('.minus').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const name = this.dataset.name;
+                    if (cart[name] > 1) {
+                        cart[name]--;
+                    } else {
+                        delete cart[name];
+                    }
+                    updateCart();
+                    showNotification(`Уменьшено количество: ${name}`, 'info');
+                });
+            });
+            
+            document.querySelectorAll('.plus').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const name = this.dataset.name;
+                    cart[name]++;
+                    updateCart();
+                    showNotification(`Увеличено количество: ${name}`, 'info');
+                });
+            });
+        }
+
+        // Расчет общей суммы
+        function calculateTotal() {
+            let total = 0;
+            for (const [name, quantity] of Object.entries(cart)) {
+                total += prices[name] * quantity;
+            }
+            return total;
+        }
+
+        // Показать временное сообщение (заменяет предыдущее)
+        function showNotification(text, type = 'info') {
+            notificationArea.innerHTML = '';
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}-notification`;
+            notification.textContent = text;
+            notificationArea.appendChild(notification);
+        }
+    </script>
+</body>
+</html>
