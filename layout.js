@@ -1,159 +1,234 @@
-// layout.js
-document.addEventListener("DOMContentLoaded", () => {
-  const loadResources = () => {
-    return new Promise((resolve) => {
-      // Определяем текущую страницу
-      const path = window.location.pathname;
-      const isPythonPage = path.includes('python.html');
+// Основная функция, которая запускается при загрузке DOM
+document.addEventListener("DOMContentLoaded", initApp);
 
-      // Базовые стили и скрипты (всегда)
-      const styles = ['layout.css'];
-      const scripts = [];
+async function initApp() {
+  try {
+    await loadResources(); // (1) Ждём загрузки
+    initLayout();          // (2) Запускаем инициализацию
+  } catch (error) {
+    handleError(error);    // (3) Обрабатываем ошибки
+  }
+}
 
-      // Добавляем python-ресурсы только на странице python.html
-      if (isPythonPage) {
-        styles.push('python.css');
-        scripts.push('python.js');
+async function loadResources() {
+  const resources = [
+    { type: 'css', url: 'layout.css' }, 
+    { type: 'css', url: 'prism.css' }, 
+    { type: 'js', url: 'prism.js' }
+  ];
+
+  // Создаем массив промисов для каждого ресурса
+  const loadPromises = resources.map(resource => {
+    return new Promise(async (resolve) => {
+      try {
+        await loadSingleResource(resource);
+        resolve();
+      } catch (error) {
+        console.warn(`Ошибка загрузки ${resource.type}: ${resource.url}`);
+        resolve(); // Все равно резолвим, чтобы не блокировать загрузку
       }
-
-      let loaded = 0;
-      const total = styles.length + scripts.length;
-
-      const checkLoaded = () => {
-        loaded++;
-        if (loaded === total) {
-          resolve();
-        }
-      };
-
-      // Загрузка стилей
-      styles.forEach(href => {
-        const link = document.createElement('link');
-        link.rel = 'stylesheet';
-        link.href = href;
-        document.head.appendChild(link);
-        link.onload = checkLoaded;
-        link.onerror = () => {
-          console.warn(`Не удалось загрузить CSS: ${href}`);
-          checkLoaded(); // Продолжаем, даже если ошибка
-        };
-      });
-
-      // Загрузка скриптов
-      scripts.forEach(src => {
-        const script = document.createElement('script');
-        script.src = src;
-        document.head.appendChild(script);
-        script.onload = checkLoaded;
-        script.onerror = () => {
-          console.error(`Не удалось загрузить JS: ${src}`);
-          checkLoaded();
-        };
-      });
-
-      // Если нет ресурсов для загрузки — сразу resolve
-      if (total === 0) resolve();
     });
-  };
-
-  const initLayout = () => {
-    const layouts = document.querySelectorAll("my-layout");
-    layouts.forEach(layout => {
-      const content = layout.innerHTML.trim();
-      const template = `
-        <div class="layout-page">
-          <header class="layout-header">
-            <div class="header-left">
-              <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar" aria-expanded="true">✕</button>
-            </div>
-            <div class="header-center">
-              <span class="logo">Мой сайт</span>
-            </div>
-            <nav class="header-right">
-              <a href="index.html">Главная</a>
-              <a href="about.html">О нас</a>
-              <a href="python.html">Python</a>
-            </nav>
-          </header>
-          <div class="layout-content">
-            <aside class="layout-sidebar" id="sidebar">
-              <nav class="sidebar-menu">
-                <ul>
-                  <li class="menu-group">
-                    <a href="#" class="menu-item" aria-haspopup="true">Продукция</a>
-                    <ul class="submenu">
-                      <li><a href="#">Телефоны</a></li>
-                      <li><a href="#">Ноутбуки</a></li>
-                      <li><a href="#">Аксессуары</a></li>
-                    </ul>
-                  </li>
-                  <li class="menu-group">
-                    <a href="#" class="menu-item" aria-haspopup="true">Услуги</a>
-                    <ul class="submenu">
-                      <li><a href="#">Ремонт</a></li>
-                      <li><a href="#">Обслуживание</a></li>
-                      <li><a href="#">Консультации</a></li>
-                    </ul>
-                  </li>
-                  <li class="menu-group">
-                    <a href="#" class="menu-item" aria-haspopup="true">Поддержка</a>
-                    <ul class="submenu">
-                      <li><a href="#">FAQ</a></li>
-                      <li><a href="#">Документация</a></li>
-                      <li><a href="#">Форум</a></li>
-                    </ul>
-                  </li>
-                </ul>
-              </nav>
-            </aside>
-            <main class="layout-main">
-              ${content ? content : '<p>Контент не найден.</p>'}
-            </main>
-          </div>
-          <footer class="layout-footer">
-            <p>&copy; 2025 <a href="https://t.me/sergeyslesarev">Сергей Слесарев</a></p>
-          </footer>
-        </div>
-      `;
-      layout.outerHTML = template;
-    });
-
-    // Инициализация выпадающих меню
-    initMenuToggle();
-  };
-
-  const initMenuToggle = () => {
-    const toggleBtn = document.getElementById('sidebarToggle');
-    const sidebar = document.getElementById('sidebar');
-
-    if (toggleBtn && sidebar) {
-      toggleBtn.addEventListener('click', () => {
-        const isHidden = sidebar.classList.toggle('hidden');
-        toggleBtn.textContent = isHidden ? '☰' : '✕';
-        toggleBtn.setAttribute('aria-expanded', !isHidden);
-      });
-    }
-
-    // Логика для выпадающих подменю
-    document.querySelectorAll('.menu-group > .menu-item').forEach(item => {
-      item.addEventListener('click', (e) => {
-        e.preventDefault();
-        const submenu = item.nextElementSibling;
-        if (submenu && submenu.classList.contains('submenu')) {
-          submenu.classList.toggle('active');
-        }
-      });
-    });
-  };
-
-  // Запуск всех функций с ожиданием загрузки ресурсов
-  loadResources().then(() => {
-    initLayout();
-
-    // После инициализации макета — проверяем, нужна ли инициализация Python-блоков
-    if (window.location.pathname.includes('python.html') && typeof initCodeBlocks === 'function') {
-      // Даем время на рендеринг DOM после initLayout
-      setTimeout(initCodeBlocks, 100);
-    }
   });
-});
+
+  // Ждем загрузки всех ресурсов
+  await Promise.all(loadPromises);
+}
+
+async function loadSingleResource(resource) {
+  return new Promise((resolve, reject) => {
+    const element = createResourceElement(resource);
+    
+    element.onload = () => resolve();
+    element.onerror = () => reject();
+    
+    document.head.appendChild(element);
+  });
+}
+
+function createResourceElement(resource) {
+  let element;
+  
+  if (resource.type === 'css') {
+    element = document.createElement('link');
+    element.rel = 'stylesheet';
+    element.href = resource.url;
+  } else {
+    element = document.createElement('script');
+    element.src = resource.url;
+  }
+
+  return element;
+}
+
+function initLayout() {
+  replaceLayoutTags();
+  initMenuToggle();
+  initSubmenus();
+  initResizableSidebar();
+
+  window.dispatchEvent(new Event('layout-ready'));  
+}
+
+function replaceLayoutTags() {
+  const layout = document.querySelector("my-layout");
+  layout.outerHTML = createLayoutTemplate(layout.innerHTML.trim());
+}
+
+function createLayoutTemplate(content) {
+  const sidebar = createSidebarMenu();
+  return `
+    <div class="layout-page">
+      <header class="layout-header">
+        <div class="header-left">
+          <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar" aria-expanded="true">
+          ✕
+          </button>
+        </div>
+        <div class="header-center">
+          <span class="logo">Мой сайт</span>
+        </div>
+        <nav class="header-right">
+          <a href="index.html">Главная</a>
+          <a href="about.html">О нас</a>
+          <a href="python.html">Python</a>
+        </nav>
+      </header>
+      <div class="layout-content">
+        <aside class="layout-sidebar" id="sidebar">
+          ${sidebar}
+        </aside>
+        <main class="layout-main">
+          ${content}
+        </main>
+      </div>
+      <footer class="layout-footer">
+        <div class="footer-left"></div>
+        <div class="footer-center">
+          <p>&copy; 2025 <a href="https://t.me/sergeyslesarev">Сергей Слесарев</a></p>
+        </div>
+        <div class="footer-right">
+          <div class="controls"></div>
+        </div>
+      </footer>
+    </div>
+  `;
+}
+
+function createSidebarMenu() {
+  return `
+    <nav class="sidebar-menu">
+      <ul>
+        <li class="menu-group">
+          <a href="#" class="menu-item" aria-haspopup="true">Продукция</a>
+          <ul class="submenu">
+            <li><a href="#">Телефонывапыфвапфывафывафывафываыфва</a></li>
+            <li><a href="#">Ноутбуки</a></li>
+            <li><a href="#">Аксессуары</a></li>
+          </ul>
+        </li>
+        <li class="menu-group">
+          <a href="#" class="menu-item" aria-haspopup="true">Услуги</a>
+          <ul class="submenu">
+            <li><a href="#">Ремонт</a></li>
+            <li><a href="#">Обслуживание</a></li>
+            <li><a href="#">Консультации</a></li>
+          </ul>
+        </li>
+        <li class="menu-group">
+          <a href="#" class="menu-item" aria-haspopup="true">Поддержка</a>
+          <ul class="submenu">
+            <li><a href="#">FAQ</a></li>
+            <li><a href="#">Документация</a></li>
+            <li><a href="#">Форум</a></li>
+          </ul>
+        </li>
+      </ul>
+    </nav>
+  `;
+}
+
+function initMenuToggle() {
+  document.getElementById('sidebarToggle').addEventListener('click', toggleSidebar);
+}
+
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const toggleBtn = document.getElementById('sidebarToggle');
+  const isHidden = sidebar.classList.toggle('hidden');
+
+  toggleBtn.textContent = isHidden ? '☰' : '✕';
+  
+  toggleBtn.setAttribute('aria-expanded', !isHidden);
+}
+
+function initSubmenus() {
+  // 1. Находим элементы меню
+  const menuItemList = document.querySelectorAll('.menu-group > .menu-item');
+  
+  // 2. Навешиваем обработчики
+  menuItemList.forEach(function(menuItem) {
+    menuItem.addEventListener('click', handleMenuItemClick);
+  });
+}
+
+// 3. Обработчик клика
+function handleMenuItemClick(event) {
+  event.preventDefault();
+  const submenu = this.nextElementSibling;
+  
+  if (submenu && submenu.classList.contains('submenu')) {
+    submenu.classList.toggle('active');
+    this.parentElement.classList.toggle('active'); // Важно: добавляем .active к .menu-group
+  }
+}
+
+
+function initResizableSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  if (!sidebar) return;
+
+  const resizer = document.createElement('div');
+  resizer.className = 'layout-sidebar-resizer';
+  sidebar.appendChild(resizer);
+
+  let startX, startWidth;
+
+  resizer.addEventListener('mousedown', function(e) {
+    startX = e.clientX;
+    startWidth = sidebar.offsetWidth;
+    
+    // Создаем временную границу
+    const activeBorder = document.createElement('div');
+    activeBorder.className = 'layout-sidebar-resizer-active';
+    activeBorder.style.right = (sidebar.offsetWidth - e.offsetX) + 'px';
+    sidebar.appendChild(activeBorder);
+    
+    sidebar.classList.add('layout-sidebar-resizing');
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+
+    function handleMouseMove(e) {
+      const newWidth = startWidth + (e.clientX - startX);
+      const clampedWidth = Math.max(50, Math.min(600, newWidth));
+      sidebar.style.width = clampedWidth + 'px';
+      activeBorder.style.right = '0';
+    }
+
+    function handleMouseUp() {
+      sidebar.removeChild(activeBorder);
+      sidebar.classList.remove('layout-sidebar-resizing');
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+      document.removeEventListener('mousemove', handleMouseMove);
+    }
+
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp, { once: true });
+    e.preventDefault();
+  });
+}
+
+
+function handleError(error) {
+  console.error('Ошибка при инициализации приложения:', error);
+}
