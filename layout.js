@@ -13,7 +13,6 @@ async function initApp() {
 async function loadResources() {
   const resources = [
     { type: 'css', url: 'layout.css' }, 
-    { type: 'css', url: 'prism.css' }, 
     { type: 'js', url: 'prism.js' }
   ];
 
@@ -76,6 +75,7 @@ function replaceLayoutTags() {
 
 function createLayoutTemplate(content) {
   const sidebar = createSidebarMenu();
+  const pageTitle = document.title; // Получаем содержимое тега title
   return `
     <div class="layout-page">
       <header class="layout-header">
@@ -85,7 +85,7 @@ function createLayoutTemplate(content) {
           </button>
         </div>
         <div class="header-center">
-          <span class="logo">Мой сайт</span>
+          <span class="logo">${pageTitle}</span>
         </div>
         <nav class="header-right">
           <a href="index.html">Главная</a>

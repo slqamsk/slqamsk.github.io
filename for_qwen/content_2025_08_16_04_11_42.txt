@@ -529,6 +529,7 @@ async function initApp() {
 async function loadResources() {
   const resources = [
     { type: 'css', url: 'layout.css' }, 
+    { type: 'css', url: 'prism.css' }, 
     { type: 'js', url: 'prism.js' }
   ];
 
@@ -878,16 +879,16 @@ code {
 
 .code-container {
   position: relative;
-  overflow: visible; /* Критично: чтобы подсказка не обрезалась */
-  isolation: isolate; /* Создаёт независимый контекст наложения */
-  z-index: auto; /* Не ограничиваем */
+  overflow: visible; /* Важно! */
+  isolation: isolate;
+  z-index: 1;
 }
 
 pre {
   position: relative;
   margin: 1.5em 0;
   border-radius: 6px;
-  overflow: visible !important;
+  overflow: visible;
   padding-top: 35px;
   background-clip: padding-box;
 }
@@ -933,14 +934,12 @@ pre {
   transition: opacity 0.2s;
   font-family: sans-serif;
   pointer-events: none;
-  z-index: 9999;
+  z-index: 1000;
   /* Улучшаем видимость */
   box-shadow: 0 2px 8px rgba(0,0,0,0.2);
   /* Гарантируем, что подсказка не будет обрезана */
   width: max-content;
   max-width: 200px;
-  clip: auto !important;
-  overflow: visible !important;
 }
 
 .copy-button:hover::after {
@@ -960,8 +959,7 @@ pre {
 const styleLinks = [
   'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css',
   'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.css',
-  'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/toolbar/prism-toolbar.min.css',
-  'prism.css'
+  'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/toolbar/prism-toolbar.min.css' // Добавьте этот стиль
 ];
 
 styleLinks.forEach(href => {

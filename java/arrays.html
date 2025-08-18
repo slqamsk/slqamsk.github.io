@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Массивы</title>
+</head>
+<body>
+  <header>
+    <h1>Массивы</h1>
+    <div class="controls"></div>
+  </header>
+
+
+  <h2>1. Пример. Translator.</h2>
+  <p>Скопируйте текст программы: </p>
+  <pre class="line-numbers"><code class="language-java">
+package top.sergeyslesarev;
+
+import java.util.Scanner;
+
+/**
+ * Реализовать функцию translateSeason, которая:
+ * - Принимает строку формата "время_года год" (пример: "лето 2025")
+ * - Заменяет русское название сезона на английское ("summer 2025")
+ * - Возвращает null если:
+ *   * Входная строка null или пустая
+ *   * Не содержит известного сезона ("зима"/"весна"/"лето"/"осень")
+ */
+
+public class TranslatorTask {
+    public static String translateSeason(String input) {
+        return "Функция translateSeason пока не реализована";
+    }
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("Программа перевода сезонов (для выхода введите 'exit')");
+
+        while (true) {
+            System.out.print("\nВведите строку формата 'сезон год': ");
+            String input = scanner.nextLine().trim();
+
+            if (input.equalsIgnoreCase("exit")) {
+                System.out.println("Завершение работы программы");
+                break;
+            }
+
+            String result = translateSeason(input);
+
+            if (result != null) {
+                System.out.println("Результат: " + result);
+            } else {
+                System.out.println("Ошибка: некорректный ввод или неизвестный сезон");
+                System.out.println("Допустимые сезоны: зима, весна, лето, осень");
+            }
+        }
+
+        scanner.close();
+    }
+}
+  </code></pre>
+
+  <p>Создайте новый проект SortingHat. Выполните 2 команды: </p>
+    
+    
+    
+    
+      <pre><code class="language-batch">
+python -m pip install --upgrade pip
+  </code></pre>
+
+    <pre><code class="language-batch">
+pip install pytest selenium
+  </code></pre>
+    
+    <p>В проекте SortingHat создайте папку tests, в ней файл для тестов test_sorting_hat.py, скопируйте текст, 
+    запустите автотесты, убедитесь, что всё работает и вы понимаете, как всё работает.</p>
+
+  <h2>2. Задание на работу с несколькими окнами (вкладками):</h2>
+  <p>Напишите автотесты, которые на странице https://the-internet.herokuapp.com/windows нажмут на ссылку "Click Here", 
+    после этого убедятся, что в новом окне есть элемент h3 с текстом "New Window". 
+  </p>
+
+  <h2>3. Дополнительное задание на работу с несколькими окнами (вкладками):</h2>
+  <p>Напишите автотесты, которые на странице https://top-bootcamp-2025.github.io/ нажмут на любую ссылку "Открыть", 
+    после этого убедятся, что заголовки двух открытых окон (вкладок) - тег title - будут разные. 
+  </p>
+  
+
+  <script src="scripts.js"></script>
+</body>
+</html>

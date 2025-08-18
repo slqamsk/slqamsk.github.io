@@ -13,7 +13,6 @@ body {
   height: 100vh;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
 }
 
 .layout-page {
@@ -79,6 +78,7 @@ body {
   flex: 1;
   min-height: 0;
   background: #fff;
+  overflow-y: auto;
 }
 
 .layout-sidebar {
@@ -92,9 +92,10 @@ body {
   display: flex;
   flex-direction: column;
   transition: transform 0.3s ease, width 0.2s ease;
-  position: relative;
+  position: sticky;
+  top: 0;
   z-index: 2;
-  will-change: width; /* Улучшаем производительность анимации */
+  will-change: width;
 }
 
 /* Ваша декоративная линия (сохраняем как есть) */
@@ -124,17 +125,6 @@ body {
 
 .layout-sidebar-resizing {
   transition: none !important; /* Отключаем анимацию во время ресайза */
-}
-
-.layout-sidebar-resizer-active {
-  position: absolute;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  width: 1px;
-  background-color: var(--primary-border);
-  z-index: 4;
-  pointer-events: none;
 }
 
 .layout-sidebar-resizer:hover,
@@ -260,7 +250,7 @@ body {
 .layout-main {
   flex: 1;
   padding: 20px;
-  overflow-y: auto;
+  
   position: relative;
   z-index: 1;
   margin-left: 0;
@@ -281,32 +271,6 @@ body {
   line-height: 1;
   flex-shrink: 0;
   min-height: auto; /* Убираем фиксированную высоту */
-}
-
-/* ДОБАВЛЕНО: компактные стили для элементов управления */
-.controls {
-  display: flex;
-  gap: 6px; /* уменьшен промежуток между элементами */
-  align-items: center;
-  padding: 2px 0; /* уменьшены внутренние отступы */
-}
-
-.theme-buttons {
-  display: flex;
-  gap: 4px; /* Уменьшаем расстояние между кнопками тем */
-}
-
-.theme-btn {
-  padding: 4px 8px; /* Уменьшаем отступы в кнопках */
-  font-size: 13px; /* Чуть меньший размер шрифта */
-  min-width: 70px; /* Чуть уменьшаем минимальную ширину */
-}
-
-.font-btn {
-  padding: 2px 6px; /* Уменьшаем отступы */
-  font-size: 14px; /* Чуть меньший размер */
-  width: 32px; /* Чуть уменьшаем размер */
-  height: 32px;
 }
 
 .layout-footer > * {

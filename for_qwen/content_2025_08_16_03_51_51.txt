@@ -170,7 +170,7 @@ body {
   height: 100vh;
   display: flex;
   flex-direction: column;
-  /*overflow: hidden;*/
+  overflow: hidden;
 }
 
 .layout-page {
@@ -236,7 +236,6 @@ body {
   flex: 1;
   min-height: 0;
   background: #fff;
-  overflow-y: auto;
 }
 
 .layout-sidebar {
@@ -418,7 +417,7 @@ body {
 .layout-main {
   flex: 1;
   padding: 20px;
-  
+  overflow-y: auto;
   position: relative;
   z-index: 1;
   margin-left: 0;
@@ -529,6 +528,7 @@ async function initApp() {
 async function loadResources() {
   const resources = [
     { type: 'css', url: 'layout.css' }, 
+    { type: 'css', url: 'prism.css' }, 
     { type: 'js', url: 'prism.js' }
   ];
 
@@ -878,16 +878,15 @@ code {
 
 .code-container {
   position: relative;
-  overflow: visible; /* Критично: чтобы подсказка не обрезалась */
-  isolation: isolate; /* Создаёт независимый контекст наложения */
-  z-index: auto; /* Не ограничиваем */
+  overflow: visible; /* Важно! */
+  isolation: isolate;
 }
 
 pre {
   position: relative;
   margin: 1.5em 0;
   border-radius: 6px;
-  overflow: visible !important;
+  overflow: visible;
   padding-top: 35px;
   background-clip: padding-box;
 }
@@ -931,27 +930,19 @@ pre {
   white-space: nowrap;
   opacity: 0;
   transition: opacity 0.2s;
+  z-index: 20;
   font-family: sans-serif;
   pointer-events: none;
-  z-index: 9999;
+  z-index: 110;
   /* Улучшаем видимость */
   box-shadow: 0 2px 8px rgba(0,0,0,0.2);
   /* Гарантируем, что подсказка не будет обрезана */
   width: max-content;
   max-width: 200px;
-  clip: auto !important;
-  overflow: visible !important;
 }
 
 .copy-button:hover::after {
   opacity: 1;
-}
-
-.theme-okaidia .copy-button::after,
-.theme-tomorrow .copy-button::after {
-  background: #eee;
-  color: #222;
-  border: 1px solid #bbb;
 }
 
 Содержимое файла prism.js:
@@ -960,8 +951,7 @@ pre {
 const styleLinks = [
   'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css',
   'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.css',
-  'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/toolbar/prism-toolbar.min.css',
-  'prism.css'
+  'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/toolbar/prism-toolbar.min.css' // Добавьте этот стиль
 ];
 
 styleLinks.forEach(href => {

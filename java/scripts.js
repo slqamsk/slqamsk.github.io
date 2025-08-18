@@ -2,8 +2,7 @@
 const styleLinks = [
   'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css',
   'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.css',
-  'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/toolbar/prism-toolbar.min.css',
-  'prism.css'
+  'styles.css'
 ];
 
 styleLinks.forEach(href => {
@@ -18,8 +17,7 @@ const scriptUrls = [
   'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/toolbar/prism-toolbar.min.js', // Добавьте этот плагин
-  'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/copy-to-clipboard/prism-copy-to-clipboard.min.js' // Должен быть после toolbar
+  'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/copy-to-clipboard/prism-copy-to-clipboard.min.js'
 ];
 
 scriptUrls.forEach(src => {
@@ -78,8 +76,8 @@ function createControls() {
 // Управление размером шрифта
 function setupFontControls() {
   const MIN_FONT = 12;
-  const MAX_FONT = 35;
-  let currentSize = 18;
+  const MAX_FONT = 20;
+  let currentSize = 15;
 
   const incBtn = document.getElementById('font-inc');
   const decBtn = document.getElementById('font-dec');
@@ -161,29 +159,13 @@ function setupThemeSwitcher() {
 
 // Кнопки копирования
 function setupCopyButtons() {
-  if (!window.Prism || !Prism.plugins || !Prism.plugins.toolbar) {
-    console.warn('Prism Toolbar plugin not loaded');
-    return;
-  }
-  
   function createCopyButton(block) {
-    // Проверяем, есть ли уже кнопка
     if (block.querySelector('.copy-button')) return;
     
-    // Создаем контейнер для pre, если его еще нет
-    if (!block.parentElement.classList.contains('code-container')) {
-      const container = document.createElement('div');
-      container.className = 'code-container';
-      block.parentNode.insertBefore(container, block);
-      container.appendChild(block);
-    }
-
-    // Создаем кнопку
     const btn = document.createElement('button');
     btn.className = 'copy-button';
     btn.textContent = 'Скопировать';
     
-    // Обработчик клика
     btn.addEventListener('click', () => {
       if (!navigator.clipboard) {
         console.warn('Clipboard API не поддерживается');
@@ -209,30 +191,26 @@ function setupCopyButtons() {
         });
     });
     
-    // Добавляем кнопку в блок
     block.appendChild(btn);
   }
 
-  // Применяем ко всем блокам pre
   document.querySelectorAll('pre').forEach(block => {
     createCopyButton(block);
   });
 }
 
 // Инициализация
-function initPrism() {
+document.addEventListener('DOMContentLoaded', () => {
   createControls();
   setupFontControls();
   setupThemeSwitcher();
+  setupCopyButtons();
   
+  // Ждем загрузки Prism.js
   const checkPrism = setInterval(() => {
-    if (window.Prism && Prism.plugins && Prism.plugins.toolbar) {
+    if (window.Prism) {
       clearInterval(checkPrism);
-      setupCopyButtons(); // Теперь можно инициализировать кнопки копирования
       Prism.highlightAll();
     }
   }, 100);
-}
-
-// Ждем когда layout будет готов
-window.addEventListener('layout-ready', initPrism);
+});
