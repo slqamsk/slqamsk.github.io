@@ -379,11 +379,10 @@
                     
                     card.innerHTML = `
                         ${isPizzaOfTheDay ? '<div class="pizza-of-the-day-badge">Пицца дня!</div>' : ''}
-                        <h3>${pizza.name}${isPizzaOfTheDay ? ' (пицца дня)' : ''}</h3>
-                        <p>${pizza.description}${isPizzaOfTheDay ? ' Скидка 10%' : ''}</p>
+                        <h3 class="pizza-name">${pizza.name}${isPizzaOfTheDay ? ' (пицца дня)' : ''}</h3>
+                        <p class="pizza-description">${pizza.description}${isPizzaOfTheDay ? ' Скидка 10%' : ''}</p>
                         ${priceHTML}
-                        <button class="btn" ${pizza.available === "N" ? 'disabled' : ''} 
-                                data-name="${pizza.name}" data-price="${discountedPrice}">
+                        <button class="btn add-to-cart-btn" ${pizza.available === "N" ? 'disabled' : ''}>
                             ${pizza.available === "Y" ? 'Добавить' : 'Не доступно'}
                         </button>
                     `;
@@ -393,10 +392,21 @@
             });
 
             // Добавляем обработчики событий для кнопок "Добавить" (только для доступных пицц)
-            document.querySelectorAll('.btn[data-name]:not([disabled])').forEach(btn => {
+            document.querySelectorAll('.add-to-cart-btn:not([disabled])').forEach(btn => {
                 btn.addEventListener('click', function() {
-                    const productName = this.dataset.name;
-                    const productPrice = parseInt(this.dataset.price);
+                    // Находим название пиццы через соседние элементы
+                    const card = this.closest('.card');
+                    const productName = card.querySelector('.pizza-name').textContent.replace(' (пицца дня)', '').trim();
+                    
+                    // Находим цену через соседние элементы
+                    let productPrice;
+                    const priceElement = card.querySelector('.discount-price') || card.querySelector('.price');
+                    if (priceElement) {
+                        productPrice = parseInt(priceElement.textContent.replace(' ₽', ''));
+                    } else {
+                        // Если не нашли цену, используем данные из объекта prices
+                        productPrice = prices[productName];
+                    }
                     
                     // Добавляем товар в корзину
                     cart[productName] = (cart[productName] || 0) + 1;
@@ -480,9 +490,9 @@
                 <div class="cart-item">
                     <span>${name}</span>
                     <div class="cart-controls">
-                        <button class="quantity-btn minus" data-name="${name}">-</button>
+                        <button class="quantity-btn minus">-</button>
                         <span>${quantity}</span>
-                        <button class="quantity-btn plus" data-name="${name}">+</button>
+                        <button class="quantity-btn plus">+</button>
                     </div>
                 </div>
                 `;
@@ -491,9 +501,9 @@
             totalPriceEl.textContent = `Итого: ${calculateTotal()} ₽`;
             
             // Добавляем обработчики для кнопок +/-
-            document.querySelectorAll('.minus').forEach(btn => {
+            document.querySelectorAll('.minus').forEach((btn, index) => {
                 btn.addEventListener('click', function() {
-                    const name = this.dataset.name;
+                    const name = Object.keys(cart)[index];
                     if (cart[name] > 1) {
                         cart[name]--;
                     } else {
@@ -504,9 +514,9 @@
                 });
             });
             
-            document.querySelectorAll('.plus').forEach(btn => {
+            document.querySelectorAll('.plus').forEach((btn, index) => {
                 btn.addEventListener('click', function() {
-                    const name = this.dataset.name;
+                    const name = Object.keys(cart)[index];
                     cart[name]++;
                     updateCart();
                     showNotification(`Увеличено количество: ${name}`, 'info');
