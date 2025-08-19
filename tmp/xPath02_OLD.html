@@ -161,8 +161,42 @@
         <p>Тонкое тесто, свежайшие продукты и секретные рецепты — вот наш секрет идеальной пиццы.</p>
     </div>
     
-    <div class="container" id="menu-container">
-        <!-- Карточки пиццы будут создаваться через JavaScript -->
+    <div class="container">
+        <!-- Карточки пиццы без id и name -->
+        <div class="card">
+            <h3>Маргарита</h3>
+            <p>Томатный соус, моцарелла, базилик</p>
+            <div class="price">450 ₽</div>
+            <button class="btn">Добавить</button>
+        </div>
+        
+        <div class="card">
+            <h3>Пепперони</h3>
+            <p>Томатный соус, моцарелла, пепперони</p>
+            <div class="price">550 ₽</div>
+            <button class="btn">Добавить</button>
+        </div>
+        
+        <div class="card">
+            <h3>Гавайская</h3>
+            <p>Томатный соус, моцарелла, курица, ананас</p>
+            <div class="price">500 ₽</div>
+            <button class="btn">Добавить</button>
+        </div>
+        
+        <div class="card">
+            <h3>Четыре сыра</h3>
+            <p>Сливочный соус, моцарелла, пармезан, дор блю, чеддер</p>
+            <div class="price">600 ₽</div>
+            <button class="btn">Добавить</button>
+        </div>
+        
+        <div class="card">
+            <h3>Вегетарианская</h3>
+            <p>Томатный соус, моцарелла, перец, грибы, оливки, кукуруза</p>
+            <div class="price">500 ₽</div>
+            <button class="btn">Добавить</button>
+        </div>
     </div>
 
     <div class="notification-area" id="notification-area">
@@ -202,98 +236,37 @@
     </div>
 
     <script>
-        // Данные о пиццах
-        const pizzaData = [
-            {
-                name: "Маргарита",
-                description: "Томатный соус, моцарелла, базилик",
-                price: 450
-            },
-            {
-                name: "Пепперони",
-                description: "Томатный соус, моцарелла, пепперони",
-                price: 550
-            },
-            {
-                name: "Гавайская",
-                description: "Томатный соус, моцарелла, курица, ананас",
-                price: 500
-            },
-            {
-                name: "Четыре сыра",
-                description: "Сливочный соус, моцарелла, пармезан, дор блю, чеддер",
-                price: 600
-            },
-            {
-                name: "Вегетарианская",
-                description: "Томатный соус, моцарелла, перец, грибы, оливки, кукуруза",
-                price: 500
-            },
-            {
-                name: "Карбонара",
-                description: "Сливочный соус, моцарелла, бекон, яйцо, пармезан",
-                price: 580
-            },
-            {
-                name: "Мясная",
-                description: "Томатный соус, моцарелла, пепперони, ветчина, бекон, курица",
-                price: 650
-            },
-            {
-                name: "Трюфельная",
-                description: "Сливочный соус, моцарелла, трюфельное масло, грибы, пармезан",
-                price: 750
-            }
-        ];
-
-        // Создаем объект prices для обратной совместимости
-        const prices = {};
-        pizzaData.forEach(pizza => {
-            prices[pizza.name] = pizza.price;
-        });
-
         const cart = {};
+        const prices = {
+            "Маргарита": 450,
+            "Пепперони": 550,
+            "Гавайская": 500,
+            "Четыре сыра": 600,
+            "Вегетарианская": 500
+        };
         const notificationArea = document.getElementById('notification-area');
         const cartItemsEl = document.getElementById('cart-items');
         const totalPriceEl = document.getElementById('total-price');
         const orderInfoEl = document.getElementById('order-info');
         const clearBtn = document.getElementById('clear-cart');
         const orderBtn = document.getElementById('place-order');
-        const menuContainer = document.getElementById('menu-container');
 
-        // Функция для создания карточек меню
-        function createMenuCards() {
-            pizzaData.forEach(pizza => {
-                const card = document.createElement('div');
-                card.className = 'card';
-                card.innerHTML = `
-                    <h3>${pizza.name}</h3>
-                    <p>${pizza.description}</p>
-                    <div class="price">${pizza.price} ₽</div>
-                    <button class="btn" data-name="${pizza.name}">Добавить</button>
-                `;
-                menuContainer.appendChild(card);
+        // Обработчик для кнопок "Добавить"
+        document.querySelectorAll('.btn:not(#clear-cart):not(#place-order)').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const card = this.closest('.card');
+                const productName = card.querySelector('h3').textContent;
+                
+                // Добавляем товар в корзину
+                cart[productName] = (cart[productName] || 0) + 1;
+                
+                // Показываем сообщение
+                showNotification(`Добавлено: ${productName}`, 'info');
+                
+                // Обновляем корзину
+                updateCart();
             });
-
-            // Добавляем обработчики событий для кнопок "Добавить"
-            document.querySelectorAll('.btn[data-name]').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const productName = this.dataset.name;
-                    
-                    // Добавляем товар в корзину
-                    cart[productName] = (cart[productName] || 0) + 1;
-                    
-                    // Показываем сообщение
-                    showNotification(`Добавлено: ${productName}`, 'info');
-                    
-                    // Обновляем корзину
-                    updateCart();
-                });
-            });
-        }
-
-        // Инициализация меню
-        createMenuCards();
+        });
 
         // Очистка корзины
         clearBtn.addEventListener('click', function() {
