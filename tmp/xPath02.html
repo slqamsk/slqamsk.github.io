@@ -379,7 +379,7 @@
                     
                     card.innerHTML = `
                         ${isPizzaOfTheDay ? '<div class="pizza-of-the-day-badge">Пицца дня!</div>' : ''}
-                        <h3">${pizza.name}${isPizzaOfTheDay ? ' (пицца дня)' : ''}</h3>
+                        <h3 class="pizza-name">${pizza.name}${isPizzaOfTheDay ? ' (пицца дня)' : ''}</h3>
                         <p class="pizza-description">${pizza.description}${isPizzaOfTheDay ? ' Скидка 10%' : ''}</p>
                         ${priceHTML}
                         <button class="btn add-to-cart-btn" ${pizza.available === "N" ? 'disabled' : ''}>
