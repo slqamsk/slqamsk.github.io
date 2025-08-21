@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Пиццерия - Мои заказы</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="header-nav">
+        <div class="nav-left">
+            <a href="index.html" class="btn-link">Меню</a>
+        </div>
+        <div class="nav-right">
+            <a href="orders.html" class="orders-link">Мои заказы</a>
+            <a href="cart.html" class="cart-link">Корзина <span id="cart-count">0</span></a>
+        </div>
+    </div>
+
+    <header style="text-align: center; margin-bottom: 20px;">
+        <h1>Пиццерия "Итальянский уголок"</h1>
+    </header>
+
+    <div class="cart">
+        <h2>Мои заказы</h2>
+        
+        <div id="orders-list">
+            <!-- Здесь будет список заказов -->
+            <p>У вас пока нет заказов</p>
+        </div>
+    </div>
+
+    <script src="pizza-data.js"></script>
+    <script src="orders.js"></script>
+    <script>
+        // Обновляем счетчик корзины при загрузке страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCartCounter();
+        });
+    </script>
+</body>
+</html>

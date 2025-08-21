@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Пиццерия - Меню</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="header-nav">
+        <div class="nav-left">
+            <a href="index.html" class="btn-link">Меню</a>
+        </div>
+        <div class="nav-right">
+            <a href="orders.html" class="orders-link">Мои заказы</a>
+            <a href="cart.html" class="cart-link">Корзина <span id="cart-count">0</span></a>
+        </div>
+    </div>
+    
+    <header style="text-align: center; margin-bottom: 20px;">
+        <h1>Пиццерия "Итальянский уголок"</h1>
+    </header>
+    
+    <div>
+        <h3>Истинный вкус Италии в вашем городе!</h3>
+        <p>Попробуйте наши хиты: <strong>Маргарита</strong>, <strong>Пепперони</strong>, <strong>Гавайская</strong>, <strong>Четыре сыра</strong> и <strong>Вегетарианская</strong>. А также новые: <strong>Карбонара</strong> с нежным беконом, <strong>Мясная</strong> для настоящих гурманов и <strong>Трюфельная</strong> для особых случаев.</p>
+        <h3>Готовим с душой в дровяной печи</h3>
+        <p>Тонкое тесто, свежайшие продукты и секретные рецепты — вот наш секрет идеальной пиццы.</p>
+    </div>
+    
+    <div class="container" id="menu-container">
+        <!-- Карточки пиццы будут создаваться через JavaScript -->
+    </div>
+
+    <div class="notification-area" id="notification-area">
+        <!-- Здесь будет только одно сообщение -->
+    </div>
+
+    <script src="pizza-data.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
