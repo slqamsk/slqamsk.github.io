@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Пиццерия - Корзина</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h1>Пиццерия "Итальянский уголок"</h1>
+        <div>
+            <a href="orders.html" class="orders-link" style="text-decoration: none; margin-right: 10px;">Мои заказы</a>
+            <a href="index.html" id="back-link" class="btn" style="text-decoration: none;">← Вернуться в меню</a>
+        </div>
+    </header>
+
+    <div class="cart">
+        <h2>Ваша корзина</h2>
+        <div id="cart-items">
+            <p>Корзина пуста</p>
+        </div>
+        
+        <div class="total-price" id="total-price">
+            Итого: 0 ₽
+        </div>
+        
+        <div class="action-buttons">
+            <button class="btn clear-btn" id="clear-cart">Очистить корзину</button>
+            <button class="btn order-btn" id="place-order">Оформить заказ</button>
+        </div>
+    </div>
+
+    <script src="pizza-data.js"></script>
+    <script src="cart.js"></script>
+</body>
+</html>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Пиццерия - Корзина</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h1>Пиццерия "Итальянский уголок"</h1>
+        <a href="index.html" id="back-link" class="btn" style="text-decoration: none;">← Вернуться в меню</a>
+    </header>
+
+    <div class="cart">
+        <h2>Ваша корзина</h2>
+        <div id="cart-items">
+            <p>Корзина пуста</p>
+        </div>
+        
+        <div class="total-price" id="total-price">
+            Итого: 0 ₽
+        </div>
+        
+        <div class="order-form">
+            <div class="form-group">
+                <label for="customer-name">Ваше имя:</label>
+                <input type="text" id="customer-name" placeholder="Иван Иванов">
+            </div>
+            
+            <div class="form-group">
+                <label for="customer-email">Ваш email:</label>
+                <input type="email" id="customer-email" placeholder="ivan@example.com">
+            </div>
+            
+            <div class="action-buttons">
+                <button class="btn clear-btn" id="clear-cart">Очистить корзину</button>
+                <button class="btn order-btn" id="place-order">Заказать</button>
+            </div>
+        </div>
+
+        <div class="order-info" id="order-info">
+            <!-- Здесь будет информация о заказе -->
+        </div>
+    </div>
+
+    <script src="pizza-data.js"></script>
+    <script src="cart.js"></script>
+</body>
+</html>

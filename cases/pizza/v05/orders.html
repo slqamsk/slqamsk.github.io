@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Пиццерия - Мои заказы</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h1>Пиццерия "Итальянский уголок"</h1>
+        <div>
+            <a href="index.html" class="btn" style="text-decoration: none; margin-right: 10px;">← В меню</a>
+            <a href="cart.html" class="btn" style="text-decoration: none;">Корзина</a>
+        </div>
+    </header>
+
+    <div class="cart">
+        <h2>Мои заказы</h2>
+        
+        <div id="orders-list">
+            <!-- Здесь будет список заказов -->
+            <p>У вас пока нет заказов</p>
+        </div>
+    </div>
+
+    <script src="pizza-data.js"></script>
+    <script src="orders.js"></script>
+</body>
+</html>
