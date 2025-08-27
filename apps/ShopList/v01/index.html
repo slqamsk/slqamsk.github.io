@@ -21,10 +21,10 @@
             return;
         }
 
-        // Принудительно меняем http на https в URL
+        // Принудительно используем HTTPS
         const secureUrl = appUrl.replace('http://', 'https://');
         
-        fetch(secureUrl) // Используем безопасный URL
+        fetch(secureUrl)
             .then(response => response.text())
             .then(data => {
                 document.getElementById('cellValue').value = data;
@@ -35,7 +35,25 @@
     }
 
     function saveData() {
-        // Скоро добавим
+        if (!appUrl) {
+            alert('Добавьте в адресную строку параметр ?appUrl=ВАШ_URL');
+            return;
+        }
+
+        const newValue = document.getElementById('cellValue').value;
+        const secureUrl = appUrl.replace('http://', 'https://');
+        
+        fetch(secureUrl, {
+            method: 'POST',
+            body: newValue
+        })
+        .then(response => response.text())
+        .then(result => {
+            alert(result); // Покажем ответ от сервера ("OK: Data saved to A1")
+        })
+        .catch(error => {
+            alert('Ошибка при записи: ' + error);
+        });
     }
 </script>
 </body>
