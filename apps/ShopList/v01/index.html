@@ -12,16 +12,31 @@
     <br><br>
     <button onclick="saveData()">Записать</button>
 
-    <script>
+<script>
     const appUrl = new URLSearchParams(window.location.search).get('appUrl');
 
     function getData() {
-            // Эта функция будет отправлять запрос к твоему Google Apps Script
+        // 1. Проверяем, что пользователь указал URL своего скрипта
+        if (!appUrl) {
+            alert('Добавьте в адресную строку параметр ?appUrl=ВАШ_URL');
+            return;
+        }
+
+        // 2. Отправляем GET-запрос к бэкенду
+        fetch(appUrl)
+            .then(response => response.text())
+            .then(data => {
+                // 3. Полученные данные подставляем в текстовое поле
+                document.getElementById('cellValue').value = data;
+            })
+            .catch(error => {
+                alert('Ошибка при получении данных: ' + error);
+            });
     }
 
     function saveData() {
-            // Эта функция будет отправлять новое значение для сохранения
+        // Эта функция пока пустая - заполним её следующей
     }
-    </script>
+</script>
 </body>
 </html>
