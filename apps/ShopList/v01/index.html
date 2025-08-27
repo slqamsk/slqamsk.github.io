@@ -16,17 +16,17 @@
     const appUrl = new URLSearchParams(window.location.search).get('appUrl');
 
     function getData() {
-        // 1. Проверяем, что пользователь указал URL своего скрипта
         if (!appUrl) {
             alert('Добавьте в адресную строку параметр ?appUrl=ВАШ_URL');
             return;
         }
 
-        // 2. Отправляем GET-запрос к бэкенду
-        fetch(appUrl)
+        // Принудительно меняем http на https в URL
+        const secureUrl = appUrl.replace('http://', 'https://');
+        
+        fetch(secureUrl) // Используем безопасный URL
             .then(response => response.text())
             .then(data => {
-                // 3. Полученные данные подставляем в текстовое поле
                 document.getElementById('cellValue').value = data;
             })
             .catch(error => {
@@ -35,7 +35,7 @@
     }
 
     function saveData() {
-        // Эта функция пока пустая - заполним её следующей
+        // Скоро добавим
     }
 </script>
 </body>
