@@ -2,6 +2,17 @@
 <html>
 <head>
     <title>ShopList Editor</title>
+    <style>
+        #log {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            background: #f9f9f9;
+            min-height: 50px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+    </style>
 </head>
 <body>
     <h1>Редактор ячейки A1</h1>
@@ -11,50 +22,59 @@
     <input type="text" id="cellValue">
     <br><br>
     <button onclick="saveData()">Записать</button>
+    
+    <div id="log"></div>
 
-<script>
-    const appUrl = new URLSearchParams(window.location.search).get('appUrl');
+    <script>
+        const appUrl = new URLSearchParams(window.location.search).get('appUrl');
+        const logElement = document.getElementById('log');
 
-    function getData() {
-        if (!appUrl) {
-            alert('Добавьте в адресную строку параметр ?appUrl=ВАШ_URL');
-            return;
+        function logMessage(message) {
+            logElement.innerHTML += message + '<br>';
         }
 
-        // Принудительно используем HTTPS
-        const secureUrl = appUrl.replace('http://', 'https://');
-        
-        fetch(secureUrl)
+        function getData() {
+            if (!appUrl) {
+                logMessage('Ошибка: Добавьте параметр ?appUrl=ВАШ_URL в адресную строку');
+                return;
+            }
+
+            const secureUrl = appUrl.replace('http://', 'https://');
+            logMessage('Отправка запроса...');
+            
+            fetch(secureUrl)
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('cellValue').value = data;
+                    logMessage('✓ Данные получены: ' + data);
+                })
+                .catch(error => {
+                    logMessage('✗ Ошибка: ' + error);
+                });
+        }
+
+        function saveData() {
+            if (!appUrl) {
+                logMessage('Ошибка: Добавьте параметр ?appUrl=ВАШ_URL в адресную строку');
+                return;
+            }
+
+            const newValue = document.getElementById('cellValue').value;
+            const secureUrl = appUrl.replace('http://', 'https://');
+            logMessage('Отправка данных...');
+            
+            fetch(secureUrl, {
+                method: 'POST',
+                body: newValue
+            })
             .then(response => response.text())
-            .then(data => {
-                document.getElementById('cellValue').value = data;
+            .then(result => {
+                logMessage('✓ ' + result);
             })
             .catch(error => {
-                alert('Ошибка при получении данных: ' + error);
+                logMessage('✗ Ошибка: ' + error);
             });
-    }
-
-    function saveData() {
-        if (!appUrl) {
-            alert('Добавьте в адресную строку параметр ?appUrl=ВАШ_URL');
-            return;
         }
-
-        const newValue = document.getElementById('cellValue').value;
-        const secureUrl = appUrl.replace('http://', 'https://');
-        
-        fetch(secureUrl, {
-            method: 'POST',
-            body: newValue
-        })
-        .then(response => response.text())
-        .then(result => {
-            alert(result); // Покажем ответ от сервера ("OK: Data saved to A1")
-        })
-        .catch(error => {
-            alert('Ошибка при записи: ' + error);
-        });
-    }
-</script>
+    </script>
 </body>
 </html>
