@@ -1,26 +1,35 @@
 /**
  * ShopList — shared.js
- * Единая точка входа: меню, проверка подключения, API, инициализация страниц
+ * Единая точка входа: меню, API, ошибки, инициализация
  */
 
 // === Утилиты ===
 
+/**
+ * Получение параметра из URL
+ */
 function getUrlParam(name) {
   const urlParams = new URLSearchParams(window.location.search);
   return urlParams.get(name);
 }
 
+/**
+ * Получение URL бэкенда из параметра appUrl
+ */
 function getBackendUrl() {
-  return getUrlParam('appUrl');
+  const appUrl = getUrlParam('appUrl');
+  return appUrl ? appUrl.trim() : null;
 }
 
-// Проверка подключения к бэкенду
+/**
+ * Проверка, доступен ли бэкенд
+ */
 async function testBackendConnection(appUrl) {
   try {
     const url = new URL(appUrl);
     url.searchParams.append('action', 'getProducts');
 
-    const response = await fetch(url, { method: 'GET', mode: 'cors' });
+    const response = await fetch(url, { method: 'GET' });
     const text = await response.text();
 
     let data;
@@ -40,7 +49,9 @@ async function testBackendConnection(appUrl) {
   }
 }
 
-// Основная проверка appUrl и статуса подключения
+/**
+ * Проверка appUrl и редирект
+ */
 async function ensureAppUrl() {
   const appUrl = getBackendUrl();
   const currentPage = window.location.pathname.split('/').pop();
@@ -100,51 +111,95 @@ async function ensureAppUrl() {
   }
 }
 
-// Универсальный fetch
+/**
+ * Универсальный запрос к API с детальным логированием
+ */
 async function apiRequest(action, method = 'GET', body = null) {
   const appUrl = getBackendUrl();
   if (!appUrl) {
-    logError('Не задан appUrl в URL');
+    logError('apiRequest: не задан appUrl в URL');
     return null;
   }
 
-  const url = new URL(appUrl);
-  url.searchParams.append('action', action);
+  let url;
+  try {
+    url = new URL(appUrl);
+    url.searchParams.append('action', action);
+    logError(`apiRequest: формирование URL — ${url.toString()}`);
+  } catch (e) {
+    logError(`apiRequest: ошибка создания URL из '${appUrl}' — ${e.message}`);
+    return null;
+  }
 
+  // Исправление: Content-Type только для запросов с телом
   const config = {
     method,
-    headers: {
-      'Content-Type': 'application/json'
-    }
+    headers: {}
   };
 
+  // Добавляем Content-Type ТОЛЬКО для POST и других методов с телом
+  if (method.toUpperCase() !== 'GET' && method.toUpperCase() !== 'HEAD') {
+    config.headers['Content-Type'] = 'application/json';
+  }
+
   if (body) {
-    config.body = JSON.stringify(body);
+    try {
+      config.body = JSON.stringify(body);
+      logError(`apiRequest: тело запроса — ${config.body}`);
+    } catch (e) {
+      logError(`apiRequest: ошибка сериализации тела — ${e.message}`);
+      return null;
+    }
   }
 
   try {
+    logError(`apiRequest: отправка ${method} запроса к ${url}...`);
     const response = await fetch(url, config);
+
+    logError(`apiRequest: получен ответ — статус ${response.status} (${response.statusText})`);
+
+    // Логируем заголовки
+    const headers = {};
+    for (const [key, value] of response.headers) {
+      headers[key] = value;
+    }
+    logError(`apiRequest: заголовки ответа — ${JSON.stringify(headers)}`);
+
     const text = await response.text();
+    logError(`apiRequest: сырой ответ (первые 200 символов): ${text.substring(0, 200)}${text.length > 200 ? '...' : ''}`);
 
     let data;
     try {
       data = JSON.parse(text);
+      logError(`apiRequest: JSON успешно распарсен`);
     } catch (e) {
-      throw new Error(`Invalid JSON response: ${text.substring(0, 100)}...`);
+      logError(`apiRequest: ошибка парсинга JSON — ${e.message}`);
+      throw new Error(`Invalid JSON: ${text.substring(0, 100)}...`);
     }
 
     if (data.error) {
+      logError(`apiRequest: сервер вернул ошибку — ${data.error}`);
       throw new Error(data.error);
     }
 
+    logError(`apiRequest: ✅ Успешно: действие '${action}' завершено`);
     return data;
   } catch (error) {
-    logError(`Ошибка при ${action}: ${error.message}`);
+    if (error.name === 'TypeError' && error.message.includes('fetch')) {
+      logError(`apiRequest: 🔴 Ошибка сети — 'Failed to fetch'`);
+      logError(`  - Проверь, доступен ли URL: ${appUrl}`);
+      logError(`  - Убедись, что GAS развернут как веб-приложение`);
+      logError(`  - Проверь консоль браузера на наличие CORS-ошибок`);
+    } else {
+      logError(`apiRequest: ошибка выполнения запроса '${action}': ${error.message}`);
+    }
     return null;
   }
 }
 
-// Логирование ошибок
+/**
+ * Логирование ошибок в #error-log
+ */
 function logError(message) {
   const errorLog = document.getElementById('error-log');
   if (errorLog) {
@@ -159,16 +214,17 @@ function logError(message) {
   }
 }
 
-// Вставка меню с сохранением appUrl
+/**
+ * Вставка общего меню с сохранением appUrl
+ */
 function insertMainMenu() {
-  const appUrl = getUrlParam('appUrl');
+  const appUrl = getBackendUrl();
   const currentPath = window.location.pathname.split('/').pop();
 
   function createLink(href, text) {
     if (!appUrl) return `<a href="${href}">${text}</a>`;
     const url = new URL(href, window.location.href);
     url.searchParams.set('appUrl', appUrl);
-    // Если уже на этой странице — не добавлять лишний раз
     if (currentPath === href) return text;
     return `<a href="${url}">${text}</a>`;
   }
@@ -195,13 +251,17 @@ async function initProductsPage() {
   const viewAllBtn = document.getElementById('view-all');
   const viewNotInListBtn = document.getElementById('view-not-in-list');
 
-  if (!productsList) return;
+  if (!productsList) {
+    logError('initProductsPage: элемент #products-list не найден');
+    return;
+  }
 
   let products = [];
   let shoppingList = [];
   let currentView = 'all';
 
   async function loadData() {
+    logError('initProductsPage: загрузка данных...');
     products = await apiRequest('getProducts') || [];
     shoppingList = await apiRequest('getShoppingList') || [];
     renderList();
@@ -241,16 +301,22 @@ async function initProductsPage() {
       button.addEventListener('click', async (e) => {
         const productId = parseInt(e.target.dataset.id);
         const product = products.find(p => p.id === productId);
-        if (!product) return;
+        if (!product) {
+          logError(`initProductsPage: продукт с ID=${productId} не найден`);
+          return;
+        }
 
+        logError(`initProductsPage: добавление продукта ${productId} — ${product.name}`);
         const result = await apiRequest('addToShoppingList', 'POST', {
           productId: product.id,
           productName: product.name
         });
 
         if (result && result.success) {
+          logError(`initProductsPage: продукт добавлен в список покупок`);
           if (currentView === 'not-in-list') {
             e.target.closest('li').remove();
+            logError(`initProductsPage: элемент удалён из DOM (режим "Не в списке")`);
           }
           shoppingList.push({
             productId: product.id,
@@ -258,6 +324,8 @@ async function initProductsPage() {
             quantity: '',
             status: 'pending'
           });
+        } else {
+          logError(`initProductsPage: ошибка при добавлении продукта`);
         }
       });
     });
@@ -267,6 +335,7 @@ async function initProductsPage() {
     currentView = 'all';
     viewAllBtn.classList.add('primary');
     viewNotInListBtn.classList.remove('primary');
+    logError('initProductsPage: переключено на "Все"');
     renderList();
   });
 
@@ -274,23 +343,215 @@ async function initProductsPage() {
     currentView = 'not-in-list';
     viewAllBtn.classList.remove('primary');
     viewNotInListBtn.classList.add('primary');
+    logError('initProductsPage: переключено на "Не в списке"');
     renderList();
   });
 
-  // Инициализация
   await loadData();
   viewAllBtn?.classList.add('primary');
 }
 
-// === Автоматическая инициализация ===
+// === Страница: shopping-list.html ===
+async function initShoppingListPage() {
+  const shoppingListElement = document.getElementById('shopping-list');
+  const clearAllBtn = document.getElementById('clear-all');
+  const clearBoughtBtn = document.getElementById('clear-bought');
+
+  if (!shoppingListElement) {
+    logError('initShoppingListPage: элемент #shopping-list не найден');
+    return;
+  }
+
+  let shoppingList = [];
+
+  async function loadData() {
+    shoppingList = await apiRequest('getShoppingList') || [];
+    renderList();
+  }
+
+  function renderList() {
+    shoppingListElement.innerHTML = '';
+    
+    if (shoppingList.length === 0) {
+      shoppingListElement.innerHTML = '<li>Список покупок пуст</li>';
+      return;
+    }
+
+    shoppingList.forEach(item => {
+      const li = document.createElement('li');
+      li.innerHTML = `
+        <input type="text" class="quantity" value="${item.quantity || ''}" placeholder="Количество" data-id="${item.productId}">
+        ${item.productName}
+        <button data-id="${item.productId}" class="status bought">Купил</button>
+        <button data-id="${item.productId}" class="status not-available">Не было</button>
+      `;
+      shoppingListElement.appendChild(li);
+    });
+
+    // Обработчики для полей количества
+    document.querySelectorAll('.quantity').forEach(input => {
+      input.addEventListener('blur', async (e) => {
+        const productId = parseInt(e.target.dataset.id);
+        const quantity = e.target.value.trim();
+        
+        await apiRequest('updateQuantity', 'POST', {
+          productId,
+          quantity
+        });
+      });
+    });
+
+    // Обработчики для кнопок статуса
+    document.querySelectorAll('.status').forEach(button => {
+      button.addEventListener('click', async (e) => {
+        const productId = parseInt(e.target.dataset.id);
+        const status = e.target.classList.contains('bought') ? 'bought' : 'not_available';
+        
+        const result = await apiRequest('updateStatus', 'POST', {
+          productId,
+          status
+        });
+        
+        if (result && result.success) {
+          location.reload();
+        }
+      });
+    });
+  }
+
+  // Обработчик кнопки "Удалить всё"
+  clearAllBtn?.addEventListener('click', async () => {
+    if (confirm('Вы уверены, что хотите удалить весь список покупок?')) {
+      await apiRequest('clearShoppingList', 'POST');
+      location.reload();
+    }
+  });
+
+  // Обработчик кнопки "Удалить купленные"
+  clearBoughtBtn?.addEventListener('click', async () => {
+    if (confirm('Вы уверены, что хотите удалить купленные товары?')) {
+      await apiRequest('clearBought', 'POST');
+      location.reload();
+    }
+  });
+
+  await loadData();
+}
+
+// === Страница: add-product.html ===
+async function initAddProductPage() {
+  const productNameInput = document.getElementById('product-name');
+  const saveBtn = document.getElementById('save-product');
+  const cancelBtn = document.getElementById('cancel');
+  const deleteBtn = document.getElementById('delete-product');
+
+  if (!productNameInput || !saveBtn || !cancelBtn) {
+    logError('initAddProductPage: необходимые элементы не найдены');
+    return;
+  }
+
+  let isEditMode = false;
+  let currentProductId = null;
+
+  // Проверка режима редактирования
+  const urlParams = new URLSearchParams(window.location.search);
+  const editId = urlParams.get('edit');
+  
+  if (editId) {
+    isEditMode = true;
+    currentProductId = parseInt(editId);
+    logError(`initAddProductPage: режим редактирования, ID=${currentProductId}`);
+    
+    // Загружаем продукт для редактирования
+    const product = await apiRequest('getProducts');
+    const targetProduct = product.find(p => p.id == currentProductId);
+    
+    if (targetProduct) {
+      productNameInput.value = targetProduct.name;
+      
+      // Показываем кнопку удаления только в режиме редактирования
+      if (deleteBtn) {
+        deleteBtn.style.display = 'inline-block';
+      }
+    } else {
+      logError(`initAddProductPage: продукт с ID=${currentProductId} не найден`);
+      alert('Продукт не найден');
+      window.location.href = 'products.html';
+      return;
+    }
+  }
+
+  // Обработчик сохранения
+  saveBtn.addEventListener('click', async () => {
+    const name = productNameInput.value.trim();
+    if (!name) {
+      alert('Введите название продукта');
+      return;
+    }
+
+    if (isEditMode) {
+      // Режим редактирования
+      const result = await apiRequest('updateProduct', 'POST', {
+        id: currentProductId,
+        name: name
+      });
+      
+      if (result && result.success) {
+        logError(`initAddProductPage: продукт ID=${currentProductId} успешно обновлён`);
+        window.location.href = 'products.html';
+      }
+    } else {
+      // Режим добавления
+      const result = await apiRequest('addProduct', 'POST', {
+        name: name
+      });
+      
+      if (result && result.success) {
+        logError('initAddProductPage: продукт успешно добавлен');
+        window.location.href = 'products.html';
+      }
+    }
+  });
+
+  // Обработчик отмены
+  cancelBtn.addEventListener('click', () => {
+    window.location.href = 'products.html';
+  });
+
+  // Обработчик удаления (только в режиме редактирования)
+  if (deleteBtn) {
+    deleteBtn.addEventListener('click', async () => {
+      if (confirm('Вы уверены, что хотите удалить этот продукт?')) {
+        const result = await apiRequest('deleteProduct', 'POST', {
+          id: currentProductId
+        });
+        
+        if (result && result.success) {
+          logError(`initAddProductPage: продукт ID=${currentProductId} успешно удалён`);
+          window.location.href = 'products.html';
+        }
+      }
+    });
+  }
+}
+
+// === Инициализация при загрузке DOM ===
 document.addEventListener('DOMContentLoaded', async () => {
+  logError('shared.js: DOM загружен, инициализация...');
   insertMainMenu();
-  await ensureAppUrl(); // 🔥 Ждём завершения проверки
+  await ensureAppUrl();
 
   const currentPage = window.location.pathname.split('/').pop();
+  logError(`shared.js: текущая страница — ${currentPage}`);
 
   if (currentPage === 'products.html') {
+    logError('shared.js: инициализация страницы products.html');
     await initProductsPage();
+  } else if (currentPage === 'shopping-list.html') {
+    logError('shared.js: инициализация страницы shopping-list.html');
+    await initShoppingListPage();
+  } else if (currentPage === 'add-product.html') {
+    logError('shared.js: инициализация страницы add-product.html');
+    await initAddProductPage();
   }
-  // Здесь будут другие страницы: shopping-list.html, add-product.html
 });

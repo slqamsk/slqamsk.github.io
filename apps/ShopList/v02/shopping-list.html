@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Список покупок на сегодня</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header></header>
+
+  <main>
+    <h1>Список покупок на сегодня</h1>
+
+    <ul id="shopping-list">
+      <!-- Список будет заполнен через JS -->
+    </ul>
+
+    <div style="margin-top: 20px;">
+      <button id="clear-all" class="danger">Удалить всё</button>
+      <button id="clear-bought" class="danger">Удалить купленные</button>
+    </div>
+  </main>
+
+  <div id="error-log" class="error-box"></div>
+
+  <script src="shared.js"></script>
+</body>
+</html>
