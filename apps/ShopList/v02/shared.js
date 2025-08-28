@@ -111,6 +111,7 @@ async function ensureAppUrl() {
   }
 }
 
+
 /**
  * Универсальный запрос к API с детальным логированием
  */
@@ -137,18 +138,17 @@ async function apiRequest(action, method = 'GET', body = null) {
     headers: {}
   };
 
-  // Добавляем Content-Type ТОЛЬКО для POST и других методов с телом
+  // Для всех методов с телом (включая POST)
   if (method.toUpperCase() !== 'GET' && method.toUpperCase() !== 'HEAD') {
     config.headers['Content-Type'] = 'application/json';
-  }
-
-  if (body) {
-    try {
-      config.body = JSON.stringify(body);
-      logError(`apiRequest: тело запроса — ${config.body}`);
-    } catch (e) {
-      logError(`apiRequest: ошибка сериализации тела — ${e.message}`);
-      return null;
+    if (body) {
+      try {
+        config.body = JSON.stringify(body);
+        logError(`apiRequest: тело запроса — ${config.body}`);
+      } catch (e) {
+        logError(`apiRequest: ошибка сериализации тела — ${e.message}`);
+        return null;
+      }
     }
   }
 
@@ -168,22 +168,37 @@ async function apiRequest(action, method = 'GET', body = null) {
     const text = await response.text();
     logError(`apiRequest: сырой ответ (первые 200 символов): ${text.substring(0, 200)}${text.length > 200 ? '...' : ''}`);
 
-    let data;
-    try {
-      data = JSON.parse(text);
-      logError(`apiRequest: JSON успешно распарсен`);
-    } catch (e) {
-      logError(`apiRequest: ошибка парсинга JSON — ${e.message}`);
-      throw new Error(`Invalid JSON: ${text.substring(0, 100)}...`);
-    }
+    // Попытка распарсить JSON только если Content-Type включает 'json'
+    if (response.headers.get('Content-Type')?.includes('json')) {
+      let data;
+      try {
+        data = JSON.parse(text);
+        logError(`apiRequest: JSON успешно распарсен`);
+      } catch (e) {
+        logError(`apiRequest: ошибка парсинга JSON — ${e.message}`);
+        throw new Error(`Invalid JSON: ${text.substring(0, 100)}...`);
+      }
 
-    if (data.error) {
-      logError(`apiRequest: сервер вернул ошибку — ${data.error}`);
-      throw new Error(data.error);
-    }
+      if (data.error) {
+        logError(`apiRequest: сервер вернул ошибку — ${data.error}`);
+        throw new Error(data.error);
+      }
 
-    logError(`apiRequest: ✅ Успешно: действие '${action}' завершено`);
-    return data;
+      logError(`apiRequest: ✅ Успешно: действие '${action}' завершено`);
+      return data;
+    } 
+    // Для не-JSON ответов (например, при ошибках GAS)
+    else {
+      logError(`apiRequest: ответ не является JSON`);
+      
+      // Проверяем, не HTML-ошибка ли это
+      if (text.includes('<html>') || text.includes('<!DOCTYPE html>')) {
+        logError(`apiRequest: получен HTML-ответ (возможно, ошибка GAS)`);
+        throw new Error('Server returned HTML instead of JSON');
+      }
+      
+      return { success: true };
+    }
   } catch (error) {
     if (error.name === 'TypeError' && error.message.includes('fetch')) {
       logError(`apiRequest: 🔴 Ошибка сети — 'Failed to fetch'`);
@@ -196,6 +211,7 @@ async function apiRequest(action, method = 'GET', body = null) {
     return null;
   }
 }
+
 
 /**
  * Логирование ошибок в #error-log
