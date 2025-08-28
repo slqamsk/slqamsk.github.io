@@ -1,0 +1,513 @@
+{
+  "info": {
+    "_postman_id": "a0e7b8c9-d5f1-4b23-a4c5-d6e7f8g9h1i2",
+    "name": "ShopList - Full API Test Suite",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. getProducts - Получить все продукты",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{BASE_URL}}?action=getProducts",
+          "host": ["{{BASE_URL}}"],
+          "query": [
+            {
+              "key": "action",
+              "value": "getProducts"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "2. addProduct - Добавить продукт (Молоко)",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Молоко\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}?action=addProduct",
+          "host": ["{{BASE_URL}}"],
+          "query": [
+            {
+              "key": "action",
+              "value": "addProduct"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "3. addProduct - Добавить продукт (Хлеб)",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Хлеб\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}?action=addProduct",
+          "host": ["{{BASE_URL}}"],
+          "query": [
+            {
+              "key": "action",
+              "value": "addProduct"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "4. getProducts - Проверить список продуктов",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{BASE_URL}}?action=getProducts",
+          "host": ["{{BASE_URL}}"],
+          "query": [
+            {
+              "key": "action",
+              "value": "getProducts"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "5. addToShoppingList - Добавить Молоко в список",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"productId\": 1,\n  \"productName\": \"Молоко\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}?action=addToShoppingList",
+          "host": ["{{BASE_URL}}"],
+          "query": [
+            {
+              "key": "action",
+              "value": "addToShoppingList"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "6. addToShoppingList - Попытка дубля (Молоко)",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"productId\": 1,\n  \"productName\": \"Молоко\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}?action=addToShoppingList",
+          "host": ["{{BASE_URL}}"],
+          "query": [
+            {
+              "key": "action",
+              "value": "addToShoppingList"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "7. getShoppingList - Получить список покупок",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{BASE_URL}}?action=getShoppingList",
+          "host": ["{{BASE_URL}}"],
+          "query": [
+            {
+              "key": "action",
+              "value": "getShoppingList"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "8. updateQuantity - Установить количество (0.5 л)",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"productId\": 1,\n  \"quantity\": \"0.5 л\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}?action=updateQuantity",
+          "host": ["{{BASE_URL}}"],
+          "query": [
+            {
+              "key": "action",
+              "value": "updateQuantity"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "9. updateStatus - Отметить как 'Купил'",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"productId\": 1,\n  \"status\": \"bought\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}?action=updateStatus",
+          "host": ["{{BASE_URL}}"],
+          "query": [
+            {
+              "key": "action",
+              "value": "updateStatus"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "10. updateStatus - Отметить как 'Не было'",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"productId\": 1,\n  \"status\": \"not_available\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}?action=updateStatus",
+          "host": ["{{BASE_URL}}"],
+          "query": [
+            {
+              "key": "action",
+              "value": "updateStatus"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "11. addToShoppingList - Добавить Хлеб",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"productId\": 2,\n  \"productName\": \"Хлеб\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}?action=addToShoppingList",
+          "host": ["{{BASE_URL}}"],
+          "query": [
+            {
+              "key": "action",
+              "value": "addToShoppingList"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "12. updateStatus - Отметить Хлеб как 'Купил'",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"productId\": 2,\n  \"status\": \"bought\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}?action=updateStatus",
+          "host": ["{{BASE_URL}}"],
+          "query": [
+            {
+              "key": "action",
+              "value": "updateStatus"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "13. clearBought - Удалить купленные",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{BASE_URL}}?action=clearBought",
+          "host": ["{{BASE_URL}}"],
+          "query": [
+            {
+              "key": "action",
+              "value": "clearBought"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "14. clearShoppingList - Очистить весь список",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{BASE_URL}}?action=clearShoppingList",
+          "host": ["{{BASE_URL}}"],
+          "query": [
+            {
+              "key": "action",
+              "value": "clearShoppingList"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "15. updateProduct - Обновить название продукта",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id\": 1,\n  \"name\": \"Свежее молоко\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}?action=updateProduct",
+          "host": ["{{BASE_URL}}"],
+          "query": [
+            {
+              "key": "action",
+              "value": "updateProduct"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "16. deleteProduct - Удалить продукт",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id\": 1\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}?action=deleteProduct",
+          "host": ["{{BASE_URL}}"],
+          "query": [
+            {
+              "key": "action",
+              "value": "deleteProduct"
+            }
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "BASE_URL",
+      "value": "https://script.google.com/macros/s/YOUR-DEPLOYMENT-ID/exec",
+      "type": "string"
+    }
+  ]
+}

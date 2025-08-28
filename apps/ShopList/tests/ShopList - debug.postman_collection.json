@@ -1,0 +1,124 @@
+{
+	"info": {
+		"_postman_id": "98bde193-8736-47b3-a2d1-6b9718269078",
+		"name": "ShopList - debug",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "36497423",
+		"_collection_link": "https://sl5555-7137.postman.co/workspace/ShopList~386b26a8-f2f1-4053-9123-ca093b0ee869/collection/36497423-98bde193-8736-47b3-a2d1-6b9718269078?action=share&source=collection_link&creator=36497423"
+	},
+	"item": [
+		{
+			"name": "getProducts",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{BASE_URL}}?action=getProducts",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"query": [
+						{
+							"key": "action",
+							"value": "getProducts"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "addProduct",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{ \"name\": \"Хлеб\" }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{BASE_URL}}?action=addProduct",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"query": [
+						{
+							"key": "action",
+							"value": "addProduct"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "addToShoppingList",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"productId\": 1,\r\n  \"productName\": \"Молоко\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{BASE_URL}}?action=addToShoppingList",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"query": [
+						{
+							"key": "action",
+							"value": "addToShoppingList"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "BASE_URL",
+			"value": "https://script.google.com/macros/s/AKfycbxWa9Ojaj0tPXpVSstj5kKNRIs5ljwt0S0vXcnKtf6FOq9CAMNhnd7rRW__hR4f9hcy/exec",
+			"type": "string"
+		}
+	]
+}
