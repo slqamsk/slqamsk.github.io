@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тестовая страница</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .container {
+            border: 1px solid #ccc;
+            padding: 20px;
+            border-radius: 5px;
+        }
+        input, button {
+            padding: 10px;
+            margin: 5px 0;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .result {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 3px;
+        }
+        .error {
+            color: red;
+        }
+        .success {
+            color: green;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Тестовая форма</h2>
+        <label for="name-input">Введите ваше имя:</label>
+        <input type="text" id="name-input" placeholder="Ваше имя">
+        <button id="submit-btn">OK</button>
+        
+        <div id="result" class="result"></div>
+    </div>
+
+    <script>
+        document.getElementById('submit-btn').addEventListener('click', function() {
+            const nameInput = document.getElementById('name-input');
+            const resultDiv = document.getElementById('result');
+            
+            const name = nameInput.value.trim();
+            
+            if (!name) {
+                resultDiv.innerHTML = '<span class="error">Вы не ввели имя. Введите имя в поле выше</span>';
+            } else {
+                resultDiv.innerHTML = `<span class="success">Привет, ${name}!</span>`;
+            }
+            
+            nameInput.value = '';
+        });
+    </script>
+</body>
+</html>
