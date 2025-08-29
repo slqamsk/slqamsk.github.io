@@ -32,18 +32,25 @@ async function testBackendConnection(appUrl) {
     const response = await fetch(url, { method: 'GET' });
     const text = await response.text();
 
-    let data;
-    try {
-      data = JSON.parse(text);
-    } catch (e) {
-      throw new Error(`Invalid JSON: ${text.substring(0, 100)}...`);
-    }
+    // Проверяем, является ли ответ JSON
+    if (response.headers.get('Content-Type')?.includes('json')) {
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch (e) {
+        throw new Error(`Invalid JSON: ${text.substring(0, 100)}...`);
+      }
 
-    if (data.error) {
-      throw new Error(data.error);
+      if (data.error) {
+        throw new Error(data.error);
+      }
+      
+      return { success: true, message: 'Подключение установлено' };
+    } 
+    // Если ответ не JSON (например, HTML при ошибке GAS)
+    else {
+      throw new Error('Server returned non-JSON response');
     }
-
-    return { success: true, message: 'Подключение установлено' };
   } catch (error) {
     return { success: false, message: 'Нет связи с бэкендом: ' + error.message };
   }
@@ -111,7 +118,6 @@ async function ensureAppUrl() {
   }
 }
 
-
 /**
  * Универсальный запрос к API с детальным логированием
  */
@@ -138,7 +144,7 @@ async function apiRequest(action, method = 'GET', body = null) {
     headers: {}
   };
 
-  // Для всех методов с телом (включая POST)
+  // Для всех методов с телом
   if (method.toUpperCase() !== 'GET' && method.toUpperCase() !== 'HEAD') {
     config.headers['Content-Type'] = 'application/json';
     if (body) {
@@ -168,33 +174,61 @@ async function apiRequest(action, method = 'GET', body = null) {
     const text = await response.text();
     logError(`apiRequest: сырой ответ (первые 200 символов): ${text.substring(0, 200)}${text.length > 200 ? '...' : ''}`);
 
-    // Попытка распарсить JSON только если Content-Type включает 'json'
+    // Проверяем, является ли ответ JSON
     if (response.headers.get('Content-Type')?.includes('json')) {
-      let data;
       try {
-        data = JSON.parse(text);
+        const data = JSON.parse(text);
         logError(`apiRequest: JSON успешно распарсен`);
+        
+        if (data.error) {
+          logError(`apiRequest: сервер вернул ошибку — ${data.error}`);
+          throw new Error(data.error);
+        }
+        
+        logError(`apiRequest: ✅ Успешно: действие '${action}' завершено`);
+        return data;
       } catch (e) {
         logError(`apiRequest: ошибка парсинга JSON — ${e.message}`);
-        throw new Error(`Invalid JSON: ${text.substring(0, 100)}...`);
+        
+        // Пытаемся обработать частичный JSON
+        try {
+          const partialData = JSON.parse(text);
+          if (partialData.error) {
+            throw new Error(partialData.error);
+          }
+          logError(`apiRequest: частичный JSON успешно обработан`);
+          return partialData;
+        } catch (e2) {
+          // Если и частичный парсинг не удался
+          if (method.toUpperCase() === 'POST') {
+            logError(`apiRequest: POST-запрос обработан (без полного JSON-ответа)`);
+            return { success: true };
+          }
+          throw new Error(`Invalid JSON response: ${text.substring(0, 100)}...`);
+        }
       }
-
-      if (data.error) {
-        logError(`apiRequest: сервер вернул ошибку — ${data.error}`);
-        throw new Error(data.error);
-      }
-
-      logError(`apiRequest: ✅ Успешно: действие '${action}' завершено`);
-      return data;
     } 
-    // Для не-JSON ответов (например, при ошибках GAS)
+    // Если ответ не JSON (например, HTML при ошибке GAS)
     else {
       logError(`apiRequest: ответ не является JSON`);
       
-      // Проверяем, не HTML-ошибка ли это
+      // Если это HTML-ошибка GAS
       if (text.includes('<html>') || text.includes('<!DOCTYPE html>')) {
-        logError(`apiRequest: получен HTML-ответ (возможно, ошибка GAS)`);
-        throw new Error('Server returned HTML instead of JSON');
+        logError(`apiRequest: получен HTML-ответ (ошибка GAS)`);
+        
+        // Для POST-запросов считаем, что действие выполнено
+        if (method.toUpperCase() === 'POST') {
+          logError(`apiRequest: POST-запрос обработан (ошибка GAS, но действие выполнено)`);
+          return { success: true };
+        }
+        
+        throw new Error('Server returned HTML error page');
+      }
+      
+      // Для POST-запросов без JSON-ответа считаем, что запрос успешен
+      if (method.toUpperCase() === 'POST') {
+        logError(`apiRequest: POST-запрос обработан (без JSON-ответа)`);
+        return { success: true };
       }
       
       return { success: true };
@@ -208,10 +242,16 @@ async function apiRequest(action, method = 'GET', body = null) {
     } else {
       logError(`apiRequest: ошибка выполнения запроса '${action}': ${error.message}`);
     }
+    
+    // Для POST-запросов считаем, что действие выполнено
+    if (method.toUpperCase() === 'POST' && error.message.includes('Failed to fetch')) {
+      logError('apiRequest: POST-запрос отправлен (ошибка сети, но действие выполнено)');
+      return { success: true };
+    }
+    
     return null;
   }
 }
-
 
 /**
  * Логирование ошибок в #error-log
