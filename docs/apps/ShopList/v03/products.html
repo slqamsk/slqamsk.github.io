@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShopList - Общий список продуктов</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .loading-spinner {
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <header class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center">
+                    <i data-feather="shopping-cart" class="text-indigo-600 mr-2"></i>
+                    <span class="text-xl font-semibold text-gray-900">ShopList</span>
+                </div>
+                <nav class="hidden md:flex space-x-8">
+                    <a href="index.html" class="text-gray-500 hover:text-gray-700 px-1 pt-1 text-sm font-medium">Главная</a>
+                    <a href="products.html" class="text-indigo-600 border-b-2 border-indigo-600 px-1 pt-1 text-sm font-medium">Общий список</a>
+                    <a href="shopping-list.html" class="text-gray-500 hover:text-gray-700 px-1 pt-1 text-sm font-medium">Список покупок</a>
+                    <a href="add-product.html" class="text-gray-500 hover:text-gray-700 px-1 pt-1 text-sm font-medium">Добавить продукт</a>
+                </nav>
+                <div class="md:hidden">
+                    <button type="button" class="mobile-menu-button inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none">
+                        <i data-feather="menu"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="mobile-menu hidden md:hidden">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="index.html" class="text-gray-600 hover:bg-gray-50 hover:text-gray-900 block px-3 py-2 rounded-md text-base font-medium">Главная</a>
+                <a href="products.html" class="bg-indigo-50 text-indigo-600 block px-3 py-2 rounded-md text-base font-medium">Общий список</a>
+                <a href="shopping-list.html" class="text-gray-600 hover:bg-gray-50 hover:text-gray-900 block px-3 py-2 rounded-md text-base font-medium">Список покупок</a>
+                <a href="add-product.html" class="text-gray-600 hover:bg-gray-50 hover:text-gray-900 block px-3 py-2 rounded-md text-base font-medium">Добавить продукт</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="bg-white shadow rounded-lg overflow-hidden">
+            <div class="px-4 py-5 sm:px-6 border-b border-gray-200 flex justify-between items-center">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">Общий список продуктов</h3>
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center">
+                        <label for="view-mode" class="mr-2 text-sm font-medium text-gray-700">Режим:</label>
+                        <select id="view-mode" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                            <option value="all">Все продукты</option>
+                            <option value="not-in-list">Не в списке покупок</option>
+                        </select>
+                    </div>
+                    <a href="add-product.html" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        <i data-feather="plus" class="mr-2 h-4 w-4"></i> Добавить продукт
+                    </a>
+                </div>
+            </div>
+            <div class="px-4 py-5 sm:p-6">
+                <div id="products-list">
+                    <div class="text-center py-12">
+                        <i data-feather="loader" class="mx-auto h-12 w-12 text-gray-400 animate-spin"></i>
+                        <h3 class="mt-2 text-sm font-medium text-gray-900">Загрузка продуктов...</h3>
+                        <p class="mt-1 text-sm text-gray-500">Пожалуйста, подождите.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="loading-overlay" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center hidden z-50">
+        <div class="bg-white p-6 rounded-lg shadow-lg flex items-center">
+            <div class="loading-spinner h-8 w-8 border-4 border-indigo-500 border-t-transparent rounded-full mr-4"></div>
+            <span class="text-gray-700">Загрузка...</span>
+        </div>
+    </div>
+
+    <div id="error-log" class="fixed bottom-0 right-0 mb-4 mr-4 max-w-xs w-full bg-red-50 border-l-4 border-red-400 p-4 hidden">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <i data-feather="alert-circle" class="h-5 w-5 text-red-400"></i>
+            </div>
+            <div class="ml-3">
+                <p class="text-sm text-red-700"></p>
+            </div>
+            <div class="ml-auto pl-3">
+                <div class="-mx-1.5 -my-1.5">
+                    <button type="button" class="error-close inline-flex rounded-md p-1.5 text-red-500 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-400">
+                        <span class="sr-only">Dismiss</span>
+                        <i data-feather="x"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="shared.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeProductsPage();
+        });
+    </script>
+</body>
+</html>
