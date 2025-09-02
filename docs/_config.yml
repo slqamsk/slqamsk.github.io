@@ -1,2 +1,11 @@
 include:
   - _headers
+
+# Явно разрешаем служебные файлы
+include:
+  - ".nojekyll"
+  - "_headers"
+
+# Отключаем обработку для определенных путей
+exclude:
+  - "apps/ShopList/req/shoplist-openapi.yaml"
