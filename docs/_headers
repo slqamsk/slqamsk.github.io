@@ -1,0 +1,7 @@
+/*.yaml
+  Content-Type: text/x-yaml; charset=utf-8
+  X-Content-Type-Options: nosniff
+
+/*.yml
+  Content-Type: text/x-yaml; charset=utf-8
+  X-Content-Type-Options: nosniff
