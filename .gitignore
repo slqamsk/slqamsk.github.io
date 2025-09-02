@@ -18,12 +18,21 @@ Thumbs.db
 .vscode/
 .idea/
 
+# Jest test reports
+test-report.html
+integration-report.html
+*.html-report.html
+
 # Coverage directory used by tools like istanbul
 coverage/
 *.lcov
 
 # nyc test coverage
 .nyc_output/
+
+# Jest cache
+.jest-cache/
+.jest/
 
 # Lock files
 package-lock.json
