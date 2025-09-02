@@ -6,10 +6,11 @@ info:
 
 servers:
   - url: https://script.google.com/macros/s/{your_id}/exec
+    description: Google Apps Script Endpoint
     variables:
       your_id:
-        default: ВАШ_ID
-        description: ID вашего Google Apps Script
+        default: AKfycbzIN3HxtFViYrl5DHIUMVM-GxeNQubLxGP4-NgqxVZJv7mW5kYpdr4Q7UN9FPW4DOSA
+        description: Уникальный ID вашего Google Apps Script
 
 paths:
   /:
