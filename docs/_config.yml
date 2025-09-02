@@ -1,11 +1,12 @@
 include:
   - _headers
 
-# Явно разрешаем служебные файлы
+# Разрешаем YAML файлы для обработки
 include:
-  - ".nojekyll"
-  - "_headers"
+  - "**/*.yaml"
+  - "**/*.yml"
 
-# Отключаем обработку для определенных путей
-exclude:
-  - "apps/ShopList/req/shoplist-openapi.yaml"
+# Указываем правильные MIME types
+mime_types:
+  yaml: text/x-yaml
+  yml: text/x-yaml

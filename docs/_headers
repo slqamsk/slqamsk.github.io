@@ -1,12 +1,3 @@
 /apps/ShopList/req/shoplist-openapi.yaml
   Content-Type: text/x-yaml; charset=utf-8
   X-Content-Type-Options: nosniff
-  Access-Control-Allow-Origin: *
-
-/*.yaml
-  Content-Type: text/x-yaml; charset=utf-8
-  X-Content-Type-Options: nosniff
-
-/*.yml
-  Content-Type: text/x-yaml; charset=utf-8
-  X-Content-Type-Options: nosniff
