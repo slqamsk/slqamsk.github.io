@@ -1,0 +1,36 @@
+/* test-report-style.css */
+body {
+  font-family: Arial, sans-serif;
+  margin: 20px;
+  line-height: 1.6;
+}
+
+.test-result {
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 5px;
+}
+
+.passed {
+  background-color: #d4edda;
+  border: 1px solid #c3e6cb;
+}
+
+.failed {
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+}
+
+.skipped {
+  background-color: #e2e3e5;
+  border: 1px solid #d6d8db;
+}
+
+.console-log {
+  background-color: #f8f9fa;
+  border: 1px solid #e9ecef;
+  padding: 10px;
+  margin: 5px 0;
+  font-family: monospace;
+  white-space: pre-wrap;
+}
