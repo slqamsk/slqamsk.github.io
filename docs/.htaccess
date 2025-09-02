@@ -1,0 +1,4 @@
+<Files "shoplist-openapi.yaml">
+  AddType application/x-yaml .yaml
+  AddCharset UTF-8 .yaml
+</Files>
