@@ -1,7 +1,7 @@
-/*.yaml
+/apps/ShopList/req/*.yaml
   Content-Type: text/x-yaml; charset=utf-8
   X-Content-Type-Options: nosniff
 
-/*.yml
+/apps/ShopList/req/*.yml
   Content-Type: text/x-yaml; charset=utf-8
   X-Content-Type-Options: nosniff
