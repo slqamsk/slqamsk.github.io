@@ -30,9 +30,12 @@
           layout: 'BaseLayout',
           docExpansion: 'list',
           filter: true,
-          // Убедимся, что параметры передаются как query, а не path
+          // Добавляем кастомный requestInterceptor для правильного формирования URL
           requestInterceptor: (req) => {
-            // Убираем возможные trailing slash перед ? (не требуется, но для уверенности)
+            // Убираем слеш перед query-параметрами
+            if (req.url.includes('/?')) {
+              req.url = req.url.replace('/?', '?');
+            }
             return req;
           },
         });
