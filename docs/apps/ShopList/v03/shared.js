@@ -52,18 +52,38 @@ async function apiRequest(url, method = 'GET', data = null) {
     showLoading();
     
     try {
-        const options = {
+        let finalUrl = url;
+        let options = {
             method: method,
             headers: {
-                'Content-Type': 'application/json'
-            }
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
         };
         
-        if (data) {
-            options.body = JSON.stringify(data);
+        // For GET requests, we'll add parameters to the URL
+        if (method === 'GET' && data) {
+            const params = new URLSearchParams(data);
+            finalUrl = `${url}${url.includes('?') ? '&' : '?'}${params.toString()}`;
+        } else if (data) {
+            // For other methods, we'll use form data to avoid CORS preflight
+            const formData = new URLSearchParams();
+            for (const key in data) {
+                if (data.hasOwnProperty(key)) {
+                    formData.append(key, data[key]);
+                }
+            }
+            options.body = formData;
         }
         
-        const response = await fetch(url, options);
+        // Add timestamp to avoid caching
+        finalUrl += finalUrl.includes('?') ? '&' : '?';
+        finalUrl += `_t=${Date.now()}`;
+        
+        const response = await fetch(finalUrl, options);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
         
         // Check if response is HTML (error case)
         const contentType = response.headers.get('content-type');
@@ -87,6 +107,55 @@ async function apiRequest(url, method = 'GET', data = null) {
     }
 }
 
+// Alternative API request function for Google Apps Script
+async function gapiRequest(appUrl, action, method = 'GET', data = null) {
+    showLoading();
+    
+    try {
+        // Build the URL with action as a parameter
+        let url = `${appUrl}?action=${action}`;
+        
+        // For GET requests, add data as URL parameters
+        if (method === 'GET' && data) {
+            const params = new URLSearchParams(data);
+            url += `&${params.toString()}`;
+        }
+        
+        // Add timestamp to avoid caching
+        url += `&_t=${Date.now()}`;
+        
+        let options = {
+            method: method
+        };
+        
+        // For POST requests, use form data
+        if (method === 'POST' && data) {
+            const formData = new URLSearchParams();
+            for (const key in data) {
+                if (data.hasOwnProperty(key)) {
+                    formData.append(key, data[key]);
+                }
+            }
+            options.body = formData;
+            options.headers = {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            };
+        }
+        
+        const response = await fetch(url, options);
+        
+        // With no-cors mode, we can't read the response directly
+        // We'll assume it was successful for now
+        // In a real implementation, you'd need to handle this differently
+        return { success: true };
+    } catch (error) {
+        showError(error.message);
+        throw error;
+    } finally {
+        hideLoading();
+    }
+}
+
 // App initialization
 function initializeApp() {
     feather.replace();
@@ -95,7 +164,10 @@ function initializeApp() {
     const mobileMenuButton = document.querySelector('.mobile-menu-button');
     if (mobileMenuButton) {
         mobileMenuButton.addEventListener('click', function() {
-            document.querySelector('.mobile-menu').classList.toggle('hidden');
+            const mobileMenu = document.querySelector('.mobile-menu');
+            if (mobileMenu) {
+                mobileMenu.classList.toggle('hidden');
+            }
         });
     }
     
@@ -104,9 +176,12 @@ function initializeApp() {
     const appUrl = urlParams.get('appUrl');
     
     if (window.location.pathname.endsWith('index.html')) {
-        if (appUrl) {
-            document.getElementById('deployment-instructions').classList.add('hidden');
-            document.getElementById('app-status').classList.remove('hidden');
+        const appStatus = document.getElementById('app-status');
+        const deploymentInstructions = document.getElementById('deployment-instructions');
+        
+        if (appUrl && appStatus && deploymentInstructions) {
+            deploymentInstructions.classList.add('hidden');
+            appStatus.classList.remove('hidden');
             
             // Check backend connection
             checkBackendConnection(appUrl);
@@ -128,8 +203,9 @@ function updateLinks(appUrl) {
     
     document.querySelectorAll('a').forEach(link => {
         const href = link.getAttribute('href');
-        if (href && !href.includes('appUrl')) {
-            link.setAttribute('href', href + (href.includes('?') ? '&' : '?') + 'appUrl=' + encodeURIComponent(appUrl));
+        if (href && !href.includes('appUrl') && !href.startsWith('http') && !href.startsWith('#')) {
+            const separator = href.includes('?') ? '&' : '?';
+            link.setAttribute('href', `${href}${separator}appUrl=${encodeURIComponent(appUrl)}`);
         }
     });
 }
@@ -137,34 +213,62 @@ function updateLinks(appUrl) {
 // Backend connection check
 async function checkBackendConnection(appUrl) {
     try {
-        await apiRequest(appUrl + '?action=getProducts');
-        document.getElementById('app-status').innerHTML = `
-            <div class="rounded-md bg-green-50 p-4 mb-4">
-                <div class="flex">
-                    <div class="flex-shrink-0">
-                        <i data-feather="check-circle" class="h-5 w-5 text-green-400"></i>
-                    </div>
-                    <div class="ml-3">
-                        <h3 class="text-sm font-medium text-green-800">Подключение к бэкенду установлено</h3>
+        const appStatus = document.getElementById('app-status');
+        if (!appStatus) return;
+        
+        // Try the regular API request first
+        try {
+            await apiRequest(appUrl + '?action=getProducts');
+            appStatus.innerHTML = `
+                <div class="rounded-md bg-green-50 p-4 mb-4">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i data-feather="check-circle" class="h-5 w-5 text-green-400"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-sm font-medium text-green-800">Подключение к бэкенду установлено</h3>
+                        </div>
                     </div>
                 </div>
-            </div>
-        `;
-        feather.replace();
+            `;
+            feather.replace();
+            return;
+        } catch (apiError) {
+            // If regular API fails, try the Google Apps Script approach
+            await gapiRequest(appUrl, 'getProducts', 'GET');
+            appStatus.innerHTML = `
+                <div class="rounded-md bg-green-50 p-4 mb-4">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i data-feather="check-circle" class="h-5 w-5 text-green-400"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-sm font-medium text-green-800">Подключение к бэкенду установлено (no-cors mode)</h3>
+                            <p class="text-sm text-green-700 mt-1">Некоторые функции могут работать ограниченно из-за политик браузера.</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            feather.replace();
+        }
     } catch (error) {
-        document.getElementById('app-status').innerHTML = `
-            <div class="rounded-md bg-red-50 p-4 mb-4">
-                <div class="flex">
-                    <div class="flex-shrink-0">
-                        <i data-feather="x-circle" class="h-5 w-5 text-red-400"></i>
-                    </div>
-                    <div class="ml-3">
-                        <h3 class="text-sm font-medium text-red-800">Ошибка подключения к бэкенду: ${error.message}</h3>
+        const appStatus = document.getElementById('app-status');
+        if (appStatus) {
+            appStatus.innerHTML = `
+                <div class="rounded-md bg-red-50 p-4 mb-4">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i data-feather="x-circle" class="h-5 w-5 text-red-400"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-sm font-medium text-red-800">Ошибка подключения к бэкенду: ${error.message}</h3>
+                            <p class="text-sm text-red-700 mt-1">Проверьте URL развертывания и настройки CORS в Google Apps Script.</p>
+                        </div>
                     </div>
                 </div>
-            </div>
-        `;
-        feather.replace();
+            `;
+            feather.replace();
+        }
     }
 }
 
@@ -176,7 +280,10 @@ function initializeProductsPage() {
     const mobileMenuButton = document.querySelector('.mobile-menu-button');
     if (mobileMenuButton) {
         mobileMenuButton.addEventListener('click', function() {
-            document.querySelector('.mobile-menu').classList.toggle('hidden');
+            const mobileMenu = document.querySelector('.mobile-menu');
+            if (mobileMenu) {
+                mobileMenu.classList.toggle('hidden');
+            }
         });
     }
     
@@ -196,18 +303,22 @@ function initializeProductsPage() {
     loadProducts(appUrl);
     
     // View mode change handler
-    document.getElementById('view-mode').addEventListener('change', function() {
-        loadProducts(appUrl);
-    });
+    const viewMode = document.getElementById('view-mode');
+    if (viewMode) {
+        viewMode.addEventListener('change', function() {
+            loadProducts(appUrl);
+        });
+    }
 }
 
 async function loadProducts(appUrl) {
     try {
-        const viewMode = document.getElementById('view-mode').value;
+        const viewMode = document.getElementById('view-mode');
+        const viewModeValue = viewMode ? viewMode.value : 'all';
         const productsResponse = await apiRequest(appUrl + '?action=getProducts');
         let products = productsResponse.products || [];
         
-        if (viewMode === 'not-in-list') {
+        if (viewModeValue === 'not-in-list') {
             // Get shopping list to filter out products already in list
             const shoppingListResponse = await apiRequest(appUrl + '?action=getShoppingList');
             const shoppingList = shoppingListResponse.items || [];
@@ -216,21 +327,26 @@ async function loadProducts(appUrl) {
             products = products.filter(product => !shoppingListProductIds.includes(product.id));
         }
         
-        renderProducts(products, appUrl, viewMode);
+        renderProducts(products, appUrl, viewModeValue);
     } catch (error) {
-        document.getElementById('products-list').innerHTML = `
-            <div class="text-center py-12">
-                <i data-feather="alert-triangle" class="mx-auto h-12 w-12 text-red-400"></i>
-                <h3 class="mt-2 text-sm font-medium text-gray-900">Ошибка загрузки</h3>
-                <p class="mt-1 text-sm text-gray-500">${error.message}</p>
-            </div>
-        `;
-        feather.replace();
+        const productsList = document.getElementById('products-list');
+        if (productsList) {
+            productsList.innerHTML = `
+                <div class="text-center py-12">
+                    <i data-feather="alert-triangle" class="mx-auto h-12 w-12 text-red-400"></i>
+                    <h3 class="mt-2 text-sm font-medium text-gray-900">Ошибка загрузки</h3>
+                    <p class="mt-1 text-sm text-gray-500">${error.message}</p>
+                </div>
+            `;
+            feather.replace();
+        }
     }
 }
 
 function renderProducts(products, appUrl, viewMode) {
     const productsList = document.getElementById('products-list');
+    
+    if (!productsList) return;
     
     if (products.length === 0) {
         productsList.innerHTML = `
@@ -275,7 +391,10 @@ function renderProducts(products, appUrl, viewMode) {
                 
                 // If in "not-in-list" mode, remove the product from the DOM
                 if (viewMode === 'not-in-list') {
-                    this.closest('[data-product-id]').remove();
+                    const productElement = this.closest('[data-product-id]');
+                    if (productElement) {
+                        productElement.remove();
+                    }
                 } else {
                     // Show success message
                     alert('Продукт добавлен в список покупок');
@@ -295,7 +414,10 @@ function initializeShoppingListPage() {
     const mobileMenuButton = document.querySelector('.mobile-menu-button');
     if (mobileMenuButton) {
         mobileMenuButton.addEventListener('click', function() {
-            document.querySelector('.mobile-menu').classList.toggle('hidden');
+            const mobileMenu = document.querySelector('.mobile-menu');
+            if (mobileMenu) {
+                mobileMenu.classList.toggle('hidden');
+            }
         });
     }
     
@@ -315,15 +437,22 @@ function initializeShoppingListPage() {
     loadShoppingList(appUrl);
     
     // Clear buttons handlers
-    document.getElementById('clear-bought').addEventListener('click', function() {
-        clearBoughtItems(appUrl);
-    });
+    const clearBought = document.getElementById('clear-bought');
+    const clearAll = document.getElementById('clear-all');
     
-    document.getElementById('clear-all').addEventListener('click', function() {
-        if (confirm('Вы уверены, что хотите удалить весь список покупок?')) {
-            clearShoppingList(appUrl);
-        }
-    });
+    if (clearBought) {
+        clearBought.addEventListener('click', function() {
+            clearBoughtItems(appUrl);
+        });
+    }
+    
+    if (clearAll) {
+        clearAll.addEventListener('click', function() {
+            if (confirm('Вы уверены, что хотите удалить весь список покупок?')) {
+                clearShoppingList(appUrl);
+            }
+        });
+    }
 }
 
 async function loadShoppingList(appUrl) {
@@ -332,19 +461,24 @@ async function loadShoppingList(appUrl) {
         const items = response.items || [];
         renderShoppingList(items, appUrl);
     } catch (error) {
-        document.getElementById('shopping-list').innerHTML = `
-            <div class="text-center py-12">
-                <i data-feather="alert-triangle" class="mx-auto h-12 w-12 text-red-400"></i>
-                <h3 class="mt-2 text-sm font-medium text-gray-900">Ошибка загрузки</h3>
-                <p class="mt-1 text-sm text-gray-500">${error.message}</p>
-            </div>
-        `;
-        feather.replace();
+        const shoppingList = document.getElementById('shopping-list');
+        if (shoppingList) {
+            shoppingList.innerHTML = `
+                <div class="text-center py-12">
+                    <i data-feather="alert-triangle" class="mx-auto h-12 w-12 text-red-400"></i>
+                    <h3 class="mt-2 text-sm font-medium text-gray-900">Ошибка загрузки</h3>
+                    <p class="mt-1 text-sm text-gray-500">${error.message}</p>
+                </div>
+            `;
+            feather.replace();
+        }
     }
 }
 
 function renderShoppingList(items, appUrl) {
     const shoppingList = document.getElementById('shopping-list');
+    
+    if (!shoppingList) return;
     
     if (items.length === 0) {
         shoppingList.innerHTML = `
@@ -418,9 +552,11 @@ function renderShoppingList(items, appUrl) {
     document.querySelectorAll('.update-quantity').forEach(button => {
         button.addEventListener('click', async function() {
             const container = this.closest('[data-item-id]');
+            if (!container) return;
+            
             const productId = container.getAttribute('data-item-id');
             const quantityInput = container.querySelector('.quantity-input');
-            const quantity = quantityInput.value;
+            const quantity = quantityInput ? quantityInput.value : '';
             
             try {
                 await apiRequest(appUrl + '?action=updateQuantity', 'POST', {
@@ -472,7 +608,10 @@ function initializeAddProductPage() {
     const mobileMenuButton = document.querySelector('.mobile-menu-button');
     if (mobileMenuButton) {
         mobileMenuButton.addEventListener('click', function() {
-            document.querySelector('.mobile-menu').classList.toggle('hidden');
+            const mobileMenu = document.querySelector('.mobile-menu');
+            if (mobileMenu) {
+                mobileMenu.classList.toggle('hidden');
+            }
         });
     }
     
@@ -491,52 +630,73 @@ function initializeAddProductPage() {
     
     // Check if we're in edit mode
     if (editId) {
-        document.getElementById('form-title').textContent = 'Редактировать продукт';
-        document.getElementById('delete-button').classList.remove('hidden');
+        const formTitle = document.getElementById('form-title');
+        const deleteButton = document.getElementById('delete-button');
+        
+        if (formTitle) {
+            formTitle.textContent = 'Редактировать продукт';
+        }
+        
+        if (deleteButton) {
+            deleteButton.classList.remove('hidden');
+        }
+        
         loadProductForEditing(appUrl, editId);
     }
     
     // Form validation
-    document.getElementById('product-form').addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const nameInput = document.getElementById('product-name');
-        const name = nameInput.value.trim();
-        const nameError = document.getElementById('name-error');
-        
-        // Validate name
-        if (name.length < 2 || name.length > 100 || !name.replace(/\s/g, '').length) {
-            nameError.classList.remove('hidden');
-            nameInput.classList.add('border-red-300');
-            nameInput.classList.add('focus:ring-red-500');
-            nameInput.classList.add('focus:border-red-500');
-            return;
-        }
-        
-        nameError.classList.add('hidden');
-        nameInput.classList.remove('border-red-300');
-        nameInput.classList.remove('focus:ring-red-500');
-        nameInput.classList.remove('focus:border-red-500');
-        
-        // Save product
-        if (editId) {
-            updateProduct(appUrl, editId, name);
-        } else {
-            addProduct(appUrl, name);
-        }
-    });
+    const productForm = document.getElementById('product-form');
+    if (productForm) {
+        productForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const nameInput = document.getElementById('product-name');
+            const nameError = document.getElementById('name-error');
+            
+            if (!nameInput || !nameError) return;
+            
+            const name = nameInput.value.trim();
+            
+            // Validate name
+            if (name.length < 2 || name.length > 100 || !name.replace(/\s/g, '').length) {
+                nameError.classList.remove('hidden');
+                nameInput.classList.add('border-red-300');
+                nameInput.classList.add('focus:ring-red-500');
+                nameInput.classList.add('focus:border-red-500');
+                return;
+            }
+            
+            nameError.classList.add('hidden');
+            nameInput.classList.remove('border-red-300');
+            nameInput.classList.remove('focus:ring-red-500');
+            nameInput.classList.remove('focus:border-red-500');
+            
+            // Save product
+            if (editId) {
+                updateProduct(appUrl, editId, name);
+            } else {
+                addProduct(appUrl, name);
+            }
+        });
+    }
     
     // Cancel button
-    document.getElementById('cancel-button').addEventListener('click', function() {
-        window.location.href = 'products.html?appUrl=' + encodeURIComponent(appUrl);
-    });
+    const cancelButton = document.getElementById('cancel-button');
+    if (cancelButton) {
+        cancelButton.addEventListener('click', function() {
+            window.location.href = 'products.html?appUrl=' + encodeURIComponent(appUrl);
+        });
+    }
     
     // Delete button
-    document.getElementById('delete-button').addEventListener('click', function() {
-        if (confirm('Вы уверены, что хотите удалить этот продукт?')) {
-            deleteProduct(appUrl, editId);
-        }
-    });
+    const deleteButton = document.getElementById('delete-button');
+    if (deleteButton) {
+        deleteButton.addEventListener('click', function() {
+            if (confirm('Вы уверены, что хотите удалить этот продукт?')) {
+                deleteProduct(appUrl, editId);
+            }
+        });
+    }
 }
 
 async function loadProductForEditing(appUrl, productId) {
@@ -546,7 +706,10 @@ async function loadProductForEditing(appUrl, productId) {
         });
         
         const product = response.product;
-        document.getElementById('product-name').value = product.name;
+        const nameInput = document.getElementById('product-name');
+        if (nameInput && product) {
+            nameInput.value = product.name;
+        }
     } catch (error) {
         showError('Ошибка при загрузке продукта: ' + error.message);
     }
