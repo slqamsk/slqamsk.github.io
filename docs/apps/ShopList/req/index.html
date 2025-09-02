@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <title>ShopList Backend API</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/swagger-ui-dist@4.15.0/swagger-ui.css"
+    />
+    <style>
+      body {
+        margin: 0;
+        font-family: sans-serif;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="swagger-ui"></div>
+    <script src="https://unpkg.com/swagger-ui-dist@4.15.0/swagger-ui-bundle.js"></script>
+    <script>
+      window.onload = () => {
+        SwaggerUIBundle({
+          url: './shoplist-openapi.yaml', // Загружает YAML из той же папки
+          dom_id: '#swagger-ui',
+          presets: [
+            SwaggerUIBundle.presets.apis,
+            SwaggerUIBundle.presets.syntaxHighlight,
+          ],
+          layout: 'BaseLayout',
+          docExpansion: 'list', // Раскрывает все эндпоинты по умолчанию
+          filter: true, // Добавляет поиск по методам
+        });
+      };
+    </script>
+  </body>
+</html>

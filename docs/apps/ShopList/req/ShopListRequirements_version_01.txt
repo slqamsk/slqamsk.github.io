@@ -1,3 +1,4 @@
+/*
 ShopList Frontend Application
 
 ОБЩЕЕ ОПИСАНИЕ:
@@ -6,12 +7,21 @@ ShopList Frontend Application
 
 СТРУКТУРА ПРОЕКТА:
 ShopList/
-├── index.html          (Главная страница)
-├── products.html       (Общий список продуктов)
-├── shopping-list.html  (Список покупок)
-├── add-product.html    (Добавление/редактирование продукта)
-├── style.css          (Общие стили)
-└── shared.js          (Вся JavaScript-логика)
+├── index.html                 # Главная страница
+├── products.html              # Общий список продуктов
+├── shopping-list.html         # Список покупок
+├── add-product.html           # Добавление/редактирование продукта
+├── style.css                  # Общие стили
+├── modules/                   # Директория с JavaScript-модулями
+│   ├── api.js                # Модуль для работы с API
+│   ├── router.js             # Модуль для работы с URL и редиректами
+│   ├── ui.js                 # Модуль для уведомлений и индикаторов загрузки
+│   ├── validator.js          # Модуль валидации данных
+│   ├── products-page.js      # Логика страницы продуктов
+│   ├── shopping-list-page.js # Логика страницы списка покупок
+│   ├── add-product-page.js   # Логика страницы добавления продукта
+│   └── index-page.js         # Логика главной страницы
+└── main.js                   # Основной файл инициализации
 
 ТРЕБОВАНИЯ К ФУНКЦИОНАЛУ:
 
@@ -176,3 +186,4 @@ ShopList/
    - Маппинг статусов UI-API: 
        "Купил" → "bought"
        "Не было" → "not_available"
+*/

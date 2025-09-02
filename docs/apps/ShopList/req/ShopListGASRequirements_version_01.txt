@@ -1,0 +1,125 @@
+// ShopList Backend API Specification
+// ===================================
+//
+// Базовый URL: https://script.google.com/macros/s/ВАШ_ID/exec
+//
+// ОБЩИЕ ПРАВИЛА:
+// --------------
+// 1. Все успешные ответы возвращаются с HTTP-статусом 200 и в формате:
+//    { "success": true, "data": ... }
+//
+// 2. Все ответы с ошибками возвращаются с HTTP-статусом 200 и в формате:
+//    { "success": false, "error": "Текст ошибки" }
+//
+// 3. Content-Type всех ответов: application/json
+//
+// 4. Параметр 'action' является обязательным для всех запросов.
+//    - Для GET-запросов: передается ТОЛЬКО в query-строке.
+//    - Для POST-запросов: передается ТОЛЬКО в теле запроса.
+//
+// 5. Все POST-запросы должны иметь заголовок: Content-Type: application/json
+//
+//
+// СПЕЦИФИКАЦИЯ МЕТОДОВ:
+// ---------------------
+//
+// GET МЕТОДЫ (Не изменяют состояние сервера):
+// -------------------------------------------
+//
+// ?action=getProducts
+//   Описание: Возвращает список всех продуктов.
+//   Параметры: Нет.
+//   Ответ (Успех):
+//     {
+//       "success": true,
+//       "data": [
+//         { "id": 1, "name": "Молоко" },
+//         { "id": 2, "name": "Хлеб" }
+//       ]
+//     }
+//
+// ?action=getShoppingList
+//   Описание: Возвращает текущий список покупок.
+//   Параметры: Нет.
+//   Ответ (Успех):
+//     {
+//       "success": true,
+//       "data": [
+//         {
+//           "productId": 1,
+//           "productName": "Молоко",
+//           "quantity": "1 л",
+//           "status": "pending"
+//         }
+//       ]
+//     }
+//
+// ?action=getProductById&id=1
+//   Описание: Возвращает данные одного продукта по его ID.
+//   Параметры:
+//     - id (обязательный) - ID продукта
+//   Ответ (Успех):
+//     {
+//       "success": true,
+//       "data": {
+//         "id": 1,
+//         "name": "Молоко"
+//       }
+//     }
+//   Ответ (Ошибка):
+//     { "success": false, "error": "Product not found" }
+//
+//
+// POST МЕТОДЫ (Изменяют состояние сервера):
+// -----------------------------------------
+// Все POST-методы принимают параметры ТОЛЬКО в теле запроса в формате JSON.
+//
+// ?action=addProduct
+//   Тело запроса: { "name": "Сыр" }
+//   Ответ (Успех): { "success": true, "data": { "id": 3 } }
+//   Ответ (Ошибка): { "success": false, "error": "Name is required" }
+//
+// ?action=updateProduct
+//   Тело запроса: { "id": 1, "name": "Новое название" }
+//   Ответ (Успех): { "success": true }
+//   Ответ (Ошибка): { "success": false, "error": "Product not found" }
+//
+// ?action=deleteProduct
+//   Тело запроса: { "id": 1 }
+//   Ответ (Успех): { "success": true }
+//   Ответ (Ошибка): { "success": false, "error": "Product not found" }
+//
+// ?action=addToShoppingList
+//   Тело запроса: { "productId": 1 }
+//   Ответ (Успех): 
+//     {
+//       "success": true,
+//       "data": {
+//         "status": "added" // Или "already_exists"
+//       }
+//     }
+//   Ответ (Ошибка): 
+//     { "success": false, "error": "Product not found" }
+//
+// ?action=updateQuantity
+//   Тело запроса: { "productId": 1, "quantity": "2 л" }
+//   Ответ (Успех): { "success": true }
+//   Ответ (Ошибка): { "success": false, "error": "Not found in shopping list" }
+//
+// ?action=updateStatus
+//   Тело запроса: { "productId": 1, "status": "bought" }
+//   Ответ (Успех): { "success": true }
+//   Ответ (Ошибка): 
+//     { "success": false, "error": "Invalid status" }
+//     { "success": false, "error": "Not found in shopping list" }
+//
+// ?action=clearShoppingList
+//   Тело запроса: {} (Пустой объект)
+//   Ответ (Успех): { "success": true }
+//
+// ?action=clearBought
+//   Тело запроса: {} (Пустой объект)
+//   Ответ (Успех): { "success": true }
+//
+// ===================================
+// Конец спецификации

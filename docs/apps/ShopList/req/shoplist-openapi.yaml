@@ -1,0 +1,282 @@
+openapi: 3.0.0
+info:
+  title: ShopList Backend API
+  version: 1.0.0
+  description: API для управления списком покупок
+
+servers:
+  - url: https://script.google.com/macros/s/{your_id}/exec
+    variables:
+      your_id:
+        default: ВАШ_ID
+        description: ID вашего Google Apps Script
+
+paths:
+  /:
+    get:
+      summary: GET методы API
+      parameters:
+        - name: action
+          in: query
+          required: true
+          description: Действие для выполнения
+          schema:
+            type: string
+            enum:
+              - getProducts
+              - getShoppingList
+              - getProductById
+        - name: id
+          in: query
+          required: false
+          description: ID продукта (только для action=getProductById)
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Успешный ответ
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/GetProductsResponse'
+                  - $ref: '#/components/schemas/GetShoppingListResponse'
+                  - $ref: '#/components/schemas/GetProductByIdResponse'
+        '400':
+          description: Ошибка
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    post:
+      summary: POST методы API
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/AddProductRequest'
+                - $ref: '#/components/schemas/UpdateProductRequest'
+                - $ref: '#/components/schemas/DeleteProductRequest'
+                - $ref: '#/components/schemas/AddToShoppingListRequest'
+                - $ref: '#/components/schemas/UpdateQuantityRequest'
+                - $ref: '#/components/schemas/UpdateStatusRequest'
+                - $ref: '#/components/schemas/ClearShoppingListRequest'
+                - $ref: '#/components/schemas/ClearBoughtRequest'
+      responses:
+        '200':
+          description: Успешный ответ
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - $ref: '#/components/schemas/AddProductResponse'
+                  - $ref: '#/components/schemas/AddToShoppingListResponse'
+        '400':
+          description: Ошибка
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    # Общие схемы
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+
+    Product:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+
+    ShoppingItem:
+      type: object
+      properties:
+        productId:
+          type: integer
+        productName:
+          type: string
+        quantity:
+          type: string
+        status:
+          type: string
+          enum: [pending, bought]
+
+    # GET схемы ответов
+    GetProductsResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Product'
+
+    GetShoppingListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ShoppingItem'
+
+    GetProductByIdResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          $ref: '#/components/schemas/Product'
+
+    # POST схемы запросов
+    AddProductRequest:
+      type: object
+      required:
+        - action
+        - name
+      properties:
+        action:
+          type: string
+          enum: [addProduct]
+        name:
+          type: string
+
+    UpdateProductRequest:
+      type: object
+      required:
+        - action
+        - id
+        - name
+      properties:
+        action:
+          type: string
+          enum: [updateProduct]
+        id:
+          type: integer
+        name:
+          type: string
+
+    DeleteProductRequest:
+      type: object
+      required:
+        - action
+        - id
+      properties:
+        action:
+          type: string
+          enum: [deleteProduct]
+        id:
+          type: integer
+
+    AddToShoppingListRequest:
+      type: object
+      required:
+        - action
+        - productId
+      properties:
+        action:
+          type: string
+          enum: [addToShoppingList]
+        productId:
+          type: integer
+
+    UpdateQuantityRequest:
+      type: object
+      required:
+        - action
+        - productId
+        - quantity
+      properties:
+        action:
+          type: string
+          enum: [updateQuantity]
+        productId:
+          type: integer
+        quantity:
+          type: string
+
+    UpdateStatusRequest:
+      type: object
+      required:
+        - action
+        - productId
+        - status
+      properties:
+        action:
+          type: string
+          enum: [updateStatus]
+        productId:
+          type: integer
+        status:
+          type: string
+          enum: [pending, bought]
+
+    ClearShoppingListRequest:
+      type: object
+      required:
+        - action
+      properties:
+        action:
+          type: string
+          enum: [clearShoppingList]
+
+    ClearBoughtRequest:
+      type: object
+      required:
+        - action
+      properties:
+        action:
+          type: string
+          enum: [clearBought]
+
+    # POST схемы ответов
+    AddProductResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          properties:
+            id:
+              type: integer
+
+    AddToShoppingListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          properties:
+            status:
+              type: string
+              enum: [added, already_exists]
