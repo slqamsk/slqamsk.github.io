@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Пиццерия - Корзина</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="header-nav">
+        <div class="nav-left">
+            <a href="index.html" id="back-link" class="btn-link">Меню</a>
+        </div>
+        <div class="nav-right">
+            <a href="orders.html" class="orders-link">Мои заказы</a>
+            <a href="cart.html" class="cart-link">Корзина <span id="cart-count">0</span></a>
+        </div>
+    </div>
+
+    <header style="text-align: center; margin-bottom: 20px;">
+        <h1>Пиццерия "Итальянский уголок"</h1>
+    </header>
+
+    <div class="cart">
+        <h2>Ваша корзина</h2>
+        <div id="cart-items">
+            <p>Корзина пуста</p>
+        </div>
+        
+        <div class="total-price" id="total-price">
+            Итого: 0 ₽
+        </div>
+        
+        <div class="action-buttons">
+            <button class="btn clear-btn" id="clear-cart">Очистить корзину</button>
+            <button class="btn order-btn" id="place-order">Оформить заказ</button>
+        </div>
+    </div>
+
+    <script src="pizza-data.js"></script>
+    <script src="cart.js"></script>
+    <script>
+        // Обновляем счетчик корзины при загрузке страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCartCounter();
+        });
+    </script>
+</body>
+</html>
