@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Определение вида треугольника</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 30px;
+            background-color: #f9f9f9;
+        }
+
+        .form-container {
+            max-width: 500px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f0f9ff;
+            border-left: 5px solid #4CAF50;
+            border-radius: 4px;
+        }
+
+        .error {
+            color: red;
+        }
+
+        .success {
+            color: green;
+        }
+
+        .info {
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        .angles {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h2>Определение вида треугольника</h2>
+
+        <label for="side1">Сторона 1:</label>
+        <input type="number" id="side1" step="any" placeholder="Введите длину стороны 1" />
+
+        <label for="side2">Сторона 2:</label>
+        <input type="number" id="side2" step="any" placeholder="Введите длину стороны 2" />
+
+        <label for="side3">Сторона 3:</label>
+        <input type="number" id="side3" step="any" placeholder="Введите длину стороны 3" />
+
+        <button onclick="determineTriangle()">Определить вид треугольника</button>
+
+        <div id="result"></div>
+    </div>
+
+    <script>
+        function determineTriangle() {
+            let a = parseFloat(document.getElementById('side1').value);
+            let b = parseFloat(document.getElementById('side2').value);
+            let c = parseFloat(document.getElementById('side3').value);
+
+            const resultDiv = document.getElementById('result');
+
+            if (isNaN(a) || isNaN(b) || isNaN(c)) {
+                resultDiv.innerHTML = '<p class="error">Ошибка: введите числовые значения для всех сторон.</p>';
+                return;
+            }
+
+            if (a <= 0 || b <= 0 || c <= 0) {
+                resultDiv.innerHTML = '<p class="error">Ошибка: стороны должны быть положительными числами.</p>';
+                return;
+            }
+
+            // Сортируем стороны по убыванию
+            let sides = [a, b, c].sort((x, y) => y - x);
+            let [max, mid, min] = sides;
+
+            // Проверка неравенства треугольника
+            if (min + mid <= max) {
+                if (min + mid === max) {
+                    resultDiv.innerHTML = '<p class="error">Треугольник вырожденный (сумма двух сторон равна третьей).</p>';
+                } else {
+                    resultDiv.innerHTML = '<p class="error">Не возможно построить треугольник.</p>';
+                }
+                return;
+            }
+
+            // Определяем стороны a, b, c по убыванию
+            a = max;
+            b = mid;
+            c = min;
+
+            let types = [];
+
+            // Определяем типы
+            if (a === b && b === c) {
+                types.push("равносторонний");
+            } else if (a === b || b === c || a === c) {
+                types.push("равнобедренный");
+            }
+
+            // Проверка на прямоугольный
+            const sumSquares = c * c + b * b;
+            const aSquare = a * a;
+            const isExact = sumSquares === aSquare;
+            const isRounded = Math.abs(sumSquares - aSquare) < 0.1;
+
+            if (isRounded) {
+                if (isExact) {
+                    types.push("прямоугольный");
+                } else {
+                    types.push("прямоугольный (с округлением)");
+                }
+            } else if (sumSquares > aSquare) {
+                types.push("остроугольный");
+            } else {
+                types.push("тупоугольный");
+            }
+
+            // Периметр и площадь
+            const perimeter = a + b + c;
+            const s = perimeter / 2;
+            const area = Math.sqrt(s * (s - a) * (s - b) * (s - c));
+
+            // Углы по теореме косинусов
+            const angleA = Math.acos((b * b + c * c - a * a) / (2 * b * c));
+            const angleB = Math.acos((a * a + c * c - b * b) / (2 * a * c));
+            const angleC = Math.acos((a * a + b * b - c * c) / (2 * a * b));
+
+            // Сортируем углы по убыванию
+            const angles = [
+                { name: 'A', value: angleA },
+                { name: 'B', value: angleB },
+                { name: 'C', value: angleC }
+            ].sort((x, y) => y.value - x.value);
+
+            const degA = (angles[0].value * 180 / Math.PI).toFixed(2);
+            const degB = (angles[1].value * 180 / Math.PI).toFixed(2);
+            const degC = (angles[2].value * 180 / Math.PI).toFixed(2);
+
+            const radA = angles[0].value.toFixed(4);
+            const radB = angles[1].value.toFixed(4);
+            const radC = angles[2].value.toFixed(4);
+
+            // Выражение через π
+            const piA = (angles[0].value / Math.PI).toFixed(3);
+            const piB = (angles[1].value / Math.PI).toFixed(3);
+            const piC = (angles[2].value / Math.PI).toFixed(3);
+
+            resultDiv.innerHTML = `
+                <p class="success">Стороны: a = ${a}, b = ${b}, c = ${c}</p>
+                <p class="success">Треугольник ${types.join(' и ')}.</p>
+                <div class="info">
+                    <p><strong>Периметр:</strong> ${perimeter.toFixed(2)}</p>
+                    <p><strong>Площадь:</strong> ${area.toFixed(2)}</p>
+                </div>
+                <div class="angles">
+                    <p><strong>Углы (по убыванию):</strong></p>
+                    <p>${angles[0].name} = ${degA}° (${radA} рад = ${piA}π)</p>
+                    <p>${angles[1].name} = ${degB}° (${radB} рад = ${piB}π)</p>
+                    <p>${angles[2].name} = ${degC}° (${radC} рад = ${piC}π)</p>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>
