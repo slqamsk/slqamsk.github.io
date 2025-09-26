@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Регулятор температуры лаборатории</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .description {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+        .temperature-control {
+            text-align: center;
+            margin: 30px 0;
+        }
+        .temperature-display {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .temperature-value {
+            font-size: 48px;
+            font-weight: bold;
+            color: #e74c3c;
+            min-width: 120px;
+            text-align: center;
+        }
+        button {
+            padding: 12px 20px;
+            font-size: 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            background: #3498db;
+            color: white;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #2980b9;
+        }
+        .preset-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        .preset-buttons button {
+            font-size: 14px;
+            padding: 8px 15px;
+            background: #95a5a6;
+        }
+        .preset-buttons button:hover {
+            background: #7f8c8d;
+        }
+        .unit {
+            font-size: 24px;
+            color: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+	<div class="container">
+		<h1>Система контроля температуры</h1>
+		<div class="description">
+			<p>
+				Регулятор температуры лабораторного помещения<br>
+				Для безопасности оборудования температура изменяется плавно.<br>
+				Резкие скачки (более 10°C) могут вывести систему из строя.<br>
+				Прямой ввод температуры отключен в целях безопасности.<br>
+				Выберите приблизительное значение, затем используйте кнопки +/- для точной настройки.
+			</p>
+		</div>
+		
+		<div class="temperature-control">
+			<div class="preset-buttons">
+				<button onclick="setTemperature(-120)">-120°C</button>
+				<button onclick="setTemperature(-80)">-80°C</button>
+				<button onclick="setTemperature(-40)">-40°C</button>
+				<button onclick="setTemperature(0)">0°C</button>
+				<button onclick="setTemperature(40)">40°C</button>
+				<button onclick="setTemperature(80)">80°C</button>
+				<button onclick="setTemperature(120)">120°C</button>
+			</div>
+			<br><br>
+			<h2>Текущая температура в лаборатории:</h2>
+			<div class="temperature-display">
+				<button onclick="changeTemperature(-1)">-</button>
+				<div class="temperature-value" id="temperatureValue">20</div>
+				<span class="unit">°C</span>
+				<button onclick="changeTemperature(1)">+</button>
+			</div>
+		</div>
+	</div>
+
+    <script>
+        // Int8Array с одним элементом для хранения температуры
+        const temperature = new Int8Array(1);
+        temperature[0] = 50; // начальная температура 50°C
+        
+        const temperatureValue = document.getElementById('temperatureValue');
+        
+        let targetTemperature = 50;
+        let animationInterval = null;
+        const stepsPerSecond = 40;
+        
+        function updateDisplay() {
+            temperatureValue.textContent = temperature[0];
+        }
+        
+        function setTemperature(value) {
+            targetTemperature = value;
+            startAnimation();
+        }
+        
+        function changeTemperature(delta) {
+            temperature[0] += delta;
+            updateDisplay();
+        }
+        
+        function startAnimation() {
+            if (animationInterval) {
+                clearInterval(animationInterval);
+            }
+            
+            animationInterval = setInterval(() => {
+                if (temperature[0] < targetTemperature) {
+                    temperature[0]++;
+                } else if (temperature[0] > targetTemperature) {
+                    temperature[0]--;
+                } else {
+                    clearInterval(animationInterval);
+                    animationInterval = null;
+                }
+                updateDisplay();
+            }, 1000 / stepsPerSecond);
+        }
+        
+        // Инициализация
+        updateDisplay();
+    </script>
+</body>
+</html>
