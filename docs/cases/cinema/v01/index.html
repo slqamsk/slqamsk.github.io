@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Расчёт стоимости билета в кино (с багами)</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 25px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background-color: #fafafa;
+        }
+        .form-group label:first-child {
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: block;
+        }
+        input[type="number"], input[type="date"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .session-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .session-row label {
+            display: flex;
+            align-items: center;
+            margin: 0;
+        }
+        .session-row input {
+            margin-right: 5px;
+        }
+        .film-list {
+            margin-top: 10px;
+        }
+        .film-list label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .error {
+            color: #d32f2f;
+        }
+        .success {
+            color: #388e3c;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Расчёт стоимости билета в кино</h2>
+
+        <form id="ticketForm">
+            <div class="form-group">
+                <label>Укажите возраст (число полных лет):</label>
+                <input type="number" id="age" name="age" min="0" max="99">
+            </div>
+
+            <div class="form-group">
+                <label>Дата сеанса:</label>
+                <input type="date" id="date" name="date">
+            </div>
+
+            <div class="form-group">
+                <label>Начало сеанса:</label>
+                <div class="session-row">
+                    <label><input type="radio" name="session" value="09:30"> 09:30</label>
+                    <label><input type="radio" name="session" value="11:00"> 11:00</label>
+                    <label><input type="radio" name="session" value="12:30"> 12:30</label>
+                    <label><input type="radio" name="session" value="14:00"> 14:00</label>
+                    <label><input type="radio" name="session" value="16:00"> 16:00</label>
+                </div>
+                <div class="session-row">
+                    <label><input type="radio" name="session" value="17:30"> 17:30</label>
+                    <label><input type="radio" name="session" value="19:00"> 19:00</label>
+                    <label><input type="radio" name="session" value="20:30"> 20:30</label>
+                    <label><input type="radio" name="session" value="22:00"> 22:00</label>
+                    <label><input type="radio" name="session" value="23:30"> 23:30</label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Фильм:</label>
+                <div class="film-list">
+                    <label><input type="radio" name="film" value="back"> Назад в будущее - PG (12+)</label>
+                    <label><input type="radio" name="film" value="crime"> Криминальное чтиво - R (18+)</label>
+                    <label><input type="radio" name="film" value="king"> Король-лев - G (0+)</label>
+                    <label><input type="radio" name="film" value="killers"> Прирождённые убийцы - NC-17 (18+)</label>
+                    <label><input type="radio" name="film" value="tango"> Последнее танго в Париже - NC-17 (18+)</label>
+                </div>
+            </div>
+
+            <button type="submit">Рассчитать</button>
+        </form>
+
+        <div id="result" class="result" style="display:none;"></div>
+    </div>
+
+    <script>
+        document.getElementById('ticketForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const age = document.getElementById('age').value.trim();
+            const date = document.getElementById('date').value;
+            const session = document.querySelector('input[name="session"]:checked');
+            const film = document.querySelector('input[name="film"]:checked');
+
+            const resultDiv = document.getElementById('result');
+            let errors = [];
+            let price = 500;
+
+            // Баг 1: Проверка возраста не учитывает пустое поле
+            if (!date) errors.push("дата сеанса");
+            if (!session) errors.push("начало сеанса");
+            if (!film) errors.push("фильм");
+
+            if (errors.length > 0) {
+                resultDiv.innerHTML = `<span class="error">Не заполнены следующие поля: ${errors.join(", ")}</span>`;
+                resultDiv.style.display = 'block';
+                return;
+            }
+
+            // Баг 2: Проверка возрастных ограничений не работает из-за ошибки в логике
+            const filmValue = film.value;
+            let ageRequired = 0;
+            if (["back"].includes(filmValue)) ageRequired = 12;
+            if (["crime", "killers", "tango"].includes(filmValue)) ageRequired = 18;
+
+            if (age < ageRequired) {
+                resultDiv.innerHTML = `<span class="error">Возраст не подходит для просмотра этого фильма.</span>`;
+                resultDiv.style.display = 'block';
+                return;
+            }
+
+            // Баг 3: Скидка для детей не работает, так как возраст не проверяется
+            if (age < 6) price -= 250;
+
+            // Баг 4: Условие для буднего дня работает неправильно
+            const day = new Date(date).getDay();
+            if (day === 0 || day === 6) price -= 100; // выходной — скидка!
+
+            // Баг 5: Утренний сеанс определяется неправильно
+            if (session.value <= "14:00") price -= 50; // <= ошибка
+
+            resultDiv.innerHTML = `<span class="success">Стоимость билета: ${price} рублей.</span>`;
+            resultDiv.style.display = 'block';
+        });
+
+        // Баг 6: Неправильные даты
+        const today = new Date();
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() - 1); // сегодня вместо завтра
+        const maxDate = new Date(today);
+        maxDate.setDate(maxDate.getDate() + 7);
+
+        const minStr = tomorrow.toISOString().split('T')[0];
+        const maxStr = maxDate.toISOString().split('T')[0];
+
+        document.getElementById('date').min = minStr;
+        document.getElementById('date').max = maxStr;
+    </script>
+</body>
+</html>
