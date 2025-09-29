@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Калькулятор кредита</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+            transition: background-color 0.3s;
+        }
+        
+        body.modal-open {
+            background-color: rgba(0, 0, 0, 0.5);
+            pointer-events: none;
+        }
+        
+        body.modal-open > *:not(.modal) {
+            filter: blur(2px);
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        
+        h1, h2 {
+            color: #333;
+            text-align: center;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        input.error {
+            border-color: #ff0000;
+        }
+        
+        .hint {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .hint.error {
+            color: #ff0000;
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+        
+        .payment-type {
+            display: flex;
+            gap: 20px;
+            margin: 15px 0;
+        }
+        
+        .payment-type label {
+            display: flex;
+            align-items: center;
+            font-weight: normal;
+            cursor: pointer;
+        }
+        
+        .payment-type input {
+            margin-right: 5px;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            flex: 1;
+        }
+        
+        #calculate-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+        
+        #clear-btn {
+            background-color: #f44336;
+            color: white;
+        }
+        
+        #new-calculation-btn, #show-schedule-btn {
+            background-color: #2196F3;
+            color: white;
+        }
+        
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        
+        #input-container {
+            display: block;
+        }
+        
+        #results-container {
+            display: none;
+        }
+        
+        .result-item {
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+        }
+        
+        .result-item p {
+            margin: 5px 0;
+        }
+        
+        .result-value {
+            font-weight: bold;
+            color: #2196F3;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            min-width: 300px;
+            text-align: center;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background-color: #f0f0f0;
+            border-radius: 10px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background-color: #4CAF50;
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Блок ввода параметров -->
+        <div id="input-container">
+            <h1>Калькулятор кредита</h1>
+            
+            <div class="form-group">
+                <label for="amount">Сумма кредита, руб.</label>
+                <input type="number" id="amount" placeholder="100000">
+                <div class="hint" id="amount-hint">Введите сумму от 1000 до 10000000 рублей</div>
+            </div>
+            
+            <div class="form-group">
+                <label for="term">Срок кредита, месяцев</label>
+                <input type="number" id="term" placeholder="12">
+                <div class="hint" id="term-hint">Введите срок от 1 до 360 месяцев</div>
+            </div>
+            
+            <div class="form-group">
+                <label for="rate">Процентная ставка, % годовых</label>
+                <input type="number" id="rate" step="0.01" placeholder="15.5">
+                <div class="hint" id="rate-hint">Введите ставку в процентах: от 0.01 до 100</div>
+            </div>
+            
+            <div class="payment-type">
+                <label>
+                    <input type="radio" name="paymentType" value="annuity" checked>
+                    Аннуитетный
+                </label>
+                <label>
+                    <input type="radio" name="paymentType" value="diff">
+                    Дифференцированный
+                </label>
+            </div>
+            
+            <div class="buttons">
+                <button id="calculate-btn">Рассчитать</button>
+                <button id="clear-btn">Очистить</button>
+            </div>
+        </div>
+        
+        <!-- Блок результатов -->
+        <div id="results-container">
+            <h2>Результаты расчёта</h2>
+            
+            <div class="result-item">
+                <p>Сумма кредита: <span class="result-value" id="result-amount"></span></p>
+                <p>Срок кредита: <span class="result-value" id="result-term"></span> месяцев</p>
+                <p>Процентная ставка: <span class="result-value" id="result-rate"></span>% годовых</p>
+                <p>Тип платежа: <span class="result-value" id="result-payment-type"></span></p>
+            </div>
+            
+            <div class="result-item" id="annuity-result">
+                <p>Ежемесячный платёж: <span class="result-value" id="monthly-payment"></span></p>
+            </div>
+            
+            <div class="result-item" id="diff-result" style="display: none;">
+                <p>Первый платёж: <span class="result-value" id="first-payment"></span></p>
+                <p>Последний платёж: <span class="result-value" id="last-payment"></span></p>
+                <p>Платежи уменьшаются каждый месяц. Детальную информацию смотрите в графике платежей</p>
+            </div>
+            
+            <div class="result-item">
+                <p>Переплата по кредиту: <span class="result-value" id="overpayment"></span></p>
+                <p>Общая сумма выплат: <span class="result-value" id="total-payment"></span></p>
+            </div>
+            
+            <div class="buttons">
+                <button id="show-schedule-btn">Открыть график платежей</button>
+                <button id="new-calculation-btn">Выполнить новый расчёт</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Модальное окно расчета -->
+    <div class="modal" id="calculation-modal">
+        <h3>Идёт расчёт, подождите...</h3>
+        <div class="progress-bar">
+            <div class="progress" id="progress-bar"></div>
+        </div>
+        <button id="cancel-calculation">Прервать расчёт</button>
+    </div>
+
+    <script>
+        // Элементы DOM
+        const inputContainer = document.getElementById('input-container');
+        const resultsContainer = document.getElementById('results-container');
+        const calculationModal = document.getElementById('calculation-modal');
+        const progressBar = document.getElementById('progress-bar');
+        
+        // Поля ввода
+        const amountInput = document.getElementById('amount');
+        const termInput = document.getElementById('term');
+        const rateInput = document.getElementById('rate');
+        const paymentTypeRadios = document.querySelectorAll('input[name="paymentType"]');
+        
+        // Подсказки
+        const amountHint = document.getElementById('amount-hint');
+        const termHint = document.getElementById('term-hint');
+        const rateHint = document.getElementById('rate-hint');
+        
+        // Кнопки
+        const calculateBtn = document.getElementById('calculate-btn');
+        const clearBtn = document.getElementById('clear-btn');
+        const newCalculationBtn = document.getElementById('new-calculation-btn');
+        const showScheduleBtn = document.getElementById('show-schedule-btn');
+        const cancelCalculationBtn = document.getElementById('cancel-calculation');
+        
+        // Результаты
+        const resultAmount = document.getElementById('result-amount');
+        const resultTerm = document.getElementById('result-term');
+        const resultRate = document.getElementById('result-rate');
+        const resultPaymentType = document.getElementById('result-payment-type');
+        const monthlyPayment = document.getElementById('monthly-payment');
+        const firstPayment = document.getElementById('first-payment');
+        const lastPayment = document.getElementById('last-payment');
+        const overpayment = document.getElementById('overpayment');
+        const totalPayment = document.getElementById('total-payment');
+        const annuityResult = document.getElementById('annuity-result');
+        const diffResult = document.getElementById('diff-result');
+        
+        // Переменные состояния
+        let calculationInProgress = false;
+        let calculationTimeout;
+        let savedInputs = {};
+        
+        // Обработчики событий
+        calculateBtn.addEventListener('click', handleCalculate);
+        clearBtn.addEventListener('click', handleClear);
+        newCalculationBtn.addEventListener('click', handleNewCalculation);
+        showScheduleBtn.addEventListener('click', handleShowSchedule);
+        cancelCalculationBtn.addEventListener('click', handleCancelCalculation);
+        
+        // Очистка ошибок при изменении значений
+        amountInput.addEventListener('input', () => clearError(amountInput, amountHint));
+        termInput.addEventListener('input', () => clearError(termInput, termHint));
+        rateInput.addEventListener('input', () => clearError(rateInput, rateHint));
+        
+        // Функция обработки расчета
+        function handleCalculate() {
+            if (calculationInProgress) return;
+            
+            // Валидация данных
+            if (!validateInputs()) return;
+            
+            // Сохранение введенных данных
+            savedInputs = {
+                amount: amountInput.value,
+                term: termInput.value,
+                rate: rateInput.value,
+                paymentType: document.querySelector('input[name="paymentType"]:checked').value
+            };
+            
+            // Блокировка полей ввода
+            setInputsDisabled(true);
+            
+            // Показ модального окна
+            showCalculationModal();
+        }
+        
+        // Функция валидации данных
+        function validateInputs() {
+            let isValid = true;
+            
+            // Валидация суммы кредита
+            const amount = parseFloat(amountInput.value);
+            if (isNaN(amount) || amount < 1000 || amount > 10000000 || !Number.isInteger(amount)) {
+                showError(amountInput, amountHint, "Ошибка: Введите сумму от 1000 до 10000000 рублей");
+                isValid = false;
+            }
+            
+            // Валидация срока кредита
+            const term = parseInt(termInput.value);
+            if (isNaN(term) || term < 1 || term > 360 || !Number.isInteger(term)) {
+                showError(termInput, termHint, "Ошибка: Введите срок от 1 до 360 месяцев");
+                isValid = false;
+            }
+            
+            // Валидация процентной ставки
+            const rate = parseFloat(rateInput.value);
+            if (isNaN(rate) || rate < 0.01 || rate > 100) {
+                showError(rateInput, rateHint, "Ошибка: Введите ставку в процентах: от 0.01 до 100");
+                isValid = false;
+            }
+            
+            return isValid;
+        }
+        
+        // Функция показа ошибки
+        function showError(input, hint, message) {
+            input.classList.add('error');
+            hint.textContent = message;
+            hint.classList.add('error');
+        }
+        
+        // Функция очистки ошибки
+        function clearError(input, hint) {
+            input.classList.remove('error');
+            
+            // Восстановление исходного текста подсказки
+            if (input === amountInput) {
+                hint.textContent = "Введите сумму от 1000 до 10000000 рублей";
+            } else if (input === termInput) {
+                hint.textContent = "Введите срок от 1 до 360 месяцев";
+            } else if (input === rateInput) {
+                hint.textContent = "Введите ставку в процентах: от 0.01 до 100";
+            }
+            
+            hint.classList.remove('error');
+        }
+        
+        // Функция показа модального окна расчета
+        function showCalculationModal() {
+            calculationInProgress = true;
+            document.body.classList.add('modal-open');
+            calculationModal.style.display = 'block';
+            
+            // Случайная задержка от 1 до 10 секунд
+            const delay = Math.floor(Math.random() * 9000) + 1000;
+            let progress = 0;
+            const interval = 100; // Интервал обновления прогресс-бара
+            const step = 100 / (delay / interval);
+            
+            const progressInterval = setInterval(() => {
+                progress += step;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(progressInterval);
+                    completeCalculation();
+                }
+                progressBar.style.width = `${progress}%`;
+            }, interval);
+            
+            // Сохранение идентификатора интервала для возможности отмены
+            calculationTimeout = progressInterval;
+        }
+        
+        // Функция завершения расчета
+        function completeCalculation() {
+            calculationInProgress = false;
+            calculationModal.style.display = 'none';
+            document.body.classList.remove('modal-open');
+            
+            // Расчет результатов
+            const amount = parseFloat(amountInput.value);
+            const term = parseInt(termInput.value);
+            const rate = parseFloat(rateInput.value);
+            const paymentType = document.querySelector('input[name="paymentType"]:checked').value;
+            
+            // Выполнение расчетов
+            let results;
+            if (paymentType === 'annuity') {
+                results = calculateAnnuity(amount, term, rate);
+            } else {
+                results = calculateDifferentiated(amount, term, rate);
+            }
+            
+            // Отображение результатов
+            displayResults(amount, term, rate, paymentType, results);
+            
+            // Переключение на блок результатов
+            inputContainer.style.display = 'none';
+            resultsContainer.style.display = 'block';
+        }
+        
+        // Функция расчета аннуитетных платежей
+        function calculateAnnuity(amount, term, rate) {
+            const monthlyRate = rate / 12 / 100;
+            const monthlyPayment = amount * (monthlyRate * Math.pow(1 + monthlyRate, term)) / (Math.pow(1 + monthlyRate, term) - 1);
+            const totalPayment = monthlyPayment * term;
+            const overpayment = totalPayment - amount;
+            
+            return {
+                monthlyPayment: roundToTwo(monthlyPayment),
+                totalPayment: roundToTwo(totalPayment),
+                overpayment: roundToTwo(overpayment)
+            };
+        }
+        
+        // Функция расчета дифференцированных платежей
+        function calculateDifferentiated(amount, term, rate) {
+            const monthlyRate = rate / 12 / 100;
+            const principalPayment = amount / term;
+            
+            let firstPayment = 0;
+            let lastPayment = 0;
+            let totalPayment = 0;
+            
+            for (let month = 1; month <= term; month++) {
+                const interestPayment = (amount - (principalPayment * (month - 1))) * monthlyRate;
+                const monthlyPayment = principalPayment + interestPayment;
+                
+                if (month === 1) firstPayment = monthlyPayment;
+                if (month === term) lastPayment = monthlyPayment;
+                
+                totalPayment += monthlyPayment;
+            }
+            
+            const overpayment = totalPayment - amount;
+            
+            return {
+                firstPayment: roundToTwo(firstPayment),
+                lastPayment: roundToTwo(lastPayment),
+                totalPayment: roundToTwo(totalPayment),
+                overpayment: roundToTwo(overpayment)
+            };
+        }
+        
+        // Функция отображения результатов
+        function displayResults(amount, term, rate, paymentType, results) {
+            resultAmount.textContent = formatNumber(amount);
+            resultTerm.textContent = term;
+            resultRate.textContent = rate;
+            resultPaymentType.textContent = paymentType === 'annuity' ? 'Аннуитетный' : 'Дифференцированный';
+            
+            if (paymentType === 'annuity') {
+                annuityResult.style.display = 'block';
+                diffResult.style.display = 'none';
+                monthlyPayment.textContent = formatNumber(results.monthlyPayment);
+            } else {
+                annuityResult.style.display = 'none';
+                diffResult.style.display = 'block';
+                firstPayment.textContent = formatNumber(results.firstPayment);
+                lastPayment.textContent = formatNumber(results.lastPayment);
+            }
+            
+            overpayment.textContent = formatNumber(results.overpayment);
+            totalPayment.textContent = formatNumber(results.totalPayment);
+        }
+        
+        // Функция обработки очистки
+        function handleClear() {
+            amountInput.value = '';
+            termInput.value = '';
+            rateInput.value = '';
+            clearError(amountInput, amountHint);
+            clearError(termInput, termHint);
+            clearError(rateInput, rateHint);
+            
+            // Сброс выбора типа платежа
+            document.querySelector('input[value="annuity"]').checked = true;
+            
+            // Обеспечение видимости блока ввода и скрытие блока результатов
+            inputContainer.style.display = 'block';
+            resultsContainer.style.display = 'none';
+            
+            // Разблокировка полей ввода
+            setInputsDisabled(false);
+        }
+        
+        // Функция обработки нового расчета
+        function handleNewCalculation() {
+            // Восстановление сохраненных значений
+            if (savedInputs.amount) amountInput.value = savedInputs.amount;
+            if (savedInputs.term) termInput.value = savedInputs.term;
+            if (savedInputs.rate) rateInput.value = savedInputs.rate;
+            if (savedInputs.paymentType) {
+                document.querySelector(`input[value="${savedInputs.paymentType}"]`).checked = true;
+            }
+            
+            // Очистка ошибок
+            clearError(amountInput, amountHint);
+            clearError(termInput, termHint);
+            clearError(rateInput, rateHint);
+            
+            // Переключение на блок ввода
+            resultsContainer.style.display = 'none';
+            inputContainer.style.display = 'block';
+            
+            // Разблокировка полей ввода
+            setInputsDisabled(false);
+        }
+        
+        // Функция блокировки/разблокировки полей ввода
+        function setInputsDisabled(disabled) {
+            amountInput.disabled = disabled;
+            termInput.disabled = disabled;
+            rateInput.disabled = disabled;
+            
+            // Блокировка переключателей типа платежа
+            paymentTypeRadios.forEach(radio => {
+                radio.disabled = disabled;
+            });
+            
+            // Блокировка кнопок
+            calculateBtn.disabled = disabled;
+            clearBtn.disabled = disabled;
+        }
+        
+        // Функция обработки отмены расчета
+        function handleCancelCalculation() {
+            if (calculationInProgress) {
+                clearInterval(calculationTimeout);
+                calculationInProgress = false;
+                calculationModal.style.display = 'none';
+                document.body.classList.remove('modal-open');
+                
+                // Разблокировка полей ввода
+                setInputsDisabled(false);
+            }
+        }
+        
+        // Функция открытия графика платежей
+        function handleShowSchedule() {
+            const amount = parseFloat(savedInputs.amount);
+            const term = parseInt(savedInputs.term);
+            const rate = parseFloat(savedInputs.rate);
+            const paymentType = savedInputs.paymentType;
+            
+            // Открытие нового окна
+            const scheduleWindow = window.open('', 'График платежей', 'width=800,height=600');
+            
+            // Генерация содержимого для нового окна
+            const scheduleContent = generateScheduleContent(amount, term, rate, paymentType);
+            
+            // Запись содержимого в новое окно
+            scheduleWindow.document.write(scheduleContent);
+            scheduleWindow.document.close();
+        }
+        
+        // Функция генерации содержимого для графика платежей
+        function generateScheduleContent(amount, term, rate, paymentType) {
+            const monthlyRate = rate / 12 / 100;
+            let scheduleHTML = '';
+            
+            if (paymentType === 'annuity') {
+                const monthlyPayment = calculateAnnuity(amount, term, rate).monthlyPayment;
+                let balance = amount;
+                
+                scheduleHTML += '<table><tr><th>Месяц</th><th>Ежемесячный платёж</th><th>Основной долг</th><th>Проценты</th><th>Остаток долга</th></tr>';
+                
+                for (let month = 1; month <= term; month++) {
+                    const interest = balance * monthlyRate;
+                    const principal = monthlyPayment - interest;
+                    balance -= principal;
+                    
+                    scheduleHTML += `<tr>
+                        <td>${month}</td>
+                        <td>${formatNumber(monthlyPayment)}</td>
+                        <td>${formatNumber(principal)}</td>
+                        <td>${formatNumber(interest)}</td>
+                        <td>${formatNumber(Math.max(balance, 0))}</td>
+                    </tr>`;
+                }
+                
+                scheduleHTML += '</table>';
+            } else {
+                const principalPayment = amount / term;
+                let balance = amount;
+                
+                scheduleHTML += '<table><tr><th>Месяц</th><th>Ежемесячный платёж</th><th>Основной долг</th><th>Проценты</th><th>Остаток долга</th></tr>';
+                
+                for (let month = 1; month <= term; month++) {
+                    const interest = balance * monthlyRate;
+                    const monthlyPayment = principalPayment + interest;
+                    balance -= principalPayment;
+                    
+                    scheduleHTML += `<tr>
+                        <td>${month}</td>
+                        <td>${formatNumber(monthlyPayment)}</td>
+                        <td>${formatNumber(principalPayment)}</td>
+                        <td>${formatNumber(interest)}</td>
+                        <td>${formatNumber(Math.max(balance, 0))}</td>
+                    </tr>`;
+                }
+                
+                scheduleHTML += '</table>';
+            }
+            
+            // Получение всех стилей из текущего документа
+            const styles = Array.from(document.styleSheets)
+                .map(sheet => {
+                    try {
+                        return Array.from(sheet.cssRules)
+                            .map(rule => rule.cssText)
+                            .join('');
+                    } catch (e) {
+                        return '';
+                    }
+                })
+                .join('');
+            
+            return `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <title>График платежей</title>
+                <style>${styles}</style>
+            </head>
+            <body>
+                <div class="container">
+                    <h2>График платежей</h2>
+                    
+                    <div class="result-item">
+                        <p>Сумма кредита: <span class="result-value">${formatNumber(amount)}</span></p>
+                        <p>Срок кредита: <span class="result-value">${term}</span> месяцев</p>
+                        <p>Процентная ставка: <span class="result-value">${rate}</span>% годовых</p>
+                        <p>Тип платежа: <span class="result-value">${paymentType === 'annuity' ? 'Аннуитетный' : 'Дифференцированный'}</span></p>
+                    </div>
+                    
+                    ${scheduleHTML}
+                </div>
+            </body>
+            </html>`;
+        }
+        
+        // Вспомогательные функции
+        function roundToTwo(num) {
+            return Math.round(num * 100) / 100;
+        }
+        
+        function formatNumber(num) {
+            return num.toFixed(2);
+        }
+    </script>
+</body>
+</html>
