@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Form</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            flex-direction: column;
+        }
+
+        .header {
+            width: 100%;
+            display: flex;
+            justify-content: flex-end;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            position: fixed;
+            top: 0;
+        }
+
+        .login-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            margin-top: 60px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .login-info {
+            color: white;
+            background-color: black;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            margin-top: 60px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group input, .input-group select, .input-group button {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            margin-bottom: 5px;
+        }
+
+        .input-group button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .input-group button:hover {
+            background-color: #45a049;
+        }
+
+        .message {
+            text-align: center;
+            height: 20px;
+            margin-top: 15px;
+            transition: opacity 0.3s;
+        }
+
+        .message.error {
+            color: red;
+        }
+
+        .message.success {
+            color: green;
+        }
+
+        #flightForm {
+            display: none;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            margin-top: 20px;
+        }
+
+        #flightForm h2 {
+            text-align: center;
+        }
+
+        #flightsList {
+            display: none;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 800px;
+            margin-top: 20px;
+        }
+
+        .flight-item {
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+
+        .flight-item p {
+            margin: 5px 0;
+        }
+
+        .register-btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        .register-btn:hover {
+            background-color: #45a049;
+        }
+
+        #registrationForm {
+            display: none;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            margin-top: 20px;
+        }
+
+        #registrationForm h2 {
+            text-align: center;
+        }
+
+        .city-names {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .flight-time {
+            color: #555;
+        }
+
+        .flight-price {
+            color: #e53935;
+            font-weight: bold;
+        }
+
+        .user-info {
+            margin-top: 5px;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .search-message {
+            text-align: center;
+            margin-top: 10px;
+            color: red;
+            font-size: 0.9em;
+        }
+        
+        .new-search-btn {
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+        
+        .new-search-btn:hover {
+            background-color: #0b7dda;
+        }
+        
+        .back-to-flights-btn {
+            background-color: #757575;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        
+        .back-to-flights-btn:hover {
+            background-color: #616161;
+        }
+        
+        .flight-info {
+            background-color: #f5f5f5;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        
+        th {
+            background-color: #f2f2f2;
+            cursor: pointer;
+        }
+        
+        th:hover {
+            background-color: #e6e6e6;
+        }
+        
+        .sort-arrow {
+            margin-left: 5px;
+        }
+        
+        .sort-controls {
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .sort-controls select {
+            padding: 5px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <span class="greeting" id="greeting"></span>
+    <button id="logoutButton" onclick="logout()" style="display: none;">Logout</button>
+</div>
+
+<div class="login-container" id="loginContainer">
+    <h2>Аутентификация</h2>
+    <div class="input-group">
+        <label for="username">Имя пользователя</label>
+        <input type="text" id="username" required>
+    </div>
+    <div class="input-group">
+        <label for="password">Пароль</label>
+        <input type="password" id="password" required>
+    </div>
+    <div class="input-group">
+        <button id="loginButton" onclick="login()">Войти</button>
+    </div>
+    <div class="message" id="message"></div>
+</div>
+
+<div class="login-info" id="loginInfo">
+    <div id="login_credentials" class="login_credentials" data-test="login-credentials">
+        <h4>Данные пользователей:</h4>
+        <div class="user-info">
+            <strong>standard_user</strong><br>
+            Пароль: stand_pass1<br>
+            ФИО: Иванов Иван Иванович<br>
+            Паспорт: 1234 567890<br>
+            Email: ivanov@example.com<br>
+            Телефон: +7 (123) 456-7890
+        </div>
+        <hr>
+        <div class="user-info">
+            <strong>locked_out_user</strong><br>
+            Пароль: lock_pass2<br>
+            ФИО: Петров Петр Петрович<br>
+            Паспорт: 2345 678901<br>
+            Email: petrov@example.com<br>
+            Телефон: +7 (234) 567-8901
+        </div>
+        <hr>
+        <div class="user-info">
+            <strong>problem_user</strong><br>
+            Пароль: prob_pass3<br>
+            ФИО: Сидорова Анна Владимировна<br>
+            Паспорт: 3456 789012<br>
+            Email: sidorova@example.com<br>
+            Телефон: +7 (345) 678-9012
+        </div>
+        <hr>
+        <div class="user-info">
+            <strong>performance_glitch_user</strong><br>
+            Пароль: perf_pass4<br>
+            ФИО: Кузнецов Дмитрий Сергеевич<br>
+            Паспорт: 4567 890123<br>
+            Email: kuznetsov@example.com<br>
+            Телефон: +7 (456) 789-0123
+        </div>
+        <hr>
+        <div class="user-info">
+            <strong>error_user</strong><br>
+            Пароль: erro_pass5<br>
+            ФИО: Смирнова Елена Александровна<br>
+            Паспорт: 5678 901234<br>
+            Email: smirnova@example.com<br>
+            Телефон: +7 (567) 890-1234
+        </div>
+        <hr>
+        <div class="user-info">
+            <strong>visual_user</strong><br>
+            Пароль: visu_pass6<br>
+            ФИО: Федоров Алексей Николаевич<br>
+            Паспорт: 6789 012345<br>
+            Email: fedorov@example.com<br>
+            Телефон: +7 (678) 901-2345
+        </div>
+    </div>
+</div>
+
+<div id="flightForm">
+    <h2>Поиск авиабилетов</h2>
+    <div class="input-group">
+        <label for="departureCity">Откуда:</label>
+        <select id="departureCity">
+            <option value="moscow">Москва</option>
+            <option value="saintpetersburg">Санкт-Петербург</option>
+            <option value="kazan">Казань</option>
+        </select>
+    </div>
+    <div class="input-group">
+        <label for="arrivalCity">Куда:</label>
+        <select id="arrivalCity">
+            <option value="london">Лондон</option>
+            <option value="paris">Париж</option>
+            <option value="newyork">Нью-Йорк</option>
+        </select>
+    </div>
+    <div class="input-group">
+        <label for="departureDate">Дата вылета:</label>
+        <input type="date" id="departureDate">
+    </div>
+    <div class="input-group">
+        <button onclick="findFlights()">Найти</button>
+    </div>
+    <div class="search-message" id="searchMessage"></div>
+</div>
+
+<div id="flightsList">
+    <h2>Найденные рейсы</h2>
+    <div class="sort-controls">
+        <div>
+            <label for="sortField">Сортировать по: </label>
+            <select id="sortField" onchange="sortFlights()">
+                <option value="time">Времени вылета</option>
+                <option value="price">Цене</option>
+            </select>
+            <select id="sortDirection" onchange="sortFlights()">
+                <option value="asc">По возрастанию</option>
+                <option value="desc">По убыванию</option>
+            </select>
+        </div>
+        <div id="flightsCount"></div>
+    </div>
+    <table id="flightsTable">
+        <thead>
+            <tr>
+                <th>№</th>
+                <th>Отправление</th>
+                <th>Прибытие</th>
+                <th>Дата</th>
+                <th>Время</th>
+                <th>Цена</th>
+                <th>Действие</th>
+            </tr>
+        </thead>
+        <tbody id="flightsContainer"></tbody>
+    </table>
+    <button class="new-search-btn" onclick="newSearch()">Новый поиск</button>
+</div>
+
+<div id="registrationForm">
+    <h2>Регистрация на рейс</h2>
+    <div class="flight-info" id="flightRegistrationInfo"></div>
+    <div class="input-group">
+        <label for="passengerName">ФИО:</label>
+        <input type="text" id="passengerName" required>
+    </div>
+    <div class="input-group">
+        <label for="passportNumber">Номер паспорта:</label>
+        <input type="text" id="passportNumber" required>
+    </div>
+    <div class="input-group">
+        <label for="email">Email:</label>
+        <input type="email" id="email" required>
+    </div>
+    <div class="input-group">
+        <label for="phone">Телефон:</label>
+        <input type="tel" id="phone" required>
+    </div>
+    <div class="input-group">
+        <button onclick="completeRegistration()">Завершить регистрацию</button>
+    </div>
+    <button class="back-to-flights-btn" onclick="backToFlights()">Вернуться к найденным рейсам</button>
+    <div class="message" id="registrationMessage"></div>
+</div>
+
+<script>
+    // Set today's date as default
+    document.addEventListener('DOMContentLoaded', function() {
+        const today = new Date();
+        const formattedDate = today.toISOString().split('T')[0];
+        document.getElementById('departureDate').value = formattedDate;
+    });
+
+    document.querySelectorAll('#username, #password').forEach(
+        input => input.addEventListener(
+            'keydown', function (event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    login();
+                }
+            }
+        )
+    );
+
+    // Extended user data with personal information and unique passwords
+    const usersData = {
+        'standard_user': {
+            password: 'stand_pass1',
+            fullName: 'Иванов Иван Иванович',
+            passport: '1234 567890',
+            email: 'ivanov@example.com',
+            phone: '+7 (123) 456-7890'
+        },
+        'locked_out_user': {
+            password: 'lock_pass2',
+            fullName: 'Петров Петр Петрович',
+            passport: '2345 678901',
+            email: 'petrov@example.com',
+            phone: '+7 (234) 567-8901'
+        },
+        'problem_user': {
+            password: 'prob_pass3',
+            fullName: 'Сидорова Анна Владимировна',
+            passport: '3456 789012',
+            email: 'sidorova@example.com',
+            phone: '+7 (345) 678-9012'
+        },
+        'performance_glitch_user': {
+            password: 'perf_pass4',
+            fullName: 'Кузнецов Дмитрий Сергеевич',
+            passport: '4567 890123',
+            email: 'kuznetsov@example.com',
+            phone: '+7 (456) 789-0123'
+        },
+        'error_user': {
+            password: 'erro_pass5',
+            fullName: 'Смирнова Елена Александровна',
+            passport: '5678 901234',
+            email: 'smirnova@example.com',
+            phone: '+7 (567) 890-1234'
+        },
+        'visual_user': {
+            password: 'visu_pass6',
+            fullName: 'Федоров Алексей Николаевич',
+            passport: '6789 012345',
+            email: 'fedorov@example.com',
+            phone: '+7 (678) 901-2345'
+        }
+    };
+
+    // Fixed weekly flight schedule with changes to meet requirements
+    const flightSchedule = {
+        // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+        1: { // Monday
+            'moscow-london': [
+                { time: '08:00', price: 35000 },
+                { time: '14:30', price: 42000 },
+                { time: '20:15', price: 38000 }
+            ],
+            'moscow-paris': [
+                { time: '09:30', price: 32000 },
+                { time: '18:45', price: 40000 }
+            ],
+            'moscow-newyork': [
+                { time: '06:00', price: 52000 },
+                { time: '07:30', price: 55000 },
+                { time: '09:00', price: 53000 },
+                { time: '10:30', price: 54000 },
+                { time: '12:00', price: 56000 },
+                { time: '13:30', price: 58000 },
+                { time: '15:00', price: 57000 },
+                { time: '16:30', price: 59000 },
+                { time: '18:00', price: 60000 },
+                { time: '19:30', price: 62000 }
+            ],
+            'saintpetersburg-newyork': [
+                { time: '11:20', price: 55000 }
+            ],
+            'kazan-newyork': [
+                { time: '13:45', price: 58000 }
+            ]
+        },
+        2: { // Tuesday
+            'moscow-london': [
+                { time: '10:15', price: 36000 },
+                { time: '16:45', price: 39000 }
+            ],
+            'moscow-newyork': [
+                { time: '08:30', price: 54000 }
+            ],
+            'kazan-paris': [
+                { time: '07:30', price: 45000 },
+                { time: '13:20', price: 41000 },
+                { time: '21:00', price: 38000 }
+            ],
+            'saintpetersburg-newyork': [
+                { time: '14:15', price: 56000 }
+            ]
+        },
+        3: { // Wednesday
+            'saintpetersburg-london': [
+                { time: '08:45', price: 37000 },
+                { time: '15:30', price: 43000 }
+            ],
+            'moscow-newyork': [
+                { time: '12:00', price: 58000 }
+            ],
+            'moscow-paris': [
+                { time: '11:00', price: 34000 }
+            ],
+            'kazan-newyork': [
+                { time: '16:45', price: 59000 }
+            ]
+        },
+        4: { // Thursday
+            'kazan-london': [
+                { time: '09:15', price: 48000 }
+            ],
+            'moscow-paris': [
+                { time: '11:30', price: 34000 },
+                { time: '19:45', price: 41000 }
+            ],
+            'saintpetersburg-paris': [
+                { time: '14:20', price: 39000 }
+            ],
+            'moscow-newyork': [
+                { time: '10:00', price: 55000 }
+            ],
+            'saintpetersburg-newyork': [
+                { time: '17:30', price: 57000 }
+            ]
+        },
+        5: { // Friday
+            'moscow-london': [
+                { time: '07:45', price: 40000 },
+                { time: '13:30', price: 37000 },
+                { time: '21:15', price: 42000 }
+            ],
+            'moscow-newyork': [
+                { time: '09:00', price: 56000 }
+            ],
+            'kazan-newyork': [
+                { time: '10:00', price: 62000 }
+            ],
+            'saintpetersburg-newyork': [
+                { time: '15:45', price: 58000 }
+            ]
+        },
+        6: { // Saturday
+            'saintpetersburg-london': [
+                { time: '08:30', price: 38000 },
+                { time: '16:45', price: 44000 }
+            ],
+            'moscow-paris': [
+                { time: '12:15', price: 35000 }
+            ],
+            'moscow-newyork': [
+                { time: '11:30', price: 57000 }
+            ],
+            'kazan-newyork': [
+                { time: '14:00', price: 59000 }
+            ]
+        },
+        0: { // Sunday
+            'moscow-newyork': [
+                { time: '10:30', price: 56000 },
+                { time: '18:45', price: 60000 }
+            ],
+            'kazan-paris': [
+                { time: '14:15', price: 42000 }
+            ],
+            'moscow-london': [
+                { time: '09:00', price: 36000 }
+            ],
+            'saintpetersburg-newyork': [
+                { time: '13:30', price: 58000 }
+            ]
+        }
+    };
+
+    const cityNames = {
+        'moscow': 'Москва',
+        'saintpetersburg': 'Санкт-Петербург',
+        'kazan': 'Казань',
+        'london': 'Лондон',
+        'paris': 'Париж',
+        'newyork': 'Нью-Йорк'
+    };
+
+    let currentUser = null;
+    let lastSearchParams = null;
+    let currentFlightDetails = {};
+    let currentFlights = [];
+
+    function showMessage(text, type, elementId = 'message') {
+        const messageElement = document.getElementById(elementId);
+        messageElement.className = `message ${type}`;
+        messageElement.innerHTML = text;
+    }
+
+    function login() {
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value.trim();
+
+        if (!username || !password) {
+            showMessage(!username && !password ? 'Username and Password are required.' : !username ?
+                    'Username is required.' : 'Password is required.', 'error'
+            );
+            return;
+        }
+
+        if (usersData[username] && usersData[username].password === password) {
+            if (username === 'locked_out_user') {
+                showMessage('Пользователь заблокирован.', 'error');
+                return;
+            }
+            
+            currentUser = usersData[username];
+            showMessage(`Вход в систему выполнен успешно! Загрузка...`, 'success');
+            
+            setTimeout(() => {
+                document.getElementById('loginContainer').style.display = 'none';
+                document.getElementById('loginInfo').style.display = 'none';
+                document.getElementById('greeting').innerHTML = `Добро пожаловать, ${currentUser.fullName}!`;
+                document.getElementById('logoutButton').style.display = 'inline-block';
+                document.getElementById('flightForm').style.display = 'block';
+            }, 3000);
+        } else {
+            showMessage('Неверное имя пользователя или пароль.', 'error');
+        }
+    }
+
+    function logout() {
+        currentUser = null;
+        lastSearchParams = null;
+        document.getElementById('loginContainer').style.display = 'flex';
+        document.getElementById('loginInfo').style.display = 'flex';
+        document.getElementById('greeting').innerHTML = '';
+        document.getElementById('logoutButton').style.display = 'none';
+        document.getElementById('message').className = 'message';
+        document.getElementById('message').innerHTML = '';
+        document.getElementById('username').value = '';
+        document.getElementById('password').value = '';
+        document.getElementById('flightForm').style.display = 'none';
+        document.getElementById('flightsList').style.display = 'none';
+        document.getElementById('registrationForm').style.display = 'none';
+        document.getElementById('registrationMessage').className = 'message';
+        document.getElementById('registrationMessage').innerHTML = '';
+        
+        // Reset date to today
+        const today = new Date();
+        const formattedDate = today.toISOString().split('T')[0];
+        document.getElementById('departureDate').value = formattedDate;
+    }
+
+    function findFlights() {
+        const departureDateInput = document.getElementById('departureDate');
+        const departureDate = departureDateInput.value;
+        const searchMessage = document.getElementById('searchMessage');
+        
+        // Clear previous message
+        searchMessage.textContent = '';
+        
+        if (!departureDate) {
+            searchMessage.textContent = 'Пожалуйста, укажите дату вылета.';
+            return;
+        }
+        
+        const selectedDate = new Date(departureDate);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        if (selectedDate < today) {
+            searchMessage.textContent = 'Невозможно осуществить поиск: выбранная дата уже прошла.';
+            return;
+        }
+
+        const departureCity = document.getElementById('departureCity').value;
+        const arrivalCity = document.getElementById('arrivalCity').value;
+
+        // Save search parameters
+        lastSearchParams = {
+            departureCity,
+            arrivalCity,
+            departureDate
+        };
+
+        // Get day of week (0 = Sunday, 1 = Monday, ..., 6 = Saturday)
+        const dayOfWeek = selectedDate.getDay();
+        const routeKey = `${departureCity}-${arrivalCity}`;
+        
+        const flightsContainer = document.getElementById('flightsContainer');
+        flightsContainer.innerHTML = '';
+        currentFlights = [];
+
+        // Check if there are flights for this day and route
+        if (flightSchedule[dayOfWeek] && flightSchedule[dayOfWeek][routeKey]) {
+            const flights = flightSchedule[dayOfWeek][routeKey];
+            
+            flights.forEach((flight, index) => {
+                currentFlights.push({
+                    id: index,
+                    departureCity: cityNames[departureCity],
+                    arrivalCity: cityNames[arrivalCity],
+                    date: departureDate,
+                    time: flight.time,
+                    price: flight.price
+                });
+            });
+            
+            // Display count of flights
+            document.getElementById('flightsCount').textContent = `Найдено рейсов: ${flights.length}`;
+            
+            // Sort and display flights
+            sortFlights();
+        } else {
+            flightsContainer.innerHTML = '<tr><td colspan="7">Рейсов по вашему запросу не найдено.</td></tr>';
+            document.getElementById('flightsCount').textContent = 'Найдено рейсов: 0';
+        }
+
+        document.getElementById('flightForm').style.display = 'none';
+        document.getElementById('flightsList').style.display = 'block';
+    }
+
+    function sortFlights() {
+        const sortField = document.getElementById('sortField').value;
+        const sortDirection = document.getElementById('sortDirection').value;
+        
+        const flightsContainer = document.getElementById('flightsContainer');
+        flightsContainer.innerHTML = '';
+        
+        // Sort flights
+        currentFlights.sort((a, b) => {
+            if (sortField === 'time') {
+                return sortDirection === 'asc' 
+                    ? a.time.localeCompare(b.time) 
+                    : b.time.localeCompare(a.time);
+            } else {
+                return sortDirection === 'asc' 
+                    ? a.price - b.price 
+                    : b.price - a.price;
+            }
+        });
+        
+        // Display sorted flights
+        currentFlights.forEach((flight, index) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${index + 1}</td>
+                <td>${flight.departureCity}</td>
+                <td>${flight.arrivalCity}</td>
+                <td>${flight.date}</td>
+                <td>${flight.time}</td>
+                <td>${flight.price.toLocaleString('ru-RU')} руб.</td>
+                <td><button class="register-btn" onclick="showRegistrationForm('${flight.departureCity}', '${flight.arrivalCity}', '${flight.date}', '${flight.time}', ${flight.price})">Зарегистрироваться</button></td>
+            `;
+            flightsContainer.appendChild(row);
+        });
+    }
+
+    function newSearch() {
+        document.getElementById('flightsList').style.display = 'none';
+        document.getElementById('flightForm').style.display = 'block';
+        
+        // Restore previous search parameters if they exist
+        if (lastSearchParams) {
+            document.getElementById('departureCity').value = lastSearchParams.departureCity;
+            document.getElementById('arrivalCity').value = lastSearchParams.arrivalCity;
+            document.getElementById('departureDate').value = lastSearchParams.departureDate;
+        }
+    }
+
+    function backToFlights() {
+        document.getElementById('registrationForm').style.display = 'none';
+        document.getElementById('flightsList').style.display = 'block';
+        // Clear registration message
+        document.getElementById('registrationMessage').className = 'message';
+        document.getElementById('registrationMessage').innerHTML = '';
+    }
+
+    function showRegistrationForm(departureCity, arrivalCity, date, time, price) {
+        // Clear previous registration message
+        document.getElementById('registrationMessage').className = 'message';
+        document.getElementById('registrationMessage').innerHTML = '';
+        
+        currentFlightDetails = {
+            departureCity,
+            arrivalCity,
+            date,
+            time,
+            price
+        };
+
+        // Fill the form with user data
+        document.getElementById('passengerName').value = currentUser.fullName;
+        document.getElementById('passportNumber').value = currentUser.passport;
+        document.getElementById('email').value = currentUser.email;
+        document.getElementById('phone').value = currentUser.phone;
+
+        // Display flight info in registration form
+        document.getElementById('flightRegistrationInfo').innerHTML = `
+            <h3>Информация о рейсе</h3>
+            <p><strong>Маршрут:</strong> ${departureCity} → ${arrivalCity}</p>
+            <p><strong>Дата:</strong> ${date}</p>
+            <p><strong>Время:</strong> ${time}</p>
+            <p><strong>Цена:</strong> ${price.toLocaleString('ru-RU')} руб.</p>
+        `;
+
+        document.getElementById('registrationForm').style.display = 'block';
+        document.getElementById('flightsList').style.display = 'none';
+        document.getElementById('flightForm').style.display = 'none';
+    }
+
+    function completeRegistration() {
+        const name = document.getElementById('passengerName').value.trim();
+        const passport = document.getElementById('passportNumber').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const phone = document.getElementById('phone').value.trim();
+
+        // Validate fields
+        if (!name || !passport || !email || !phone) {
+            showMessage('Пожалуйста, заполните все поля.', 'error', 'registrationMessage');
+            return;
+        }
+
+        // Validate name (only Russian letters, spaces and hyphens)
+        const nameRegex = /^[А-Яа-яЁё\s-]+$/;
+        if (!nameRegex.test(name)) {
+            showMessage('ФИО должно содержать только русские буквы, пробелы и дефис.', 'error', 'registrationMessage');
+            return;
+        }
+
+        // Validate passport (only digits and spaces)
+        const passportRegex = /^[\d\s]+$/;
+        if (!passportRegex.test(passport)) {
+            showMessage('Номер паспорта должен содержать только цифры и пробелы.', 'error', 'registrationMessage');
+            return;
+        }
+
+        // Here you would normally send the registration data to the server
+        showMessage('Регистрация успешно завершена!', 'success', 'registrationMessage');
+        
+        // Display booking confirmation
+        setTimeout(() => {
+            alert(`Бронирование завершено!\n\nРейс: ${currentFlightDetails.departureCity} → ${currentFlightDetails.arrivalCity}\nДата: ${currentFlightDetails.date}\nВремя: ${currentFlightDetails.time}\nЦена: ${currentFlightDetails.price.toLocaleString('ru-RU')} руб.\n\nПассажир: ${name}\nПаспорт: ${passport}\nEmail: ${email}\nТелефон: ${phone}`);
+        }, 2000);
+    }
+</script>
+
+</body>
+</html>
