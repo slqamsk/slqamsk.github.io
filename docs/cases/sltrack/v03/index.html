@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>SL-Tasks — Система управления задачами</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+
+        /* Шапка */
+        .header {
+            background: #007BFF;
+            color: white;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logout-btn {
+            background: #fff;
+            color: #007BFF;
+            border: none;
+            padding: 8px 16px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .app-title {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        /* Форма логина */
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: #f5f5f5;
+        }
+
+        .login-form {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            width: 350px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .btn {
+            background: #007BFF;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            width: 100%;
+            border-radius: 4px;
+        }
+
+        .error {
+            color: red;
+            margin-top: 10px;
+        }
+
+        /* Содержимое после входа */
+        .main-content {
+            padding: 20px;
+        }
+
+        .main-content h2 {
+            color: #333;
+            text-align: center;
+        }
+
+        .filter-controls {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .filter-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            cursor: pointer;
+            border-radius: 4px;
+            margin: 0 5px;
+        }
+
+        .task-board {
+            display: flex;
+            gap: 20px;
+            overflow-x: auto;
+            padding: 10px 0;
+        }
+
+        .task-column {
+            min-width: 300px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .column-header {
+            font-weight: bold;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .task-card {
+            background: white;
+            padding: 12px;
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 10px;
+        }
+
+        .task-card h3 {
+            margin: 0 0 8px 0;
+        }
+
+        .task-assignee {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <!-- Страница логина -->
+    <div id="login-screen" class="screen active">
+        <div class="login-container">
+            <div class="login-form">
+                <h2>SL-Tasks — Вход в систему управления задачами</h2>
+                <form id="login-form">
+                    <div class="form-group">
+                        <label for="username">Электропочта:</label>
+                        <input type="email" id="username" required placeholder="user@example.com" />
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Пароль:</label>
+                        <input type="password" id="password" required placeholder="12345678" />
+                    </div>
+                    <button type="submit" class="btn">Войти</button>
+                </form>
+                <div id="error-message" class="error" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Основная страница -->
+    <div id="main-screen" class="screen">
+        <!-- Шапка -->
+        <div class="header">
+            <div class="app-title">SL-Tasks</div>
+            <div class="header-content">
+                <span id="greeting">Привет, <span id="user-name"></span>! Ваша роль: <span id="user-role"></span></span>
+                <button id="logout-btn" class="logout-btn">Выйти</button>
+            </div>
+        </div>
+
+        <!-- Основное содержимое -->
+        <div class="main-content">
+            <h2>Добро пожаловать в систему управления задачами SL-Tasks!</h2>
+            
+            <div class="filter-controls">
+                <button id="all-tasks-btn" class="filter-btn">Все задачи</button>
+                <button id="my-tasks-btn" class="filter-btn">Мои задачи</button>
+            </div>
+
+            <div class="task-board" id="task-board">
+                <!-- Колонки будут вставлены через JS -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Пользователи
+        const users = [
+            { email: "admin@example.com", password: "admin123", name: "Пётр Иванов", role: "Администратор" },
+            { email: "manager@example.com", password: "manager123", name: "Иван Петров", role: "Менеджер" },
+            { email: "user@example.com", password: "user123", name: "Владимир Сидоров", role: "Пользователь" }
+        ];
+
+        // Статусы задач
+        const statuses = [
+            { id: 'pending', name: 'Ожидает', order: 1 },
+            { id: 'in-progress', name: 'В процессе', order: 2 },
+            { id: 'completed', name: 'Выполнено', order: 3 },
+            { id: 'cancelled', name: 'Отменено', order: 4 }
+        ];
+
+        // Задачи (16 штук, равномерно распределены по пользователям)
+        const tasks = [
+            { title: "Разработать автотесты", status: "in-progress", assignee: "Иван Петров" },
+            { title: "Написать отчет", status: "pending", assignee: "Владимир Сидоров" },
+            { title: "Обновить документацию", status: "completed", assignee: "Пётр Иванов" },
+            { title: "Интеграция API", status: "in-progress", assignee: "Иван Петров" },
+            { title: "Проверка безопасности", status: "cancelled", assignee: "Владимир Сидоров" },
+            { title: "Разработка UI", status: "pending", assignee: "Пётр Иванов" },
+            { title: "Аудит производительности", status: "in-progress", assignee: "Владимир Сидоров" },
+            { title: "Тестирование интеграций", status: "completed", assignee: "Иван Петров" },
+            { title: "Рефакторинг кода", status: "pending", assignee: "Владимир Сидоров" },
+            { title: "Подготовка к релизу", status: "in-progress", assignee: "Пётр Иванов" },
+            { title: "Создание сценариев", status: "completed", assignee: "Владимир Сидоров" },
+            { title: "Анализ логов", status: "pending", assignee: "Иван Петров" },
+            { title: "Исправление багов", status: "in-progress", assignee: "Пётр Иванов" },
+            { title: "Обновление зависимостей", status: "cancelled", assignee: "Иван Петров" },
+            { title: "Разработка архитектуры", status: "completed", assignee: "Пётр Иванов" },
+            { title: "Обновление документации", status: "pending", assignee: "Владимир Сидоров" }
+        ];
+
+        // DOM-элементы
+        const loginScreen = document.getElementById('login-screen');
+        const mainScreen = document.getElementById('main-screen');
+        const form = document.getElementById('login-form');
+        const errorMessage = document.getElementById('error-message');
+        const userNameEl = document.getElementById('user-name');
+        const userRoleEl = document.getElementById('user-role');
+        const taskBoardEl = document.getElementById('task-board');
+        const logoutBtn = document.getElementById('logout-btn');
+        const allTasksBtn = document.getElementById('all-tasks-btn');
+        const myTasksBtn = document.getElementById('my-tasks-btn');
+
+        let currentUser = null;
+
+        // Обработчик формы
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            const user = users.find(u => u.email === username && u.password === password);
+
+            if (user) {
+                loginScreen.classList.remove('active');
+                mainScreen.classList.add('active');
+
+                currentUser = user;
+
+                userNameEl.textContent = user.name;
+                userRoleEl.textContent = user.role;
+
+                renderBoard(false); // по умолчанию — все задачи
+                errorMessage.style.display = 'none';
+            } else {
+                errorMessage.textContent = 'Неверный логин или пароль';
+                errorMessage.style.display = 'block';
+            }
+        });
+
+        // Рендер доски задач
+        function renderBoard(filtered = false) {
+            taskBoardEl.innerHTML = '';
+
+            // Сортировка статусов по order
+            const sortedStatuses = statuses.sort((a, b) => a.order - b.order);
+
+            sortedStatuses.forEach(status => {
+                const column = document.createElement('div');
+                column.className = 'task-column';
+                column.id = `column-${status.id}`;
+
+                const header = document.createElement('div');
+                header.className = 'column-header';
+                header.textContent = status.name;
+
+                column.appendChild(header);
+
+                // Фильтрация задач
+                const tasksForStatus = filtered
+                    ? tasks.filter(task => task.status === status.id && task.assignee === currentUser.name)
+                    : tasks.filter(task => task.status === status.id);
+
+                tasksForStatus.forEach(task => {
+                    const card = document.createElement('div');
+                    card.className = 'task-card';
+
+                    card.innerHTML = `
+                        <h3>${task.title}</h3>
+                        <div class="task-assignee">Исполнитель: ${task.assignee}</div>
+                    `;
+
+                    column.appendChild(card);
+                });
+
+                taskBoardEl.appendChild(column);
+            });
+        }
+
+        // Переключение фильтров
+        allTasksBtn.addEventListener('click', function() {
+            renderBoard(false);
+        });
+
+        myTasksBtn.addEventListener('click', function() {
+            renderBoard(true);
+        });
+
+        // Кнопка выхода
+        logoutBtn.addEventListener('click', function() {
+            mainScreen.classList.remove('active');
+            loginScreen.classList.add('active');
+            form.reset();
+            currentUser = null;
+        });
+    </script>
+</body>
+</html>
