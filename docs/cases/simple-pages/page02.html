@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Page 02 — Поиск элементов</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      line-height: 1.6;
+    }
+
+    /* Общие стили для кнопок */
+    .btn {
+      padding: 8px 16px;
+      margin: 4px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      cursor: pointer;
+      background-color: #f9f9f9;
+    }
+
+    /* Стиль "primary" — делает кнопку синей */
+    .btn.primary {
+      background-color: #007bff;
+      color: white;
+      border-color: #007bff;
+    }
+
+    /* Уникальная кнопка — зелёная с жирным шрифтом */
+    .special-button {
+      background-color: #28a745 !important;
+      color: white !important;
+      font-weight: bold;
+    }
+
+    /* Стили для повторяющихся блоков */
+    .repeating-class {
+      padding: 6px;
+      margin: 4px 0;
+      background-color: #e9ecef;
+      border-left: 4px solid #6c757d;
+    }
+
+    /* Прочие элементы */
+    #unique-id-element {
+      background-color: #fff3cd;
+      padding: 8px;
+      border: 1px solid #ffeaa7;
+    }
+
+    .unique-class {
+      color: #d9534f;
+      font-style: italic;
+    }
+
+    input[name] {
+      margin: 4px 0;
+      padding: 6px;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Страница для отработки поиска элементов</h1>
+
+  <!-- 1. Первый элемент по тегу <p> -->
+  <p>Первый абзац (поиск по тегу "p", первый на странице)</p>
+
+  <!-- 2. Второй и третий элементы по тегу <p> -->
+  <p>Второй абзац (поиск по тегу "p", второй на странице)</p>
+  <p>Третий абзац (поиск по тегу "p", третий на странице)</p>
+
+  <!-- 3. Элемент с уникальным ID -->
+  <div id="unique-id-element">Элемент с уникальным ID</div>
+
+  <!-- 4. Уникальный класс (только у одного элемента) -->
+  <span class="unique-class">Элемент с уникальным классом</span>
+
+  <!-- 5. Повторяющийся класс (у нескольких элементов) -->
+  <div class="repeating-class">Первый элемент с repeating-class</div>
+  <div class="repeating-class">Второй элемент с repeating-class</div>
+  <div class="repeating-class">Третий элемент с repeating-class</div>
+
+  <!-- 6. Элементы с несколькими классами -->
+  <!-- Общие классы .btn и .primary используются у нескольких кнопок -->
+  <button class="btn primary">Обычная primary-кнопка 1</button>
+  <button class="btn primary">Обычная primary-кнопка 2</button>
+  <!-- Эта кнопка — единственная с классом .special-button -->
+  <button class="btn primary special-button">Уникальная кнопка (special-button)</button>
+  <button class="btn">Обычная кнопка без primary</button>
+
+  <!-- 7. Элементы с атрибутом name -->
+  <input type="text" name="username" placeholder="Имя пользователя">
+  <input type="password" name="password" placeholder="Пароль">
+  <input type="email" name="contact" placeholder="Email">
+  <button name="submit-btn">Отправить</button>
+
+  <!-- Дополнительно: форма -->
+  <form style="margin-top: 20px;">
+    <label>Имя: <input type="text" name="first-name"></label><br><br>
+    <label>Фамилия: <input type="text" name="last-name"></label><br><br>
+    <button type="submit" name="form-submit">Отправить форму</button>
+  </form>
+
+</body>
+</html>
