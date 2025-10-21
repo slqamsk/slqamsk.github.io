@@ -6,31 +6,33 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      margin: 20px;
-      line-height: 1.6;
+      margin: 16px;
+      line-height: 1.4;
     }
 
     .section {
       border: 1px solid #ddd;
-      padding: 16px;
-      margin-bottom: 24px;
-      border-radius: 6px;
+      padding: 12px;
+      margin-bottom: 16px;
+      border-radius: 4px;
       background-color: #fafafa;
     }
 
     .section h2 {
-      margin-top: 0;
+      margin: 0 0 10px 0;
+      font-size: 18px;
       color: #333;
     }
 
     /* Кнопки */
     .btn {
-      padding: 8px 16px;
-      margin: 4px;
+      padding: 6px 12px;
+      margin: 3px 4px 3px 0;
       border: 1px solid #ccc;
       border-radius: 4px;
       cursor: pointer;
       background-color: #f9f9f9;
+      font-size: 14px;
     }
 
     .btn.primary {
@@ -47,17 +49,19 @@
 
     /* Повторяющиеся блоки */
     .repeating-class {
-      padding: 6px;
-      margin: 4px 0;
+      padding: 5px;
+      margin: 3px 0;
       background-color: #e9ecef;
-      border-left: 4px solid #6c757d;
+      border-left: 3px solid #6c757d;
+      font-size: 14px;
     }
 
     /* Уникальные элементы */
     #unique-id-element {
       background-color: #fff3cd;
-      padding: 8px;
+      padding: 6px;
       border: 1px solid #ffeaa7;
+      font-size: 14px;
     }
 
     .unique-class {
@@ -67,21 +71,24 @@
 
     /* Поля ввода */
     input[name] {
-      margin: 4px 0;
-      padding: 6px;
+      margin: 2px 0 6px 0;
+      padding: 5px;
       display: block;
-      width: 250px;
+      width: 220px;
+      font-size: 14px;
     }
 
-    /* Лог нажатий */
-    #button-log {
-      margin-top: 16px;
-      padding: 12px;
+    /* Логи нажатий */
+    .button-log {
+      margin-top: 8px;
+      padding: 8px;
       background-color: #e9f7ef;
       border: 1px solid #28a745;
-      border-radius: 4px;
-      min-height: 24px;
+      border-radius: 3px;
+      min-height: 18px;
       font-family: monospace;
+      font-size: 13px;
+      white-space: pre-wrap;
     }
   </style>
 </head>
@@ -125,44 +132,52 @@
     <button class="btn primary special-button">Уникальная кнопка (special-button)</button>
     <button class="btn">Обычная кнопка без primary</button>
 
-    <div id="button-log">Нажмите любую кнопку...</div>
+    <div id="log-general" class="button-log">Нажмите любую из кнопок выше...</div>
   </div>
 
-  <!-- Группа: Поля с name и кнопки отправки -->
+  <!-- Группа: Первая форма -->
   <div class="section">
-    <h2>8. Поля ввода и кнопки с атрибутом name</h2>
+    <h2>8. Первая форма (поля + кнопка "Отправить")</h2>
     <input type="text" name="username" placeholder="Имя пользователя">
     <input type="password" name="password" placeholder="Пароль">
     <input type="email" name="contact" placeholder="Email">
     <button name="submit-btn">Отправить</button>
+    <div id="log-form1" class="button-log">Лог нажатий появится здесь...</div>
+  </div>
 
-    <form style="margin-top: 20px;">
-      <label>Имя: <input type="text" name="first-name"></label><br><br>
-      <label>Фамилия: <input type="text" name="last-name"></label><br><br>
-      <button type="button" name="form-submit">Отправить форму</button>
-    </form>
+  <!-- Группа: Вторая форма -->
+  <div class="section">
+    <h2>9. Вторая форма (имя + фамилия)</h2>
+    <label>Имя: <input type="text" name="first-name"></label><br>
+    <label>Фамилия: <input type="text" name="last-name"></label><br>
+    <button type="button" name="form-submit">Отправить форму</button>
+    <div id="log-form2" class="button-log">Лог нажатий появится здесь...</div>
   </div>
 
   <script>
-    // Обработчик для всех кнопок на странице
-    document.querySelectorAll('button').forEach(button => {
-      button.addEventListener('click', function () {
-        const buttonText = this.textContent.trim();
-        let message = `Нажата кнопка: "${buttonText}"`;
-
-        // Если это одна из кнопок отправки — добавляем данные полей
-        if (this.name === 'submit-btn' || this.name === 'form-submit') {
-          const username = document.querySelector('input[name="username"]')?.value || '[пусто]';
-          const password = document.querySelector('input[name="password"]')?.value || '[пусто]';
-          const contact = document.querySelector('input[name="contact"]')?.value || '[пусто]';
-          const firstName = document.querySelector('input[name="first-name"]')?.value || '[пусто]';
-          const lastName = document.querySelector('input[name="last-name"]')?.value || '[пусто]';
-
-          message += `\nДанные:\n  username: ${username}\n  password: ${password}\n  contact: ${contact}\n  first-name: ${firstName}\n  last-name: ${lastName}`;
-        }
-
-        document.getElementById('button-log').textContent = message;
+    // Общие кнопки (не отправка форм)
+    document.querySelectorAll('.btn:not([name="submit-btn"]):not([name="form-submit"])').forEach(btn => {
+      btn.addEventListener('click', function () {
+        const text = this.textContent.trim();
+        document.getElementById('log-general').textContent = `Нажата кнопка: "${text}"`;
       });
+    });
+
+    // Кнопка submit-btn → лог в log-form1
+    document.querySelector('button[name="submit-btn"]').addEventListener('click', function () {
+      const u = document.querySelector('input[name="username"]')?.value || '[пусто]';
+      const p = document.querySelector('input[name="password"]')?.value || '[пусто]';
+      const c = document.querySelector('input[name="contact"]')?.value || '[пусто]';
+      document.getElementById('log-form1').textContent =
+        `Нажата кнопка: "Отправить"\nДанные:\n  username: ${u}\n  password: ${p}\n  contact: ${c}`;
+    });
+
+    // Кнопка form-submit → лог в log-form2
+    document.querySelector('button[name="form-submit"]').addEventListener('click', function () {
+      const fn = document.querySelector('input[name="first-name"]')?.value || '[пусто]';
+      const ln = document.querySelector('input[name="last-name"]')?.value || '[пусто]';
+      document.getElementById('log-form2').textContent =
+        `Нажата кнопка: "Отправить форму"\nДанные:\n  first-name: ${fn}\n  last-name: ${ln}`;
     });
   </script>
 
