@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Тестовая страница для автотестирования</title>
+    <style>
+        .container {
+            position: relative;
+            margin: 20px;
+            padding: 15px;
+        }
+        
+        .visible-element {
+            width: 200px;
+            height: 100px;
+            background-color: lightblue;
+            margin-bottom: 10px;
+        }
+        
+        .hidden-element {
+            display: none;
+            width: 200px;
+            height: 100px;
+            background-color: lightcoral;
+        }
+        
+        .styled-element {
+            width: 150px;
+            height: 80px;
+            background-color: lightgreen;
+            border: 2px solid darkgreen;
+            border-radius: 8px;
+            position: absolute;
+            top: 50px;
+            left: 250px;
+        }
+        
+        .disabled-input {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .active-button {
+            background-color: #4CAF50;
+            color: white;
+        }
+        
+        .inactive-button {
+            background-color: #cccccc;
+            color: #666666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Элементы для проверки СВОЙСТВ -->
+        <div 
+            id="element-with-attributes" 
+            class="visible-element custom-class"
+            data-testid="test-element"
+            data-custom-attr="custom-value"
+            title="Всплывающая подсказка"
+            style="margin-top: 10px;"
+        >
+            Элемент с атрибутами
+        </div>
+        
+        <div class="styled-element" id="positioned-element">
+            Элемент с позицией
+        </div>
+
+        <!-- Элементы для проверки СОСТОЯНИЙ -->
+        <div class="visible-element" id="visible-element">
+            Видимый элемент
+        </div>
+        
+        <div class="hidden-element" id="hidden-element">
+            Скрытый элемент
+        </div>
+        
+        <button id="enabled-button" class="active-button">
+            Активная кнопка
+        </button>
+        
+        <button id="disabled-button" class="inactive-button" disabled>
+            Неактивная кнопка
+        </button>
+        
+        <input type="text" id="enabled-input" placeholder="Доступное поле">
+        <input type="text" id="disabled-input" class="disabled-input" disabled placeholder="Недоступное поле">
+
+        <!-- Элементы для проверки ЗНАЧЕНИЙ -->
+        <div id="text-element">
+            Текст для проверки содержимого
+        </div>
+        
+        <input type="text" id="input-with-value" value="Предзаполненное значение">
+        
+        <textarea id="textarea-element">Многострочный текст для проверки</textarea>
+        
+        <select id="single-select">
+            <option value="option1">Опция 1</option>
+            <option value="option2" selected>Выбранная опция</option>
+            <option value="option3">Опция 3</option>
+        </select>
+        
+        <select id="multi-select" multiple>
+            <option value="multi1">Мульти 1</option>
+            <option value="multi2" selected>Мульти 2 (выбрано)</option>
+            <option value="multi3" selected>Мульти 3 (выбрано)</option>
+            <option value="multi4">Мульти 4</option>
+        </select>
+        
+        <input type="checkbox" id="checkbox1" checked> Чекбокс 1
+        <input type="checkbox" id="checkbox2"> Чекбокс 2
+        <input type="radio" name="radio-group" id="radio1" checked> Радио 1
+        <input type="radio" name="radio-group" id="radio2"> Радио 2
+    </div>
+
+    <script>
+        // Динамическое изменение для тестирования
+        setTimeout(() => {
+            document.getElementById('text-element').textContent = 'Измененный текст';
+            document.getElementById('input-with-value').value = 'Новое значение';
+        }, 1000);
+        
+        // Добавление/удаление классов
+        setInterval(() => {
+            const element = document.getElementById('visible-element');
+            element.classList.toggle('highlight');
+        }, 2000);
+    </script>
+</body>
+</html>
