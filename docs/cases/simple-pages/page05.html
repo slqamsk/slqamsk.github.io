@@ -7,7 +7,7 @@
     <br><br>
     <div id="reginfo"></div>
     <h1>Введите новые данные:</h1>
-    <form action="page04.html" method="GET">
+    <form action="page05.html" method="GET">
         <label for="username">Имя пользователя:</label>
         <input type="text" id="username" name="username" required>
         <br><br>
@@ -23,46 +23,46 @@
     Ваш браузер не поддерживает фреймы.
     </iframe>
 
-    <script>
-        // Функция для получения GET-параметров из URL
-        function getQueryParams() {
-            const params = {};
-            const queryString = window.location.search.substring(1);
-            const pairs = queryString.split('&');
-            
-            for (let i = 0; i < pairs.length; i++) {
-                const pair = pairs[i].split('=');
-                if (pair[0]) {
-                    params[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1] || '');
-                }
-            }
-            return params;
-        }
-
-        // Получаем параметры
-        const params = getQueryParams();
+<script>
+    // Функция для получения GET-параметров из URL
+    function getQueryParams() {
+        const params = {};
+        const queryString = window.location.search.substring(1);
+        const pairs = queryString.split('&');
         
-        // Проверяем наличие нужных параметров и формируем HTML
-        let infoHTML = '';
-        
-        if (params.username || params.email || params.password) {
-            infoHTML = '<h3>Переданные данные:</h3>';
-            
-            if (params.username) {
-                infoHTML += `<p><strong>Имя пользователя:</strong> ${params.username}</p>`;
-            }
-            
-            if (params.email) {
-                infoHTML += `<p><strong>Электронная почта:</strong> ${params.email}</p>`;
-            }
-            
-            if (params.password) {
-                infoHTML += `<p><strong>Пароль:</strong> ${params.password}</p>`;
+        for (let i = 0; i < pairs.length; i++) {
+            const pair = pairs[i].split('=');
+            if (pair[0]) {
+                params[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1] || '');
             }
         }
+        return params;
+    }
 
-        // Вставляем HTML в элемент reginfo
-        document.getElementById('reginfo').innerHTML = infoHTML;
-    </script>    
+    // Получаем параметры
+    const params = getQueryParams();
+    
+    // Проверяем наличие нужных параметров и формируем HTML
+    let infoHTML = '';
+    
+    if (params.username || params.email || params.password) {
+        infoHTML = '<h3>Переданные данные:</h3>';
+        
+        if (params.username) {
+            infoHTML += `<p><strong>Имя пользователя:</strong> <span id="username">${params.username}</span></p>`;
+        }
+        
+        if (params.email) {
+            infoHTML += `<p><strong>Электронная почта:</strong> <span id="email">${params.email}</span></p>`;
+        }
+        
+        if (params.password) {
+            infoHTML += `<p><strong>Пароль:</strong> <span id="password">${params.password}</span></p>`;
+        }
+    }
+
+    // Вставляем HTML в элемент reginfo
+    document.getElementById('reginfo').innerHTML = infoHTML;
+</script>  
 </body>
 </html>
