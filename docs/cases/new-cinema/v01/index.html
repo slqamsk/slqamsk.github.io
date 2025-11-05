@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Киоск продажи билетов — Король Лев</title>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Segoe UI', sans-serif;
+      perspective: 1000px;
+    }
+
+    .kiosk-container {
+      width: 600px;
+      height: 800px;
+      position: relative;
+      transform-style: preserve-3d;
+      transform: rotateX(5deg);
+      box-shadow: 0 40px 60px rgba(0, 0, 0, 0.5);
+    }
+
+    .kiosk-body {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(145deg, #34495e, #2c3e50);
+      border-radius: 30px;
+      position: relative;
+      box-shadow:
+        inset 0 0 30px rgba(0,0,0,0.6),
+        0 10px 20px rgba(0,0,0,0.4);
+      padding: 20px;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .screen-frame {
+      width: 60%;
+      height: 40%;
+      background: #2c3e50;
+      border-radius: 20px;
+      padding: 10px;
+      box-sizing: border-box;
+      box-shadow:
+        inset 0 0 20px rgba(0,0,0,0.6),
+        0 10px 20px rgba(0,0,0,0.4);
+      position: relative;
+      margin-bottom: 60px;
+    }
+
+    .kiosk-screen {
+      background: #f8f9fa;
+      width: 100%;
+      height: 100%;
+      border-radius: 12px;
+      padding: 15px;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: inset 0 0 15px rgba(0,0,0,0.1);
+      position: relative;
+    }
+
+    .title {
+      color: #2c3e50;
+      font-size: 18px;
+      margin-bottom: 10px;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+    }
+
+    .screen h2 {
+      color: #34495e;
+      margin-bottom: 20px;
+      font-size: 16px;
+    }
+
+    .ticket-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: 100%;
+      max-width: 220px;
+    }
+
+    .ticket-btn {
+      background: #3498db;
+      color: white;
+      border: none;
+      padding: 12px;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .ticket-btn:hover {
+      transform: translateY(-3px);
+      background: #2980b9;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    }
+
+    .ticket-btn#child-ticket-btn {
+      background: #e74c3c;
+    }
+
+    .ticket-btn#child-ticket-btn:hover {
+      background: #c0392b;
+    }
+
+    .message {
+      margin-top: 15px;
+      font-size: 16px;
+      color: #27ae60;
+      min-height: 25px;
+    }
+
+    .kiosk-speakers {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      width: 20px;
+      height: 20px;
+      background: #2c3e50;
+      border-radius: 50%;
+      box-shadow: inset 0 0 5px rgba(0,0,0,0.5);
+    }
+
+    .kiosk-camera {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      width: 10px;
+      height: 10px;
+      background: #e74c3c;
+      border-radius: 50%;
+      box-shadow: 0 0 5px rgba(231, 76, 60, 0.7);
+    }
+
+    .ticket-area {
+      position: relative;
+      width: 70%;
+      height: 20px;
+      margin-top: 10px;
+    }
+
+    .ticket-slot {
+      width: 100%;
+      height: 8px;
+      background: #2c3e50;
+      border-radius: 4px;
+      position: absolute;
+      top: 0;
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+    }
+
+    /* Билет в стиле старого чека */
+    .ticket {
+      width: 160px;
+      background: #fff;
+      border: 1px dashed #000;
+      padding: 10px;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      line-height: 1.3;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      position: absolute;
+      color: #000;
+      text-align: center;
+      border-radius: 4px;
+      opacity: 0;
+      transform: translateY(15px);
+      transition: opacity 0.3s ease, transform 0.5s ease;
+      z-index: 10;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%) translateY(15px);
+    }
+
+    .ticket.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .ticket-header {
+      font-size: 14px;
+      font-weight: bold;
+      margin-bottom: 8px;
+      letter-spacing: 1px;
+    }
+
+    .ticket-title {
+      font-weight: bold;
+      font-size: 13px;
+      margin: 6px 0;
+      border-top: 1px dotted #000;
+      border-bottom: 1px dotted #000;
+      padding: 2px 0;
+    }
+
+    .ticket-info {
+      font-size: 11px;
+    }
+
+    .ticket-footer {
+      margin-top: 8px;
+      font-size: 10px;
+      font-style: italic;
+    }
+
+    /* Имитация "рваного края" */
+    .ticket::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 155px,
+        #ccc 155px,
+        #ccc 160px
+      );
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0.2;
+    }
+
+    .kiosk-legs {
+      position: absolute;
+      bottom: -50px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80%;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .leg {
+      width: 40px;
+      height: 50px;
+      background: linear-gradient(to right, #7f8c8d, #95a5a6);
+      border-radius: 5px;
+      box-shadow: 0 5px 10px rgba(0,0,0,0.3);
+    }
+
+    .kiosk-base {
+      position: absolute;
+      bottom: -70px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90%;
+      height: 15px;
+      background: #7f8c8d;
+      border-radius: 8px;
+      box-shadow: 0 5px 10px rgba(0,0,0,0.3);
+    }
+  </style>
+</head>
+<body>
+  <div class="kiosk-container">
+    <div class="kiosk-body">
+      <div class="kiosk-speakers"></div>
+      <div class="kiosk-camera"></div>
+
+      <div class="screen-frame">
+        <div class="kiosk-screen">
+          <h1 class="title">Киоск продажи билетов</h1>
+          <h2>Выберите тип билета</h2>
+
+          <div class="ticket-buttons">
+            <button id="child-ticket-btn" class="ticket-btn">
+              <span>Детский билет (250 ₽)</span>
+            </button>
+            <button id="adult-ticket-btn" class="ticket-btn">
+              <span>Взрослый билет (500 ₽)</span>
+            </button>
+          </div>
+
+          <div id="message" class="message"></div>
+        </div>
+      </div>
+
+      <div class="ticket-area">
+        <div class="ticket-slot"></div>
+        <div id="ticket" class="ticket">
+          <div class="ticket-header">[ УДАРНИК ]</div>
+          <div class="ticket-title">КОРОЛЬ ЛЕВ</div>
+          <div class="ticket-info">
+            <div id="ticket-type">Тип: Взрослый</div>
+            <div id="ticket-price">Цена: 500 руб.</div>
+          </div>
+          <div class="ticket-footer">СПАСИБО ЗА ПОКУПКУ!</div>
+        </div>
+      </div>
+
+      <div class="kiosk-legs">
+        <div class="leg"></div>
+        <div class="leg"></div>
+      </div>
+
+      <div class="kiosk-base"></div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const childBtn = document.getElementById('child-ticket-btn');
+      const adultBtn = document.getElementById('adult-ticket-btn');
+      const ticketEl = document.getElementById('ticket');
+      const ticketTypeEl = document.getElementById('ticket-type');
+      const ticketPriceEl = document.getElementById('ticket-price');
+
+      childBtn.addEventListener('click', () => {
+        ticketTypeEl.textContent = 'Тип: Детский';
+        ticketPriceEl.textContent = 'Цена: 250 руб.';
+        ticketEl.classList.remove('show');
+        setTimeout(() => {
+          ticketEl.classList.add('show');
+        }, 10);
+      });
+
+      adultBtn.addEventListener('click', () => {
+        ticketTypeEl.textContent = 'Тип: Взрослый';
+        ticketPriceEl.textContent = 'Цена: 500 руб.';
+        ticketEl.classList.remove('show');
+        setTimeout(() => {
+          ticketEl.classList.add('show');
+        }, 10);
+      });
+    });
+  </script>
+</body>
+</html>

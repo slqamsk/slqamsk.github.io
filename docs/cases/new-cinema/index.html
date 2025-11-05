@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Бизнес-требования — Билетный киоск</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f7f7f7;
+            color: #333;
+        }
+        pre {
+            background-color: #fff;
+            border: 1px solid #ccc;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            font-size: 14px;
+        }
+        h1 {
+            color: #444;
+        }
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ccc;
+        }
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            background-color: #e0e0e0;
+            border: 1px solid #ccc;
+            border-bottom: none;
+            border-radius: 5px 5px 0 0;
+            margin-right: 5px;
+        }
+        .tab.active {
+            background-color: #fff;
+            border-bottom: 1px solid #fff;
+            margin-bottom: -1px;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #e0e0e0;
+        }
+        .link {
+            display: inline-block;
+            padding: 5px 10px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 3px;
+        }
+        .link:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>Бизнес-требования — Билетный киоск</h1>
+
+    <div class="tabs">
+        <div class="tab active" onclick="showTab('business')">Бизнес-требования</div>
+        <div class="tab" onclick="showTab('system')">Системные требования</div>
+        <div class="tab" onclick="showTab('change')">Change Requests</div>
+        <div class="tab" onclick="showTab('versions')">Версии</div>
+    </div>
+
+    <div id="business" class="tab-content active">
+        <pre>
+Бизнес-требования к билетному киоску
+
+Настоящий документ содержит функциональные бизнес-требования к программному обеспечению (ПО), 
+установленному в билетный киоск, реализующий продажу билетов в кино. 
+Система предоставляет пользователю возможность выбора типа билета (взрослый или детский) 
+и выпуск физического билета с соответствующей информацией. 
+Описание требований основано на реализации, представленной в эмуляторе, 
+и адаптировано под реальное оборудование.
+
+BR-01: На экране киоска должна быть надпись "Киоск продажи билетов".
+
+BR-02: На экране киоска должна быть надпись "Выберите тип билета".
+
+BR-03: На экране киоска должны быть представлены две кнопки: «Детский билет» и «Взрослый билет».
+
+BR-04: На кнопке «Детский билет» должна быть указана стоимость — 250 ₽.
+
+BR-05: На кнопке «Взрослый билет» должна быть указана стоимость — 500 ₽.
+
+BR-06: При нажатии на кнопку «Детский билет» система должна инициировать печать билета с типом «Детский» и стоимостью 250 ₽.
+
+BR-07: При нажатии на кнопку «Взрослый билет» система должна инициировать печать билета с типом «Взрослый» и стоимостью 500 ₽.
+
+BR-08: На билете должно быть указано название кинотеатра.
+
+BR-09: На билете должно быть указано название фильма.
+
+BR-10: На билете должен быть указан тип билета («Детский» или «Взрослый»).
+
+BR-11: На билете должна быть указана стоимость билета (250 ₽ или 500 ₽).
+
+BR-12: Билет должен выпускаться через физическую щель в киоске.
+        </pre>
+    </div>
+
+    <div id="system" class="tab-content">
+        <pre>
+Системные требования к ПО билетного киоска
+
+Отсутствуют
+        </pre>
+    </div>
+
+    <div id="change" class="tab-content">
+        <pre>
+Запросы на изменения (на доработку) - Change Requests
+
+Отсутствуют
+        </pre>
+    </div>
+
+    <div id="versions" class="tab-content">
+        <table>
+            <thead>
+                <tr>
+                    <th>№</th>
+                    <th>Номер версии</th>
+                    <th>Описание версии</th>
+                    <th>Ссылка</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td>v01</td>
+                    <td>Исходный прототип</td>
+                    <td><a href="v01" class="link">Перейти</a></td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>v02</td>
+                    <td>Не реализовано</td>
+                    <td><a href="#" class="link">Перейти</a></td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td>v03</td>
+                    <td>Не реализовано</td>
+                    <td><a href="#" class="link">Перейти</a></td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td>v04</td>
+                    <td>Не реализовано</td>
+                    <td><a href="#" class="link">Перейти</a></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        function showTab(tabName) {
+            // Скрыть все вкладки
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Показать выбранную вкладку
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+</html>
