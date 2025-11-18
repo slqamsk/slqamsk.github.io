@@ -865,21 +865,24 @@
             return;
         }
 
+        // БАГ: Убрана валидация имени
         // Validate name (only Russian letters, spaces and hyphens)
-        const nameRegex = /^[А-Яа-яЁё\s-]+$/;
-        if (!nameRegex.test(name)) {
-            showMessage('ФИО должно содержать только русские буквы, пробелы и дефис.', 'error', 'registrationMessage');
-            return;
-        }
+        // const nameRegex = /^[А-Яа-яЁё\s-]+$/;
+        // if (!nameRegex.test(name)) {
+        //     showMessage('ФИО должно содержать только русские буквы, пробелы и дефис.', 'error', 'registrationMessage');
+        //     return;
+        // }
 
+        // БАГ: Убрана валидация паспорта
         // Validate passport (only digits and spaces)
-        const passportRegex = /^[\d\s]+$/;
-        if (!passportRegex.test(passport)) {
-            showMessage('Номер паспорта должен содержать только цифры и пробелы.', 'error', 'registrationMessage');
-            return;
-        }
+        // const passportRegex = /^[\d\s]+$/;
+        // if (!passportRegex.test(passport)) {
+        //     showMessage('Номер паспорта должен содержать только цифры и пробелы.', 'error', 'registrationMessage');
+        //     return;
+        // }
 
         // БАГ 4: Убрана проверка email на доменную зону
+        // const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
         // if (!emailRegex.test(email)) {
         //     showMessage('Пожалуйста, введите корректный email адрес.', 'error', 'registrationMessage');
         //     return;

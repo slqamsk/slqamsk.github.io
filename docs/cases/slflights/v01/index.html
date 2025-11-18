@@ -874,6 +874,13 @@
             return;
         }
 
+        const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+        if (!emailRegex.test(email)) {
+            showMessage('Пожалуйста, введите корректный email адрес.', 'error', 'registrationMessage');
+            return;
+        }
+
+
         // Here you would normally send the registration data to the server
         showMessage('Регистрация успешно завершена!', 'success', 'registrationMessage');
         
