@@ -89,8 +89,7 @@ function createLayoutTemplate(content) {
         </div>
         <nav class="header-right">
           <a href="index.html">Главная</a>
-          <a href="about.html">О нас</a>
-          <a href="python.html">Python</a>
+          <a href="about.html">Обо мне</a>
         </nav>
       </header>
       <div class="layout-content">
@@ -119,27 +118,25 @@ function createSidebarMenu() {
     <nav class="sidebar-menu">
       <ul>
         <li class="menu-group">
-          <a href="#" class="menu-item" aria-haspopup="true">Продукция</a>
+          <a href="#" class="menu-item" aria-haspopup="true">Учебные приложения</a>
           <ul class="submenu">
-            <li><a href="#">Телефонывапыфвапфывафывафывафываыфва</a></li>
-            <li><a href="#">Ноутбуки</a></li>
-            <li><a href="#">Аксессуары</a></li>
+            <li><a href="cases/pizza">Сайт пиццерии</a></li>
+            <li><a href="cases/slflights">Бронирование авиабилетов</a></li>
           </ul>
         </li>
         <li class="menu-group">
-          <a href="#" class="menu-item" aria-haspopup="true">Услуги</a>
+          <a href="#" class="menu-item" aria-haspopup="true">Презентации</a>
           <ul class="submenu">
-            <li><a href="#">Ремонт</a></li>
-            <li><a href="#">Обслуживание</a></li>
-            <li><a href="#">Консультации</a></li>
+            <li><a href="https://docs.google.com/presentation/d/1RCpkEd-DjHJP4QNoZdFqBxDClW02Ow_yBSzy74J4kWo">Мастер-класс "Тестирование ПО"</a></li>
+            <li><a href="https://docs.google.com/presentation/d/14ihpc5alCsaTNMydtMgWvVA2A1i6rYN7fri6BnPE82I">Ручное тестирование</a></li>
+            <li><a href="https://docs.google.com/presentation/d/1SNiRk7-ahiT_Jwy6fhGEW_M9ANTk-LZ1-umVQgDUhMU">Автотестирование (Java)</a></li>
           </ul>
         </li>
         <li class="menu-group">
-          <a href="#" class="menu-item" aria-haspopup="true">Поддержка</a>
+          <a href="#" class="menu-item" aria-haspopup="true">Страницы</a>
           <ul class="submenu">
-            <li><a href="#">FAQ</a></li>
-            <li><a href="#">Документация</a></li>
-            <li><a href="#">Форум</a></li>
+            <li><a href="index.html">Главная</a></li>
+            <li><a href="about.html">Обо мне</a></li>
           </ul>
         </li>
       </ul>
