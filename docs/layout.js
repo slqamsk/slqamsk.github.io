@@ -120,16 +120,16 @@ function createSidebarMenu() {
         <li class="menu-group">
           <a href="#" class="menu-item" aria-haspopup="true">Учебные приложения</a>
           <ul class="submenu">
-            <li><a href="cases/pizza">Сайт пиццерии</a></li>
-            <li><a href="cases/slflights">Бронирование авиабилетов</a></li>
+            <li><a href="cases/pizza" target="_blank">Сайт пиццерии</a></li>
+            <li><a href="cases/slflights" target="_blank">Бронирование авиабилетов</a></li>
           </ul>
         </li>
         <li class="menu-group">
           <a href="#" class="menu-item" aria-haspopup="true">Презентации</a>
           <ul class="submenu">
-            <li><a href="https://docs.google.com/presentation/d/1RCpkEd-DjHJP4QNoZdFqBxDClW02Ow_yBSzy74J4kWo">Мастер-класс "Тестирование ПО"</a></li>
-            <li><a href="https://docs.google.com/presentation/d/14ihpc5alCsaTNMydtMgWvVA2A1i6rYN7fri6BnPE82I">Ручное тестирование</a></li>
-            <li><a href="https://docs.google.com/presentation/d/1SNiRk7-ahiT_Jwy6fhGEW_M9ANTk-LZ1-umVQgDUhMU">Автотестирование (Java)</a></li>
+            <li><a href="https://docs.google.com/presentation/d/1RCpkEd-DjHJP4QNoZdFqBxDClW02Ow_yBSzy74J4kWo" target="_blank">Мастер-класс "Тестирование ПО"</a></li>
+            <li><a href="https://docs.google.com/presentation/d/14ihpc5alCsaTNMydtMgWvVA2A1i6rYN7fri6BnPE82I" target="_blank">Ручное тестирование</a></li>
+            <li><a href="https://docs.google.com/presentation/d/1SNiRk7-ahiT_Jwy6fhGEW_M9ANTk-LZ1-umVQgDUhMU" target="_blank">Автотестирование (Java)</a></li>
           </ul>
         </li>
         <li class="menu-group">
