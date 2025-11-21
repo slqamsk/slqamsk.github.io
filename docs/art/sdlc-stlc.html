@@ -1,0 +1,115 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Этапы SDLC</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 10px;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 10px;
+            border: none;
+        }
+        
+        td {
+            padding: 8px 5px;
+            text-align: center;
+            border: 2px solid #f5f5f5;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+            border-radius: 8px;
+        }
+        
+        .sdlc-phase {
+            background-color: blue;
+        }
+        
+        .test-phase {
+            background-color: purple;
+        }
+        
+        .empty-cell {
+            background-color: #f5f5f5;
+            border: 2px solid #f5f5f5;
+        }
+        
+        .title-cell {
+            background-color: #b3d4ff;
+            font-size: 24px;
+            border: none;
+            border-radius: 0;
+        }
+        
+        .footer-cell {
+            background-color: #e6ccff;
+            font-size: 24px;
+        }
+        
+        .title-empty-cell {
+            background-color: #b3d4ff;
+            border: none;
+            border-radius: 0;
+        }
+        
+        .first-title-cell {
+            border-radius: 8px 0 0 8px;
+        }
+        
+        .last-title-cell {
+            border-radius: 0 8px 8px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <table>
+            <tr>
+                <td colspan="20" class="title-empty-cell first-title-cell">&nbsp;</td>
+                <td colspan="30" class="title-cell">SDLC</td>
+                <td colspan="10" class="title-empty-cell last-title-cell">&nbsp;</td>
+            </tr>
+            <tr>
+                <td colspan="10" class="sdlc-phase">1.&nbsp;Планирование и анализ потребностей</td>
+                <td colspan="10" class="sdlc-phase">2.&nbsp;Определение требований</td>
+                <td colspan="10" class="sdlc-phase">3.&nbsp;Проектирование и дизайн</td>
+                <td colspan="10" class="sdlc-phase">4.&nbsp;Разработка ПО</td>
+                <td colspan="10" class="sdlc-phase">5.&nbsp;Тестирование и внедрение</td>
+                <td colspan="10" class="sdlc-phase">6.&nbsp;Сопровождение</td>
+            </tr>
+            <tr>
+                <td colspan="10" class="empty-cell">&nbsp;</td>
+                <td colspan="10" class="empty-cell">&nbsp;</td>
+                <td colspan="5" class="test-phase">1.&nbsp;Анализ требований</td>
+                <td colspan="5" class="test-phase">2.&nbsp;Планирование</td>
+                <td colspan="5" class="test-phase">3.&nbsp;Проектирование тестов</td>
+                <td colspan="5" class="test-phase">4.&nbsp;Настройка тестовой среды</td>
+                <td colspan="5" class="test-phase">5.&nbsp;Выполнение тестов</td>
+                <td colspan="5" class="test-phase">6.&nbsp;Закрытие тестового цикла</td>
+                <td colspan="10" class="empty-cell">&nbsp;</td>
+            </tr>
+            <tr>
+                <td colspan="20" class="empty-cell">&nbsp;</td>
+                <td colspan="30" class="footer-cell">STLC</td>
+                <td colspan="10" class="empty-cell">&nbsp;</td>
+            </tr>
+        </table>
+    </div>
+</body>
+</html>
