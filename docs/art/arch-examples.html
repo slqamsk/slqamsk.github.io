@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Архитектурные диаграммы</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            padding-top: 0;
+        }
+
+        .container {
+            width: 100vw; /* Растягиваем по ширине экрана */
+            max-width: none;
+            min-height: 100vh;
+            background: white;
+            border-radius: 0;
+            box-shadow: none;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+        }
+
+        .content-wrapper {
+            width: 100%; /* Растягиваем на всю ширину контейнера */
+            max-width: none; /* Убираем ограничение ширины */
+            background: white;
+            border-radius: 0; /* Убираем скругления */
+            box-shadow: none; /* Убираем тень */
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+        }
+
+        .preview-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+            padding: 30px;
+        }
+
+        .preview {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .preview:hover {
+            border-color: #3498db;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .preview h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .preview-diagram {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            min-height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .diagram-container {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            margin-top: 20px;
+            overflow: auto;
+        }
+
+        .diagram-title {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .description {
+            background: #e8f4fc;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            border-left: 4px solid #3498db;
+        }
+
+        .description h4 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .mermaid {
+            text-align: center;
+        }
+
+        /* Стили для масштабируемой диаграммы */
+        .scalable-diagram-wrapper {
+            display: inline-block;
+            position: relative;
+            transform-origin: 0 0;
+        }
+
+        .section {
+            padding: 30px;
+        }
+
+        .section h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .preview-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="content-wrapper">
+            <!-- Превью диаграмм -->
+            <div class="preview-container">
+                <div class="preview" onclick="scrollToSection('diagram1')">
+                    <h3>🎯 Трекер привычек</h3>
+                    <div class="preview-diagram">
+                        <div class="mermaid" style="transform: scale(0.1); transform-origin: 0 0;">
+graph TD
+    subgraph "Frontend"
+        A[Mobile App<br/>React Native] --> B[API Gateway]
+    end
+
+    subgraph "Backend Services"
+        B --> C[Auth Service]
+        B --> D[Habits Service]
+        B --> E[Analytics Service]
+    end
+
+    subgraph "Data Storage"
+        C --> F[(Users Database)]
+        D --> G[(Habits Database)]
+        E --> G
+    end
+
+    D --> E
+
+    style A fill:#e1f5fe
+    style B fill:#f3e5f5
+    style C fill:#e8f5e8
+    style D fill:#fff3e0
+    style E fill:#fce4ec
+    style F fill:#f1f8e9
+    style G fill:#e0f2f1
+                        </div>
+                    </div>
+                    <p style="text-align: center; margin-top: 10px; color: #666;">
+                        Простая архитектура мобильного приложения
+                    </p>
+                </div>
+
+                <div class="preview" onclick="scrollToSection('diagram2')">
+                    <h3>🏦 Банковская система</h3>
+                    <div class="preview-diagram">
+                        <div class="mermaid" style="transform: scale(0.1); transform-origin: 0 0;">
+graph TD
+    subgraph "Клиентские каналы"
+        A1[Mobile App] --> B1
+        A2[Internet Banking] --> B1
+        A3[ATM Network] --> B1
+        A4[Call Center] --> B1
+        A5[POS Terminals] --> B1
+    end
+
+    subgraph "Шлюзы и маршрутизация"
+        B1[API Gateway] --> B2[Router]
+    end
+
+    subgraph "Бизнес-домены"
+        C1[User Auth] --> C11[(Session DB)]
+        C2[Core Banking] --> C21[(Accounts DB)]
+        C3[Payment Engine] --> C31[(Transactions DB)]
+        C4[Card Management] --> C41[(Cards DB)]
+        C5[Loan Engine] --> C51[(Loans DB)]
+        C6[Customer Info] --> C61[(CRM DB)]
+    end
+
+    subgraph "Интеграции"
+        D1[SWIFT Network]
+        D2[Credit Bureaus]
+        D3[Fraud Detection]
+        D4[Payment Systems]
+    end
+
+    subgraph "Инфраструктура"
+        E1[Message Broker]
+        E2[Config Server]
+        E3[Service Discovery]
+        E4[Logging & Auditing]
+        E5[Monitoring & Alerts]
+    end
+
+    B2 --> C1
+    B2 --> C2
+    B2 --> C3
+    B2 --> C4
+    B2 --> C5
+    B2 --> C6
+
+    C1 -.-> C2
+    C1 -.-> C3
+    C1 -.-> C4
+    C1 -.-> C5
+    C1 -.-> C6
+
+    C2 --> C3
+    C3 --> C2
+    C2 --> C5
+    C6 --> C2
+    C6 --> C4
+    C6 --> C5
+
+    C3 --> E1
+    C4 --> E1
+    C5 --> E1
+    E1 --> E4
+    E1 --> D3
+
+    C3 --> D1
+    C3 --> D4
+    C5 --> D2
+
+    C1 --> E3
+    C2 --> E3
+    C3 --> E3
+    C1 --> E2
+    C2 --> E2
+    C3 --> E2
+    C1 --> E5
+    C2 --> E5
+    C3 --> E5
+    C4 --> E5
+    C5 --> E5
+    C6 --> E5
+
+    style A1 fill:#e1f5fe
+    style A2 fill:#e1f5fe
+    style A3 fill:#e1f5fe
+    style A4 fill:#e1f5fe
+    style A5 fill:#e1f5fe
+    style B1 fill:#f3e5f5
+    style B2 fill:#f3e5f5
+    style C1 fill:#e8f5e8
+    style C2 fill:#e8f5e8
+    style C3 fill:#e8f5e8
+    style C4 fill:#e8f5e8
+    style C5 fill:#e8f5e8
+    style C6 fill:#e8f5e8
+    style D1 fill:#fff3e0
+    style D2 fill:#fff3e0
+    style D3 fill:#fff3e0
+    style D4 fill:#fff3e0
+    style E1 fill:#fce4ec
+    style E2 fill:#fce4ec
+    style E3 fill:#fce4ec
+    style E4 fill:#fce4ec
+    style E5 fill:#fce4ec
+                        </div>
+                    </div>
+                    <p style="text-align: center; margin-top: 10px; color: #666;">
+                        Сложная микросервисная архитектура
+                    </p>
+                </div>
+            </div>
+
+            <!-- Раздел с первой диаграммой -->
+            <div id="diagram1" class="section">
+                <h1>Архитектура Трекера Привычек</h1>
+                <div class="diagram-container">
+                    <div class="scalable-diagram-wrapper" id="diagram1-wrapper">
+                        <div class="mermaid" id="diagram1-mermaid">
+graph TD
+    subgraph "Frontend"
+        A[Mobile App<br/>React Native] --> B[API Gateway]
+    end
+
+    subgraph "Backend Services"
+        B --> C[Auth Service]
+        B --> D[Habits Service]
+        B --> E[Analytics Service]
+    end
+
+    subgraph "Data Storage"
+        C --> F[(Users Database)]
+        D --> G[(Habits Database)]
+        E --> G
+    end
+
+    D --> E
+
+    style A fill:#e1f5fe
+    style B fill:#f3e5f5
+    style C fill:#e8f5e8
+    style D fill:#fff3e0
+    style E fill:#fce4ec
+    style F fill:#f1f8e9
+    style G fill:#e0f2f1
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="description">
+                    <h4>Описание архитектуры Трекера привычек:</h4>
+                    <p><strong>Mobile App</strong> - кроссплатформенное приложение на React Native</p>
+                    <p><strong>API Gateway</strong> - единая точка входа, маршрутизация и аутентификация</p>
+                    <p><strong>Auth Service</strong> - управление пользователями, регистрация и вход</p>
+                    <p><strong>Habits Service</strong> - ядро системы: создание и отслеживание привычек</p>
+                    <p><strong>Analytics Service</strong> - анализ прогресса, статистика и отчеты</p>
+                </div>
+            </div>
+
+            <!-- Раздел со второй диаграммой -->
+            <div id="diagram2" class="section">
+                <h1>Архитектура Банковской Системы</h1>
+                <div class="diagram-container">
+                    <div class="scalable-diagram-wrapper" id="diagram2-wrapper">
+                        <div class="mermaid" id="diagram2-mermaid">
+graph TD
+    subgraph "Клиентские каналы"
+        A1[Mobile App] --> B1
+        A2[Internet Banking] --> B1
+        A3[ATM Network] --> B1
+        A4[Call Center] --> B1
+        A5[POS Terminals] --> B1
+    end
+
+    subgraph "Шлюзы и маршрутизация"
+        B1[API Gateway] --> B2[Router]
+    end
+
+    subgraph "Бизнес-домены"
+        C1[User Auth] --> C11[(Session DB)]
+        C2[Core Banking] --> C21[(Accounts DB)]
+        C3[Payment Engine] --> C31[(Transactions DB)]
+        C4[Card Management] --> C41[(Cards DB)]
+        C5[Loan Engine] --> C51[(Loans DB)]
+        C6[Customer Info] --> C61[(CRM DB)]
+    end
+
+    subgraph "Интеграции"
+        D1[SWIFT Network]
+        D2[Credit Bureaus]
+        D3[Fraud Detection]
+        D4[Payment Systems]
+    end
+
+    subgraph "Инфраструктура"
+        E1[Message Broker]
+        E2[Config Server]
+        E3[Service Discovery]
+        E4[Logging & Auditing]
+        E5[Monitoring & Alerts]
+    end
+
+    B2 --> C1
+    B2 --> C2
+    B2 --> C3
+    B2 --> C4
+    B2 --> C5
+    B2 --> C6
+
+    C1 -.-> C2
+    C1 -.-> C3
+    C1 -.-> C4
+    C1 -.-> C5
+    C1 -.-> C6
+
+    C2 --> C3
+    C3 --> C2
+    C2 --> C5
+    C6 --> C2
+    C6 --> C4
+    C6 --> C5
+
+    C3 --> E1
+    C4 --> E1
+    C5 --> E1
+    E1 --> E4
+    E1 --> D3
+
+    C3 --> D1
+    C3 --> D4
+    C5 --> D2
+
+    C1 --> E3
+    C2 --> E3
+    C3 --> E3
+    C1 --> E2
+    C2 --> E2
+    C3 --> E2
+    C1 --> E5
+    C2 --> E5
+    C3 --> E5
+    C4 --> E5
+    C5 --> E5
+    C6 --> E5
+
+    style A1 fill:#e1f5fe
+    style A2 fill:#e1f5fe
+    style A3 fill:#e1f5fe
+    style A4 fill:#e1f5fe
+    style A5 fill:#e1f5fe
+    style B1 fill:#f3e5f5
+    style B2 fill:#f3e5f5
+    style C1 fill:#e8f5e8
+    style C2 fill:#e8f5e8
+    style C3 fill:#e8f5e8
+    style C4 fill:#e8f5e8
+    style C5 fill:#e8f5e8
+    style C6 fill:#e8f5e8
+    style D1 fill:#fff3e0
+    style D2 fill:#fff3e0
+    style D3 fill:#fff3e0
+    style D4 fill:#fff3e0
+    style E1 fill:#fce4ec
+    style E2 fill:#fce4ec
+    style E3 fill:#fce4ec
+    style E4 fill:#fce4ec
+    style E5 fill:#fce4ec
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="description">
+                    <h4>Ключевые компоненты банковской системы:</h4>
+                    <p><strong>Клиентские каналы</strong> - различные способы доступа к банковским услугам</p>
+                    <p><strong>Бизнес-домены</strong> - микросервисы, отвечающие за конкретные банковские функции</p>
+                    <p><strong>Внешние интеграции</strong> - подключение к международным системам и партнерам</p>
+                    <p><strong>Инфраструктура</strong> - вспомогательные сервисы для обеспечения надежности и масштабируемости</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Инициализация Mermaid
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            securityLevel: 'loose',
+            flowchart: {
+                useMaxWidth: false,
+                htmlLabels: true
+            }
+        });
+
+        function scrollToSection(sectionId) {
+            const element = document.getElementById(sectionId);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        // Функция для масштабирования диаграмм
+        function makeScalable(wrapperId) {
+            const wrapper = document.getElementById(wrapperId);
+            if (!wrapper) return;
+
+            let scale = 1;
+            const wheelSensitivity = 0.1;
+
+            wrapper.addEventListener('wheel', function(e) {
+                if (e.ctrlKey) {
+                    e.preventDefault();
+                    const delta = e.deltaY > 0 ? -wheelSensitivity : wheelSensitivity;
+                    scale += delta;
+                    if (scale < 0.5) scale = 0.5;
+                    if (scale > 2) scale = 2;
+                    wrapper.style.transform = `scale(${scale})`;
+                    // Автоматически подстраиваем размер контейнера
+                    wrapper.parentElement.style.overflowX = scale > 1 ? 'auto' : 'hidden';
+                }
+            });
+
+            wrapper.addEventListener('dblclick', function() {
+                scale = 1;
+                wrapper.style.transform = `scale(${scale})`;
+                wrapper.parentElement.style.overflowX = 'hidden';
+            });
+        }
+
+        // Применяем масштабирование к диаграммам после загрузки
+        document.addEventListener('DOMContentLoaded', function() {
+            makeScalable('diagram1-wrapper');
+            makeScalable('diagram2-wrapper');
+        });
+    </script>
+</body>
+</html>
