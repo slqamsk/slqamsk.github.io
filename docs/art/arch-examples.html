@@ -77,10 +77,11 @@
             padding: 15px;
             border-radius: 8px;
             border: 1px solid #dee2e6;
-            min-height: 150px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            width: 400px;
+            height: 400px;
+            margin: 0 auto; /* Центрируем внутри */
+            overflow: hidden; /* Скрываем лишнее */
+            position: relative;
         }
 
         .diagram-container {
@@ -151,7 +152,7 @@
                 <div class="preview" onclick="scrollToSection('diagram1')">
                     <h3>🎯 Трекер привычек</h3>
                     <div class="preview-diagram">
-                        <div class="mermaid" style="transform: scale(0.1); transform-origin: 0 0;">
+                        <div class="mermaid" style="transform: scale(0.25); transform-origin: 0 0; position: absolute; left: 0; top: 0;">
 graph TD
     subgraph "Frontend"
         A[Mobile App<br/>React Native] --> B[API Gateway]
@@ -188,7 +189,7 @@ graph TD
                 <div class="preview" onclick="scrollToSection('diagram2')">
                     <h3>🏦 Банковская система</h3>
                     <div class="preview-diagram">
-                        <div class="mermaid" style="transform: scale(0.1); transform-origin: 0 0;">
+                        <div class="mermaid" style="transform: scale(0.25); transform-origin: 0 0; position: absolute; left: 0; top: 0;">
 graph TD
     subgraph "Клиентские каналы"
         A1[Mobile App] --> B1
