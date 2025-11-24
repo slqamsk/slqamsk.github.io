@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Калькулятор зарплаты с НДФЛ</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    .container {
+      max-width: 600px;
+      margin: auto;
+    }
+    input, button {
+      padding: 8px;
+      margin: 5px 0;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .result {
+      margin-top: 20px;
+      padding: 10px;
+      background-color: #f0f8ff;
+      border-left: 4px solid #007acc;
+    }
+    .error {
+      color: red;
+    }
+    .success {
+      color: green;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Калькулятор зарплаты с НДФЛ</h1>
+    <p>Введите желаемую зарплату "на руки" в месяц:</p>
+    <input type="number" id="desiredSalary" placeholder="Зарплата на руки в месяц" />
+    <button onclick="calculateGrossSalary()">Рассчитать зарплату до вычета</button>
+
+    <div id="result" class="result" style="display:none;"></div>
+  </div>
+
+  <script>
+    const TAX_BRACKETS = [
+      { limit: 2400000, rate: 0.13 },
+      { limit: 5000000, rate: 0.15 },
+      { limit: 20000000, rate: 0.18 },
+      { limit: 50000000, rate: 0.20 },
+      { limit: Infinity, rate: 0.22 }
+    ];
+
+    function calculateTax(yearlyIncome) {
+      let tax = 0;
+      let previousLimit = 0;
+      let remaining = yearlyIncome;
+
+      for (const bracket of TAX_BRACKETS) {
+        if (remaining <= 0) break;
+
+        const taxable = Math.min(remaining, bracket.limit - previousLimit);
+        let currentTax = 0;
+
+        if (bracket.rate === 0.13) {
+          currentTax = taxable * 0.13;
+        } else if (bracket.rate === 0.15) {
+          currentTax = 312000 + (taxable - (bracket.limit - 2400000)) * 0.15;
+        } else if (bracket.rate === 0.18) {
+          if (previousLimit < 5000000) {
+            currentTax = 312000 + (5000000 - 2400000) * 0.15;
+          }
+          currentTax += (taxable - (bracket.limit - 5000000)) * 0.18;
+        } else if (bracket.rate === 0.20) {
+          if (previousLimit < 5000000) {
+            currentTax = 312000 + (5000000 - 2400000) * 0.15;
+          }
+          if (previousLimit < 20000000) {
+            currentTax += (20000000 - 5000000) * 0.18;
+          }
+          currentTax += (taxable - (bracket.limit - 20000000)) * 0.20;
+        } else if (bracket.rate === 0.22) {
+          if (previousLimit < 5000000) {
+            currentTax = 312000 + (5000000 - 2400000) * 0.15;
+          }
+          if (previousLimit < 20000000) {
+            currentTax += (20000000 - 5000000) * 0.18;
+          }
+          if (previousLimit < 50000000) {
+            currentTax += (50000000 - 20000000) * 0.20;
+          }
+          currentTax += (taxable - (bracket.limit - 50000000)) * 0.22;
+        }
+
+        tax += currentTax;
+        remaining -= taxable;
+        previousLimit = bracket.limit;
+      }
+
+      return tax;
+    }
+
+    function calculateGrossFromNet(netMonthly) {
+      let low = netMonthly;
+      let high = netMonthly * 3;
+      let mid;
+      let iterations = 0;
+
+      while (high - low > 0.01 && iterations < 100) {
+        mid = (low + high) / 2;
+        const yearlyGross = mid * 12;
+        const totalTax = calculateTax(yearlyGross);
+        const netGross = (yearlyGross - totalTax) / 12;
+
+        if (Math.abs(netGross - netMonthly) < 0.01) {
+          break;
+        } else if (netGross > netMonthly) {
+          high = mid;
+        } else {
+          low = mid;
+        }
+        iterations++;
+      }
+
+      return mid;
+    }
+
+    function validateCalculation(grossMonthly) {
+      const yearlyGross = grossMonthly * 12;
+      const totalTax = calculateTax(yearlyGross);
+      const netMonthly = (yearlyGross - totalTax) / 12;
+      return netMonthly;
+    }
+
+    function calculateGrossSalary() {
+      const input = document.getElementById("desiredSalary");
+      const resultDiv = document.getElementById("result");
+
+      const netMonthly = parseFloat(input.value);
+
+      if (isNaN(netMonthly) || netMonthly <= 0) {
+        resultDiv.innerHTML = '<p class="error">Введите корректное значение зарплаты</p>';
+        resultDiv.style.display = "block";
+        return;
+      }
+
+      const grossMonthly = calculateGrossFromNet(netMonthly);
+      const validatedNet = validateCalculation(grossMonthly);
+
+      const yearlyGross = grossMonthly * 12;
+      const totalTax = calculateTax(yearlyGross);
+
+      resultDiv.innerHTML = `
+        <p><strong>Желаемая зарплата на руки (в месяц):</strong> ${netMonthly.toFixed(2)}</p>
+        <p><strong>Зарплата до вычета налогов (в месяц):</strong> ${grossMonthly.toFixed(2)}</p>
+        <p><strong>Зарплата до вычета налогов (в год):</strong> ${yearlyGross.toFixed(2)}</p>
+        <p><strong>Общий налог (в год):</strong> ${totalTax.toFixed(2)}</p>
+        <p><strong>Проверка (зарплата на руки после вычета, в месяц):</strong> ${validatedNet.toFixed(2)}</p>
+        <p class="${Math.abs(validatedNet - netMonthly) < 0.1 ? 'success' : 'error'}">
+          ${Math.abs(validatedNet - netMonthly) < 0.1 ? '✅ Проверка пройдена' : '❌ Проверка не пройдена'}
+        </p>
+      `;
+      resultDiv.style.display = "block";
+    }
+  </script>
+</body>
+</html>
