@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Диаграмма Ганта - Проект тестирования</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            font-size: 12px;
+        }
+        .gantt-container {
+            width: 100%;
+            overflow-x: auto;
+            position: relative;
+            margin-top: 20px;
+        }
+        .timeline {
+            display: flex;
+            margin-left: 300px;
+            border-bottom: 1px solid #ccc;
+            background: #f5f5f5;
+        }
+        .day {
+            width: 40px;
+            text-align: center;
+            border-right: 1px solid #ddd;
+            padding: 5px 0;
+            font-weight: bold;
+        }
+        .tasks {
+            position: relative;
+        }
+        .task {
+            display: flex;
+            align-items: center;
+            margin: 1px 0;
+            height: 22px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .task.hidden {
+            display: none;
+        }
+        .task-label {
+            width: 300px;
+            padding: 0 10px;
+            position: absolute;
+            left: 0;
+            background: white;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            cursor: pointer;
+        }
+        .task-bar-container {
+            margin-left: 300px;
+            position: relative;
+            height: 22px;
+        }
+        .task-bar {
+            height: 16px;
+            background: #4CAF50;
+            border-radius: 2px;
+            position: absolute;
+            border: 1px solid #388E3C;
+            margin-top: 2px;
+        }
+        
+        /* Уровни иерархии */
+        .level-1 { 
+            font-weight: bold; 
+            background: #e3f2fd; 
+            height: 26px;
+        }
+        .level-2 { 
+            font-weight: bold; 
+            background: #f3e5f5;
+        }
+        .level-3 { 
+            font-weight: normal;
+            background: #e8f5e8;
+        }
+        .level-4 { 
+            font-weight: normal;
+            font-style: italic;
+            background: #fff3e0;
+        }
+        
+        /* Индикаторы сворачивания */
+        .collapse-icon {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            margin-right: 5px;
+            text-align: center;
+            line-height: 10px;
+            border: 1px solid #666;
+            border-radius: 2px;
+            font-size: 10px;
+            cursor: pointer;
+        }
+        .collapse-icon::before {
+            content: '-';
+        }
+        .collapsed .collapse-icon::before {
+            content: '+';
+        }
+        
+        .milestone {
+            background: #FF9800 !important;
+            border-color: #F57C00 !important;
+            width: 4px !important;
+            height: 20px !important;
+        }
+        
+        /* Цвета фаз */
+        .phase-1 { background: #4CAF50; border-color: #388E3C; }
+        .phase-2 { background: #2196F3; border-color: #1976D2; }
+        .phase-3 { background: #9C27B0; border-color: #7B1FA2; }
+        .phase-4 { background: #FF5722; border-color: #D84315; }
+        .phase-5 { background: #607D8B; border-color: #455A64; }
+        
+        .legend {
+            display: flex;
+            margin: 20px 0;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .legend-color {
+            width: 15px;
+            height: 15px;
+            border: 1px solid #000;
+        }
+        
+        /* Подсказки */
+        .task-label:hover::after {
+            content: attr(title);
+            position: absolute;
+            left: 0;
+            top: 100%;
+            background: #333;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 3px;
+            white-space: nowrap;
+            z-index: 1000;
+            font-size: 11px;
+        }
+        
+        .controls {
+            margin: 10px 0;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .control-btn {
+            padding: 5px 10px;
+            background: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 11px;
+        }
+        .control-btn:hover {
+            background: #1976D2;
+        }
+        .level-controls {
+            display: flex;
+            gap: 5px;
+            margin-left: 10px;
+        }
+        .level-btn {
+            padding: 5px 8px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 11px;
+        }
+        .level-btn:hover {
+            background: #45a049;
+        }
+        .controls-label {
+            font-size: 11px;
+            color: #666;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Диаграмма Ганта - Проект тестирования</h1>
+    
+    <div class="controls">
+        <button class="control-btn" onclick="expandAll()">Развернуть все</button>
+        <button class="control-btn" onclick="collapseAll()">Свернуть все</button>
+        <span class="controls-label">Развернуть до уровня:</span>
+        <div class="level-controls">
+            <button class="level-btn" onclick="expandToLevel(1)">1</button>
+            <button class="level-btn" onclick="expandToLevel(2)">2</button>
+            <button class="level-btn" onclick="expandToLevel(3)">3</button>
+            <button class="level-btn" onclick="expandToLevel(4)">4</button>
+        </div>
+    </div>
+    
+    <div class="legend">
+        <div class="legend-item">
+            <div class="legend-color" style="background: #4CAF50;"></div>
+            <span>Планирование</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #2196F3;"></div>
+            <span>Проектирование</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #9C27B0;"></div>
+            <span>Выполнение</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #FF5722;"></div>
+            <span>Анализ</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #607D8B;"></div>
+            <span>Завершение</span>
+        </div>
+    </div>
+    
+    <div class="gantt-container">
+        <!-- Временная шкала -->
+        <div class="timeline" id="timeline">
+            <!-- Заполняется JavaScript -->
+        </div>
+        
+        <!-- Задачи -->
+        <div class="tasks" id="tasks">
+            <!-- Заполняется JavaScript -->
+        </div>
+    </div>
+    
+    <div style="margin-top: 40px; font-size: 10px; color: #666;">
+        <p><strong>Пояснения:</strong></p>
+        <ul>
+            <li>Один день = 40 пикселей</li>
+            <li>Цвета обозначают разные фазы проекта</li>
+            <li>Оранжевая линия - веха (милстоун)</li>
+            <li>Отступы показывают иерархию задач (4 уровня)</li>
+            <li>Наведите курсор на названия задач для полного текста</li>
+            <li>Кликните на иконку [+] или [-] для сворачивания/разворачивания разделов</li>
+        </ul>
+    </div>
+
+    <script>
+        // Данные для временной шкалы
+        const timeline = document.getElementById('timeline');
+        for(let i = 1; i <= 30; i++) {
+            const day = document.createElement('div');
+            day.className = 'day';
+            day.textContent = i;
+            timeline.appendChild(day);
+        }
+
+        // Функция для создания отступов
+        function createIndent(level) {
+            const spacesPerLevel = 4;
+            let indent = '';
+            for (let i = 1; i < level; i++) {
+                indent += '&nbsp;'.repeat(spacesPerLevel);
+            }
+            return indent;
+        }
+
+        // Данные задач с правильной иерархической структурой
+        const tasksData = [
+            // === РАЗДЕЛ 1 ===
+            { id: 1, level: 1, label: '1. Планирование и подготовка', start: 0, duration: 12, phase: 1, parentId: null },
+            
+            { id: 6, level: 2, label: '1.1. Анализ оснований для тестирования', start: 0, duration: 6, phase: 1, parentId: 1 },
+            { id: 9, level: 3, label: '1.1.1. Анализ требований и спецификаций', start: 0, duration: 3, phase: 1, parentId: 6 },
+            { id: 12, level: 4, label: '1.1.1.1. Изучение бизнес-требований', start: 0, duration: 2, phase: 1, parentId: 9 },
+            { id: 13, level: 4, label: '1.1.1.2. Анализ технических спецификаций', start: 1, duration: 2, phase: 1, parentId: 9 },
+            { id: 14, level: 4, label: '1.1.1.3. Выявление противоречий в требованиях', start: 2, duration: 1, phase: 1, parentId: 9 },
+            { id: 10, level: 3, label: '1.1.2. Анализ рисков', start: 2, duration: 2, phase: 1, parentId: 6 },
+            { id: 11, level: 3, label: '1.1.3. Коммуникация по неясным требованиям', start: 3, duration: 3, phase: 1, parentId: 6 },
+            
+            { id: 7, level: 2, label: '1.2. Разработка тестовой стратегии', start: 4, duration: 8, phase: 1, parentId: 1 },
+            { id: 15, level: 3, label: '1.2.1. Определение областей тестирования', start: 4, duration: 3, phase: 1, parentId: 7 },
+            { id: 16, level: 3, label: '1.2.2. Выбор методологий тестирования', start: 5, duration: 2, phase: 1, parentId: 7 },
+            { id: 17, level: 3, label: '1.2.3. Планирование ресурсов', start: 6, duration: 4, phase: 1, parentId: 7 },
+            
+            { id: 8, level: 2, label: '1.3. Организация тестовой инфраструктуры', start: 6, duration: 6, phase: 1, parentId: 1 },
+            { id: 18, level: 3, label: '1.3.1. Настройка тестовых окружений', start: 6, duration: 4, phase: 1, parentId: 8 },
+            { id: 19, level: 3, label: '1.3.2. Развертывание тестовых данных', start: 8, duration: 3, phase: 1, parentId: 8 },
+            { id: 20, level: 3, label: '1.3.3. Установка инструментов тестирования', start: 9, duration: 3, phase: 1, parentId: 8 },
+
+            // === РАЗДЕЛ 2 ===
+            { id: 2, level: 1, label: '2. Проектирование тестов', start: 8, duration: 14, phase: 2, parentId: null },
+            
+            { id: 21, level: 2, label: '2.1. Проектирование тест-кейсов', start: 8, duration: 10, phase: 2, parentId: 2 },
+            { id: 24, level: 3, label: '2.1.1. Создание функциональных тест-кейсов', start: 8, duration: 6, phase: 2, parentId: 21 },
+            { id: 27, level: 4, label: '2.1.1.1. Позитивные сценарии', start: 8, duration: 3, phase: 2, parentId: 24 },
+            { id: 28, level: 4, label: '2.1.1.2. Негативные сценарии', start: 10, duration: 3, phase: 2, parentId: 24 },
+            { id: 29, level: 4, label: '2.1.1.3. Пограничные случаи', start: 11, duration: 2, phase: 2, parentId: 24 },
+            { id: 25, level: 3, label: '2.1.2. Создание чек-листов для Ad-hoc', start: 10, duration: 4, phase: 2, parentId: 21 },
+            { id: 26, level: 3, label: '2.1.3. Проектирование нефункциональных тестов', start: 12, duration: 6, phase: 2, parentId: 21 },
+            
+            { id: 22, level: 2, label: '2.2. Подготовка тестовых данных', start: 12, duration: 8, phase: 2, parentId: 2 },
+            { id: 30, level: 3, label: '2.2.1. Создание наборов тестовых данных', start: 12, duration: 5, phase: 2, parentId: 22 },
+            { id: 31, level: 3, label: '2.2.2. Маскирование конфиденциальных данных', start: 14, duration: 3, phase: 2, parentId: 22 },
+            { id: 32, level: 3, label: '2.2.3. Настройка сброса данных', start: 15, duration: 5, phase: 2, parentId: 22 },
+            
+            { id: 23, level: 2, label: '2.3. Разработка скриптов автоматизации', start: 15, duration: 7, phase: 2, parentId: 2 },
+            { id: 33, level: 3, label: '2.3.1. Написание UI-тестов', start: 15, duration: 4, phase: 2, parentId: 23 },
+            { id: 34, level: 3, label: '2.3.2. Написание API-тестов', start: 17, duration: 3, phase: 2, parentId: 23 },
+            { id: 35, level: 3, label: '2.3.3. Интеграция с CI/CD', start: 19, duration: 3, phase: 2, parentId: 23 },
+
+            // === РАЗДЕЛ 3 ===
+            { id: 3, level: 1, label: '3. Выполнение тестирования', start: 15, duration: 20, phase: 3, parentId: null },
+            
+            { id: 36, level: 2, label: '3.1. Основное тестирование новых функций', start: 15, duration: 12, phase: 3, parentId: 3 },
+            { id: 39, level: 3, label: '3.1.1. Прогон тест-кейсов новых функций', start: 15, duration: 8, phase: 3, parentId: 36 },
+            { id: 40, level: 3, label: '3.1.2. Исследовательское тестирование', start: 18, duration: 6, phase: 3, parentId: 36 },
+            { id: 41, level: 3, label: '3.1.3. Проверка исправления багов', start: 20, duration: 7, phase: 3, parentId: 36 },
+            
+            { id: 37, level: 2, label: '3.2. Регрессионное тестирование', start: 20, duration: 10, phase: 3, parentId: 3 },
+            { id: 42, level: 3, label: '3.2.1. Прогон автоматизированных тестов', start: 20, duration: 6, phase: 3, parentId: 37 },
+            { id: 43, level: 3, label: '3.2.2. Прогон ручных регрессионных тестов', start: 23, duration: 5, phase: 3, parentId: 37 },
+            { id: 44, level: 3, label: '3.2.3. Smoke-тестирование', start: 25, duration: 5, phase: 3, parentId: 37 },
+            
+            { id: 38, level: 2, label: '3.3. Нефункциональное тестирование', start: 25, duration: 10, phase: 3, parentId: 3 },
+            { id: 45, level: 3, label: '3.3.1. Нагрузочное тестирование', start: 25, duration: 5, phase: 3, parentId: 38 },
+            { id: 46, level: 3, label: '3.3.2. Тестирование безопасности', start: 27, duration: 4, phase: 3, parentId: 38 },
+            { id: 47, level: 3, label: '3.3.3. Тестирование совместимости', start: 29, duration: 6, phase: 3, parentId: 38 },
+
+            // === РАЗДЕЛ 4 ===
+            { id: 4, level: 1, label: '4. Анализ результатов и отчетность', start: 25, duration: 10, phase: 4, parentId: null },
+            
+            { id: 48, level: 2, label: '4.1. Анализ результатов тестирования', start: 25, duration: 6, phase: 4, parentId: 4 },
+            { id: 51, level: 3, label: '4.1.1. Анализ метрик качества', start: 25, duration: 4, phase: 4, parentId: 48 },
+            { id: 52, level: 3, label: '4.1.2. Оценка покрытия тестами', start: 27, duration: 3, phase: 4, parentId: 48 },
+            { id: 53, level: 3, label: '4.1.3. Анализ дефектов', start: 28, duration: 3, phase: 4, parentId: 48 },
+            
+            { id: 49, level: 2, label: '4.2. Подготовка отчетности', start: 28, duration: 7, phase: 4, parentId: 4 },
+            { id: 54, level: 3, label: '4.2.1. Ежедневные отчеты о статусе', start: 28, duration: 5, phase: 4, parentId: 49 },
+            { id: 55, level: 3, label: '4.2.2. Итоговый отчет о тестировании', start: 31, duration: 4, phase: 4, parentId: 49 },
+            { id: 56, level: 3, label: '4.2.3. Рекомендации по качеству', start: 33, duration: 2, phase: 4, parentId: 49 },
+            
+            { id: 50, level: 2, label: '4.3. Коммуникация с заинтересованными сторонами', start: 30, duration: 5, phase: 4, parentId: 4 },
+
+            // === РАЗДЕЛ 5 ===
+            { id: 5, level: 1, label: '5. Завершающие активности', start: 30, duration: 8, phase: 5, parentId: null },
+            
+            { id: 57, level: 2, label: '5.1. Финализация документации', start: 30, duration: 5, phase: 5, parentId: 5 },
+            { id: 60, level: 3, label: '5.1.1. Актуализация тестовой документации', start: 30, duration: 3, phase: 5, parentId: 57 },
+            { id: 61, level: 3, label: '5.1.2. Подписание актов завершения', start: 32, duration: 2, phase: 5, parentId: 57 },
+            { id: 62, level: 3, label: '5.1.3. Архивация проектных материалов', start: 33, duration: 2, phase: 5, parentId: 57 },
+            
+            { id: 58, level: 2, label: '5.2. Ретроспектива и извлечение уроков', start: 33, duration: 4, phase: 5, parentId: 5 },
+            { id: 63, level: 3, label: '5.2.1. Анализ метрик проекта', start: 33, duration: 2, phase: 5, parentId: 58 },
+            { id: 64, level: 3, label: '5.2.2. Проведение ретроспективы', start: 34, duration: 2, phase: 5, parentId: 58 },
+            { id: 65, level: 3, label: '5.2.3. Документирование уроков', start: 35, duration: 2, phase: 5, parentId: 58 },
+            
+            { id: 59, level: 2, label: '5.3. Поддержка релиза', start: 35, duration: 3, phase: 5, parentId: 5 },
+            { id: 66, level: 3, label: '5.3.1. Мониторинг после релиза', start: 35, duration: 2, phase: 5, parentId: 59 },
+            { id: 67, level: 3, label: '5.3.2. Поддержка первых дней эксплуатации', start: 36, duration: 2, phase: 5, parentId: 59 },
+
+            // Веха
+            { id: 100, level: 4, label: '🚩 Релиз проекта', start: 35, duration: 1, phase: 0, milestone: true, parentId: null }
+        ];
+
+        // Создание задач
+        const tasksContainer = document.getElementById('tasks');
+        const taskElements = new Map();
+
+        tasksData.forEach(task => {
+            const taskElement = document.createElement('div');
+            taskElement.className = `task level-${task.level}`;
+            taskElement.dataset.id = task.id;
+            taskElement.dataset.parentId = task.parentId;
+            taskElement.dataset.level = task.level;
+
+            const label = document.createElement('div');
+            label.className = 'task-label';
+            
+            // Добавляем иконку сворачивания для задач с детьми (уровни 1-3)
+            let collapseIcon = '';
+            if (task.level < 4 && !task.milestone) {
+                collapseIcon = `<span class="collapse-icon"></span>`;
+            } else {
+                collapseIcon = '<span style="display:inline-block; width:18px;"></span>';
+            }
+            
+            // Добавляем отступы перед текстом
+            const indent = createIndent(task.level);
+            label.innerHTML = indent + collapseIcon + task.label;
+            label.title = task.label;
+            
+            // Добавляем обработчик клика для сворачивания/разворачивания
+            if (task.level < 4 && !task.milestone) {
+                label.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    toggleTask(task.id);
+                });
+            }
+
+            const barContainer = document.createElement('div');
+            barContainer.className = 'task-bar-container';
+            
+            const bar = document.createElement('div');
+            const barClass = task.milestone ? 'task-bar milestone' : `task-bar phase-${task.phase}`;
+            bar.className = barClass;
+            bar.style.left = `${task.start * 40}px`;
+            bar.style.width = `${task.duration * 40}px`;
+            bar.title = `${task.label}: ${task.duration} дней (дни ${task.start + 1}-${task.start + task.duration})`;
+            
+            barContainer.appendChild(bar);
+            taskElement.appendChild(label);
+            taskElement.appendChild(barContainer);
+            tasksContainer.appendChild(taskElement);
+            
+            taskElements.set(task.id, taskElement);
+        });
+
+        // Функция для переключения состояния задачи (свернуть/развернуть)
+        function toggleTask(taskId) {
+            const taskElement = taskElements.get(parseInt(taskId));
+            if (!taskElement) return;
+
+            const isCollapsed = taskElement.classList.contains('collapsed');
+            
+            if (isCollapsed) {
+                // Разворачиваем
+                taskElement.classList.remove('collapsed');
+                showChildren(taskId);
+            } else {
+                // Сворачиваем
+                taskElement.classList.add('collapsed');
+                hideChildren(taskId);
+            }
+        }
+
+        // Функция для скрытия дочерних задач
+        function hideChildren(parentId) {
+            tasksData.forEach(task => {
+                if (task.parentId === parentId) {
+                    const childElement = taskElements.get(task.id);
+                    if (childElement) {
+                        childElement.classList.add('hidden');
+                        // Рекурсивно скрываем детей этого ребенка
+                        hideChildren(task.id);
+                    }
+                }
+            });
+        }
+
+        // Функция для показа дочерних задач
+        function showChildren(parentId) {
+            tasksData.forEach(task => {
+                if (task.parentId === parentId) {
+                    const childElement = taskElements.get(task.id);
+                    if (childElement) {
+                        childElement.classList.remove('hidden');
+                        // Если этот ребенок развернут, показываем его детей
+                        if (!childElement.classList.contains('collapsed')) {
+                            showChildren(task.id);
+                        }
+                    }
+                }
+            });
+        }
+
+        // Функции для управления всеми задачами
+        function expandAll() {
+            taskElements.forEach((element, id) => {
+                element.classList.remove('collapsed');
+                element.classList.remove('hidden');
+            });
+        }
+
+        function collapseAll() {
+            taskElements.forEach((element, id) => {
+                const level = parseInt(element.dataset.level);
+                if (level < 4) {
+                    element.classList.add('collapsed');
+                }
+                if (level > 1) {
+                    element.classList.add('hidden');
+                }
+            });
+        }
+
+        // Новая функция: развернуть до определенного уровня
+        function expandToLevel(targetLevel) {
+            taskElements.forEach((element, id) => {
+                const level = parseInt(element.dataset.level);
+                
+                if (level <= targetLevel) {
+                    // Показываем и разворачиваем задачи до целевого уровня
+                    element.classList.remove('hidden');
+                    element.classList.remove('collapsed');
+                } else {
+                    // Скрываем задачи ниже целевого уровня
+                    element.classList.add('hidden');
+                }
+                
+                // Для родительских задач выше целевого уровня
+                if (level < targetLevel && level < 4) {
+                    element.classList.remove('collapsed');
+                    // Показываем их детей рекурсивно до целевого уровня
+                    showChildrenUpToLevel(id, targetLevel);
+                }
+                
+                // Для родительских задач на целевом уровне - сворачиваем их
+                if (level === targetLevel && level < 4) {
+                    element.classList.add('collapsed');
+                    hideChildren(id);
+                }
+            });
+        }
+
+        // Вспомогательная функция для рекурсивного показа детей до определенного уровня
+        function showChildrenUpToLevel(parentId, targetLevel) {
+            tasksData.forEach(task => {
+                if (task.parentId === parentId) {
+                    const childElement = taskElements.get(task.id);
+                    if (childElement) {
+                        const childLevel = parseInt(childElement.dataset.level);
+                        
+                        if (childLevel <= targetLevel) {
+                            childElement.classList.remove('hidden');
+                            
+                            // Если это родительская задача и мы еще не достигли целевого уровня
+                            if (childLevel < targetLevel && childLevel < 4) {
+                                childElement.classList.remove('collapsed');
+                                showChildrenUpToLevel(task.id, targetLevel);
+                            }
+                            
+                            // Если это целевой уровень и родительская задача - сворачиваем
+                            if (childLevel === targetLevel && childLevel < 4) {
+                                childElement.classList.add('collapsed');
+                                hideChildren(task.id);
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Изначально показываем все задачи
+        expandAll();
+    </script>
+</body>
+</html>
