@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Профили руководителей в тестировании</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .main-container { display: flex; gap: 40px; align-items: flex-start; }
+        .chart-container { width: 800px; height: 500px; margin-bottom: 20px; }
+        .legend { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+        .legend-item { display: flex; align-items: center; cursor: pointer; }
+        .legend-color { width: 15px; height: 15px; margin-right: 8px; }
+        .controls { margin: 20px 0; }
+        button { padding: 8px 16px; margin-right: 10px; cursor: pointer; }
+        .profile-descriptions { margin-top: 30px; }
+        .profile-desc { margin-bottom: 15px; padding: 10px; border-left: 3px solid; }
+        .competencies-section { margin-top: 40px; }
+        .competency-group { margin-bottom: 25px; }
+    </style>
+</head>
+<body>
+    <h2>Профили начинающих руководителей в тестировании</h2>
+    
+    <div class="main-container">
+        <div>
+            <div class="chart-container">
+                <canvas id="profileChart"></canvas>
+            </div>
+            
+            <div class="controls">
+                <button onclick="toggleAll(false)">Убрать все галочки</button>
+                <button onclick="toggleAll(true)">Показать все</button>
+            </div>
+        </div>
+        
+        <div class="legend" id="chartLegend"></div>
+    </div>
+
+    <div class="profile-descriptions" id="profileDescriptions"></div>
+
+    <div class="competencies-section">
+        <h3>Примеры компетенций по группам</h3>
+        
+        <div class="competency-group">
+            <h4>1. Профильные компетенции в тестировании (Testing Hard Skills)</h4>
+            <ul>
+                <li>Методологии тестирования: техники тест-дизайна, виды тестирования, жизненный цикл дефекта</li>
+                <li>Процессы и метрики QA: построение процессов, определение метрик качества, работа с отчетностью</li>
+                <li>Тест-автоматизация: принципы, подходы, оценка ROI, управление командой автотестеров</li>
+                <li>Работа с инструментами тестирования и управления</li>
+                <li>Основы тестирования безопасности</li>
+            </ul>
+        </div>
+        
+        <div class="competency-group">
+            <h4>2. Общие IT-компетенции (IT Wide Skills)</h4>
+            <ul>
+                <li>Системное архитектурное мышление</li>
+                <li>Понимание жизненного цикла разработки (SDLC)</li>
+                <li>Техническая осведомленность: БД, API, сети, фронтенд/бэкенд</li>
+                <li>Базовые навыки программирования/скриптования</li>
+                <li>Управление требованиями</li>
+                <li>Работа с тестовыми данными</li>
+            </ul>
+        </div>
+        
+        <div class="competency-group">
+            <h4>3. Навыки в предметной области (Domain Skills)</h4>
+            <ul>
+                <li>Глубокое знание бизнес-логики</li>
+                <li>Знание отраслевых стандартов (PCI DSS, GDPR)</li>
+                <li>Понимание пользователей и их процессов</li>
+                <li>Знание смежных систем и интеграций</li>
+                <li>Понимание бизнес-рисков</li>
+            </ul>
+        </div>
+        
+        <div class="competency-group">
+            <h4>4. Индивидуальные гибкие навыки (Personal Soft Skills)</h4>
+            <ul>
+                <li>Критическое мышление и анализ</li>
+                <li>Решение проблем (Problem Solving)</li>
+                <li>Адаптивность и гибкость</li>
+                <li>Эмоциональный интеллект</li>
+                <li>Обучаемость и саморазвитие</li>
+            </ul>
+        </div>
+        
+        <div class="competency-group">
+            <h4>5. Управленческие и социальные навыки (Management & Social Skills)</h4>
+            <ul>
+                <li>Коммуникация и координация</li>
+                <li>Управление командой</li>
+                <li>Управление проектами и задачами</li>
+                <li>Стратегическое планирование</li>
+                <li>Решение проблем и принятие решений</li>
+                <li>Фасилитация и менторство</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        const profiles = {
+            'Чистый управленец': { 
+                testing: 1, it: 1, domain: 1, soft: 10, management: 10,
+                color: 'rgba(255, 99, 132, 1)',
+                description: 'Сильные управленческие и софт-скилы. Слабые технические и предметные навыки. Ценится за лидерство и процессы.'
+            },
+            'Выходец из предметной области': { 
+                testing: 1, it: 1, domain: 10, soft: 5, management: 5,
+                color: 'rgba(54, 162, 235, 1)',
+                description: 'Сильные предметные навыки. Средние софт-скилы и управление. Слабые технические и тестовые навыки. Эксперт в бизнесе.'
+            },
+            'Повышенный тестировщик': { 
+                testing: 10, it: 6, domain: 6, soft: 6, management: 1,
+                color: 'rgba(255, 206, 86, 1)',
+                description: 'Сильные навыки тестирования. Средние IT, софт-скилы и предметная область. Слабые управленческие навыки. Технический гуру QA.'
+            },
+            'Выходец из смежных областей': { 
+                testing: 2, it: 8, domain: 6, soft: 6, management: 4,
+                color: 'rgba(75, 192, 192, 1)',
+                description: 'Сильные IT-навыки. Средние софт-скилы, предметная область и управление. Слабые навыки тестирования. Пришел из разработки или поддержки.'
+            },
+            'Приглашённый руководитель': { 
+                testing: 8, it: 8, domain: 1, soft: 8, management: 8,
+                color: 'rgba(153, 102, 255, 1)',
+                description: 'Сильные управленческие, софт-скилы, IT и тестовые навыки. Слабая только предметная область. Опытный руководитель извне.'
+            }
+        };
+
+        const ctx = document.getElementById('profileChart').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'radar',
+            data: {
+                labels: ['Тестирование', 'IT-навыки', 'Предметная область', 'Софт-скилы', 'Управление'],
+                datasets: Object.entries(profiles).map(([name, data]) => ({
+                    label: name,
+                    data: [data.testing, data.it, data.domain, data.soft, data.management],
+                    backgroundColor: data.color.replace('1)', '0.2)'),
+                    borderColor: data.color,
+                    pointBackgroundColor: data.color,
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: data.color,
+                    hidden: false
+                }))
+            },
+            options: {
+                scale: {
+                    min: 0,
+                    max: 10,
+                    ticks: { 
+                        beginAtZero: false,
+                        min: 0,
+                        max: 10,
+                        stepSize: 1
+                    },
+                    pointLabels: { fontSize: 12 }
+                },
+                elements: { line: { tension: 0.1 } },
+                plugins: { legend: { display: false } }
+            }
+        });
+
+        // Создаем легенду с чекбоксами
+        const legend = document.getElementById('chartLegend');
+        const checkboxes = [];
+        
+        Object.entries(profiles).forEach(([name, data], index) => {
+            const item = document.createElement('div');
+            item.className = 'legend-item';
+            
+            const colorBox = document.createElement('div');
+            colorBox.className = 'legend-color';
+            colorBox.style.backgroundColor = data.color;
+            
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.checked = true;
+            checkbox.dataset.index = index;
+            checkbox.onchange = (e) => {
+                chart.data.datasets[index].hidden = !e.target.checked;
+                chart.update();
+            };
+            
+            checkboxes.push(checkbox);
+            
+            const label = document.createElement('span');
+            label.textContent = name;
+            
+            item.appendChild(checkbox);
+            item.appendChild(colorBox);
+            item.appendChild(label);
+            legend.appendChild(item);
+        });
+
+        // Создаем описания профилей
+        const descriptionsContainer = document.getElementById('profileDescriptions');
+        Object.entries(profiles).forEach(([name, data]) => {
+            const descDiv = document.createElement('div');
+            descDiv.className = 'profile-desc';
+            descDiv.style.borderLeftColor = data.color;
+            descDiv.innerHTML = `<strong>${name}:</strong> ${data.description}`;
+            descriptionsContainer.appendChild(descDiv);
+        });
+
+        // Функции для управления галочками
+        function toggleAll(show) {
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = show;
+                const index = parseInt(checkbox.dataset.index);
+                chart.data.datasets[index].hidden = !show;
+            });
+            chart.update();
+        }
+    </script>
+</body>
+</html>
