@@ -47,6 +47,46 @@
             margin: 20px 0 10px 0;
         }
 
+        /* Стили для вкладок */
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #3498db;
+            background: #ecf0f1;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            background: #34495e;
+            color: white;
+            border: none;
+            border-radius: 8px 8px 0 0;
+            margin-right: 2px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .tab:hover {
+            background: #2c3e50;
+        }
+
+        .tab.active {
+            background: #3498db;
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 20px 0;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
         .section {
             margin-bottom: 40px;
             padding: 20px;
@@ -139,11 +179,15 @@
         .level-cell {
             text-align: center;
             min-width: 80px;
+            font-weight: bold;
         }
 
         .level-0 { background-color: #e74c3c; color: white; }
-        .level-1 { background-color: #f39c12; color: white; }
-        .level-2 { background-color: #27ae60; color: white; }
+        .level-1 { background-color: #e67e22; color: white; }
+        .level-2 { background-color: #f39c12; color: white; }
+        .level-3 { background-color: #2ecc71; color: white; }
+        .level-4 { background-color: #27ae60; color: white; }
+        .level-5 { background-color: #16a085; color: white; }
 
         .risk-high { background-color: #e74c3c; color: white; }
         .risk-medium { background-color: #f39c12; color: white; }
@@ -165,11 +209,30 @@
             border-radius: 5px;
             cursor: pointer;
             margin-right: 10px;
+            margin-bottom: 10px;
             font-size: 14px;
+            font-weight: 600;
+            transition: background 0.3s ease;
         }
 
         button:hover {
             background: #2980b9;
+        }
+
+        button.action {
+            background: #e74c3c;
+        }
+
+        button.action:hover {
+            background: #c0392b;
+        }
+
+        button.success {
+            background: #27ae60;
+        }
+
+        button.success:hover {
+            background: #219653;
         }
 
         .legend {
@@ -191,12 +254,39 @@
             border-radius: 3px;
         }
 
-        .export-section {
-            margin-top: 30px;
-            padding: 20px;
-            background: #e8f6f3;
-            border-radius: 8px;
-            border: 1px solid #1abc9c;
+        .notification {
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+            display: none;
+            font-weight: 600;
+        }
+
+        .notification.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .notification.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .json-editor {
+            width: 100%;
+            height: 500px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            resize: vertical;
+        }
+
+        .json-controls {
+            margin: 15px 0;
         }
 
         @media (max-width: 768px) {
@@ -211,6 +301,15 @@
             th, td {
                 padding: 8px 4px;
             }
+            
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .tab {
+                margin-bottom: 5px;
+                border-radius: 5px;
+            }
         }
     </style>
 </head>
@@ -218,142 +317,194 @@
     <div class="container">
         <h1>📊 Матрица передачи знаний (Knowledge Transfer Matrix)</h1>
 
-        <div class="section">
-            <h2>📝 Определение и назначение</h2>
-            <div class="definition-grid">
-                <div class="definition-card">
-                    <h4>🇷🇺 Русское название</h4>
-                    <p><strong>Матрица передачи знаний</strong><br>
-                    Матрица наследования компетенций<br>
-                    Матрица кросс-обучения</p>
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('description')">📝 Описание</button>
+            <button class="tab" onclick="switchTab('matrix')">📋 Матрица</button>
+            <button class="tab" onclick="switchTab('json')">⚙️ JSON</button>
+        </div>
+
+        <!-- Уведомления -->
+        <div id="notification" class="notification"></div>
+
+        <!-- Вкладка Описание -->
+        <div id="description" class="tab-content active">
+            <div class="section">
+                <h2>📝 Определение и назначение</h2>
+                <div class="definition-grid">
+                    <div class="definition-card">
+                        <h4>🇷🇺 Русское название</h4>
+                        <p><strong>Матрица передачи знаний</strong><br>
+                        Матрица наследования компетенций<br>
+                        Матрица кросс-обучения</p>
+                    </div>
+                    <div class="definition-card">
+                        <h4>🇺🇸 Английское название</h4>
+                        <p><strong>Knowledge Transfer Matrix</strong><br>
+                        Competency Inheritance Matrix<br>
+                        Cross-Training Matrix</p>
+                    </div>
+                    <div class="definition-card">
+                        <h4>🎯 Основное назначение</h4>
+                        <p>Управление рисками концентрации критических знаний у узкого круга сотрудников и обеспечение непрерывности бизнес-процессов</p>
+                    </div>
+                    <div class="definition-card">
+                        <h4>⚡ Ключевые цели</h4>
+                        <ul>
+                            <li>Снижение операционных рисков</li>
+                            <li>Обеспечение взаимозаменяемости</li>
+                            <li>Сохранение корпоративных знаний</li>
+                            <li>Планирование преемственности</li>
+                        </ul>
+                    </div>
                 </div>
-                <div class="definition-card">
-                    <h4>🇺🇸 Английское название</h4>
-                    <p><strong>Knowledge Transfer Matrix</strong><br>
-                    Competency Inheritance Matrix<br>
-                    Cross-Training Matrix</p>
+            </div>
+
+            <div class="section">
+                <h2>🔄 Процесс работы с матрицей</h2>
+                <div class="process-steps">
+                    <div class="process-step">
+                        <strong>Идентификация критических компетенций</strong><br>
+                        Выберите навыки и знания, отсутствие которых может парализовать работу команды или проекта
+                    </div>
+                    <div class="process-step">
+                        <strong>Оценка текущего состояния</strong><br>
+                        Определите уровень владения каждой компетенцией у всех сотрудников команды
+                    </div>
+                    <div class="process-step">
+                        <strong>Анализ рисков</strong><br>
+                        Выявите "точки отказа" - компетенции, сконцентрированные у 1-2 человек
+                    </div>
+                    <div class="process-step">
+                        <strong>Назначение ролей</strong><br>
+                        Определите основных носителей, резервных носителей и учеников для каждой компетенции
+                    </div>
+                    <div class="process-step">
+                        <strong>Разработка плана передачи</strong><br>
+                        Создайте конкретный план с сроками и методами передачи знаний
+                    </div>
+                    <div class="process-step">
+                        <strong>Мониторинг и обновление</strong><br>
+                        Регулярно пересматривайте матрицу и корректируйте планы по мере необходимости
+                    </div>
                 </div>
-                <div class="definition-card">
-                    <h4>🎯 Основное назначение</h4>
-                    <p>Управление рисками концентрации критических знаний у узкого круга сотрудников и обеспечение непрерывности бизнес-процессов</p>
+            </div>
+
+            <div class="section">
+                <h2>🎯 Уровни владения компетенциями</h2>
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color level-0"></div>
+                        <span>0 - Не владеет</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color level-1"></div>
+                        <span>1 - Базовые знания (понимаю теорию)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color level-2"></div>
+                        <span>2 - Применял с помощью/под руководством</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color level-3"></div>
+                        <span>3 - Могу работать самостоятельно</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color level-4"></div>
+                        <span>4 - Опытный специалист</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color level-5"></div>
+                        <span>5 - Эксперт, могу учить других</span>
+                    </div>
                 </div>
-                <div class="definition-card">
-                    <h4>⚡ Ключевые цели</h4>
-                    <ul>
-                        <li>Снижение операционных рисков</li>
-                        <li>Обеспечение взаимозаменяемости</li>
-                        <li>Сохранение корпоративных знаний</li>
-                        <li>Планирование преемственности</li>
-                    </ul>
+            </div>
+
+            <div class="section">
+                <h2>⚠️ Уровни риска</h2>
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color risk-high"></div>
+                        <span>🔴 Высокий риск - только 1 носитель уровня 3+</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color risk-medium"></div>
+                        <span>🟡 Средний риск - есть основной носитель, но резерв слабый</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color risk-low"></div>
+                        <span>🟢 Низкий риск - есть основной и подготовленный резерв</span>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="section">
-            <h2>🔄 Процесс работы с матрицей</h2>
-            <div class="process-steps">
-                <div class="process-step">
-                    <strong>Идентификация критических компетенций</strong><br>
-                    Выберите навыки и знания, отсутствие которых может парализовать работу команды или проекта
-                </div>
-                <div class="process-step">
-                    <strong>Оценка текущего состояния</strong><br>
-                    Определите уровень владения каждой компетенцией у всех сотрудников команды
-                </div>
-                <div class="process-step">
-                    <strong>Анализ рисков</strong><br>
-                    Выявите "точки отказа" - компетенции, сконцентрированные у 1-2 человек
-                </div>
-                <div class="process-step">
-                    <strong>Назначение ролей</strong><br>
-                    Определите основных носителей, резервных носителей и учеников для каждой компетенции
-                </div>
-                <div class="process-step">
-                    <strong>Разработка плана передачи</strong><br>
-                    Создайте конкретный план с сроками и методами передачи знаний
-                </div>
-                <div class="process-step">
-                    <strong>Мониторинг и обновление</strong><br>
-                    Регулярно пересматривайте матрицу и корректируйте планы по мере необходимости
-                </div>
+        <!-- Вкладка Матрица -->
+        <div id="matrix" class="tab-content">
+            <div class="controls">
+                <h3>⚙️ Управление матрицей</h3>
+                <button onclick="calculateRisks()">📊 Пересчитать риски</button>
+                <button onclick="takeAction()" class="action">🚀 Принять меры</button>
+                <button onclick="exportToCSV()">📥 Экспорт в CSV</button>
+                <button onclick="addCompetence()">➕ Добавить компетенцию</button>
+                <button onclick="addEmployee()">👥 Добавить сотрудника</button>
+            </div>
+
+            <div id="matrix-container">
+                <!-- Матрица будет сгенерирована JavaScript -->
             </div>
         </div>
 
-        <div class="section">
-            <h2>🎯 Уровни владения компетенциями</h2>
-            <div class="legend">
-                <div class="legend-item">
-                    <div class="legend-color level-0"></div>
-                    <span>0 - Не владеет</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color level-1"></div>
-                    <span>1 - Базовый уровень (работает с помощью)</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color level-2"></div>
-                    <span>2 - Эксперт (работает самостоятельно)</span>
-                </div>
+        <!-- Вкладка JSON -->
+        <div id="json" class="tab-content">
+            <div class="controls">
+                <h3>⚙️ Управление данными</h3>
+                <button onclick="loadMatrixFromJson()">🔄 Загрузить матрицу из JSON</button>
+                <button onclick="exportJson()" class="success">📤 Экспорт JSON</button>
+                <button onclick="resetToSampleData()">🔄 Сбросить к тестовым данным</button>
             </div>
-        </div>
 
-        <div class="section">
-            <h2>⚠️ Уровни риска</h2>
-            <div class="legend">
-                <div class="legend-item">
-                    <div class="legend-color risk-high"></div>
-                    <span>🔴 Высокий риск - только 1 носитель</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color risk-medium"></div>
-                    <span>🟡 Средний риск - есть основной носитель, но резерв слабый</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color risk-low"></div>
-                    <span>🟢 Низкий риск - есть основной и подготовленный резерв</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="controls">
-            <h3>⚙️ Управление матрицей</h3>
-            <button onclick="updateMatrix()">🔄 Обновить матрицу</button>
-            <button onclick="calculateRisks()">📊 Пересчитать риски</button>
-            <button onclick="exportToCSV()">📥 Экспорт в CSV</button>
-            <button onclick="addSampleData()">➕ Добавить тестовые данные</button>
-        </div>
-
-        <div id="matrix-container">
-            <!-- Матрица будет сгенерирована JavaScript -->
-        </div>
-
-        <div class="export-section">
-            <h3>💾 Экспорт данных</h3>
-            <p>Текущие данные матрицы в JSON-формате:</p>
-            <pre id="json-output" style="background: #2c3e50; color: white; padding: 15px; border-radius: 5px; overflow-x: auto; margin-top: 10px;"></pre>
+            <textarea id="json-editor" class="json-editor"></textarea>
         </div>
     </div>
 
     <script>
+        // Константы для методов передачи знаний
+        const TRANSFER_METHODS = [
+            "Парное программирование/тестирование",
+            "Документация и инструкции",
+            "Воркшопы и тренировки",
+            "Менторство и наставничество",
+            "Ведение проекта под наблюдением",
+            "Кросс-ревью кода/тестов",
+            "Участие в смежных проектах",
+            "Самостоятельное изучение + проверка",
+            "Посещение конференций/курсов",
+            "Участие в код-ревью"
+        ];
+
         // Данные матрицы
-        const matrixData = {
-            employees: ['Иванов', 'Петрова', 'Сидоров'],
+        let matrixData = {
+            employees: [
+                { id: 1, name: 'Иванов' },
+                { id: 2, name: 'Петрова' },
+                { id: 3, name: 'Сидоров' }
+            ],
             competencies: [
                 {
                     id: 1,
                     name: 'Тестирование платежного модуля',
                     description: 'Полное тестирование функционала платежей и транзакций',
                     levels: {
-                        'Иванов': 2,
-                        'Петрова': 1,
-                        'Сидоров': 2
+                        1: 3, // Иванов
+                        2: 1, // Петрова
+                        3: 4  // Сидоров
                     },
-                    primaryOwner: 'Иванов',
-                    backupOwner: 'Сидоров',
-                    apprentice: 'Петрова',
+                    primaryOwner: 1, // ID Иванова
+                    backupOwner: 3,  // ID Сидорова
+                    apprentice: 2,   // ID Петровой
                     riskLevel: 'medium',
                     transferPlan: {
-                        goal: 'Петрова → "Эксперт"',
+                        goal: 'Петрова → уровень 3',
                         deadline: '3 месяца',
                         method: 'Парное тестирование + ведение регресса'
                     }
@@ -363,16 +514,16 @@
                     name: 'Настройка Selenium Grid',
                     description: 'Развертывание и поддержка инфраструктуры для автотестов',
                     levels: {
-                        'Иванов': 2,
-                        'Петрова': 0,
-                        'Сидоров': 0
+                        1: 5, // Иванов
+                        2: 0, // Петрова
+                        3: 0  // Сидоров
                     },
-                    primaryOwner: 'Иванов',
-                    backupOwner: '',
-                    apprentice: 'Петрова, Сидоров',
+                    primaryOwner: 1, // ID Иванова
+                    backupOwner: null,
+                    apprentice: '2,3', // ID Петровой и Сидорова
                     riskLevel: 'high',
                     transferPlan: {
-                        goal: 'Петрова, Сидоров → "Базовый"',
+                        goal: 'Петрова, Сидоров → уровень 2',
                         deadline: '2 месяца',
                         method: 'Воркшопы + документация'
                     }
@@ -382,41 +533,74 @@
                     name: 'Тестирование API гос. интеграций',
                     description: 'Тестирование интеграций с государственными системами',
                     levels: {
-                        'Иванов': 0,
-                        'Петрова': 2,
-                        'Сидоров': 1
+                        1: 0, // Иванов
+                        2: 5, // Петрова
+                        3: 2  // Сидоров
                     },
-                    primaryOwner: 'Петрова',
-                    backupOwner: 'Сидоров',
-                    apprentice: 'Иванов',
+                    primaryOwner: 2, // ID Петровой
+                    backupOwner: 3,  // ID Сидорова
+                    apprentice: 1,   // ID Иванова
                     riskLevel: 'medium',
                     transferPlan: {
-                        goal: 'Сидоров → "Эксперт"',
+                        goal: 'Сидоров → уровень 4',
                         deadline: '4 месяца',
                         method: 'Передача документации + тест-кейсов'
-                    }
-                },
-                {
-                    id: 4,
-                    name: 'Анализ логов Kafka',
-                    description: 'Мониторинг и анализ логов message broker',
-                    levels: {
-                        'Иванов': 1,
-                        'Петрова': 0,
-                        'Сидоров': 2
-                    },
-                    primaryOwner: 'Сидоров',
-                    backupOwner: 'Иванов',
-                    apprentice: '',
-                    riskLevel: 'low',
-                    transferPlan: {
-                        goal: 'Поддержание текущего уровня',
-                        deadline: '',
-                        method: 'Риск минимален. План не требуется.'
                     }
                 }
             ]
         };
+
+        // Вспомогательные функции для работы с сотрудниками
+        function getEmployeeName(employeeId) {
+            const employee = matrixData.employees.find(emp => emp.id === employeeId);
+            return employee ? employee.name : 'Неизвестный';
+        }
+
+        function getEmployeeById(employeeId) {
+            return matrixData.employees.find(emp => emp.id === employeeId);
+        }
+
+        function getEmployeeIdByName(name) {
+            const employee = matrixData.employees.find(emp => emp.name === name);
+            return employee ? employee.id : null;
+        }
+
+        // Функции для работы с вкладками
+        function switchTab(tabName) {
+            // Скрыть все вкладки
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Убрать активный класс со всех кнопок вкладок
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Показать выбранную вкладку
+            document.getElementById(tabName).classList.add('active');
+            
+            // Сделать кнопку активной
+            event.target.classList.add('active');
+
+            // Автоматически обновляем JSON при открытии вкладки
+            if (tabName === 'json') {
+                updateJsonEditor();
+            }
+        }
+
+        // Функция для отображения уведомлений
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.style.display = 'block';
+            
+            // Автоматически скрыть через 5 секунд
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 5000);
+        }
 
         // Функция для отрисовки матрицы
         function renderMatrix() {
@@ -427,7 +611,7 @@
                     <thead>
                         <tr>
                             <th rowspan="2">Критическая компетенция</th>
-                            ${matrixData.employees.map(emp => `<th colspan="1">${emp}</th>`).join('')}
+                            ${matrixData.employees.map(emp => `<th colspan="1">${emp.name}</th>`).join('')}
                             <th colspan="4">План наследования</th>
                         </tr>
                         <tr>
@@ -447,20 +631,27 @@
                     <tr>
                         <td class="competence-cell" title="${comp.description}">
                             <strong>${comp.name}</strong>
+                            <br><small style="color: #666;">${comp.description}</small>
                         </td>
                 `;
 
                 // Уровни владения для каждого сотрудника
                 matrixData.employees.forEach(emp => {
-                    const level = comp.levels[emp] || 0;
+                    const level = comp.levels[emp.id] || 0;
                     html += `<td class="level-cell level-${level}">${level}</td>`;
                 });
 
                 // План наследования
+                const primaryName = comp.primaryOwner ? getEmployeeName(comp.primaryOwner) : '-';
+                const backupName = comp.backupOwner ? getEmployeeName(comp.backupOwner) : '-';
+                const apprenticeName = comp.apprentice ? (typeof comp.apprentice === 'string' ? 
+                    comp.apprentice.split(',').map(id => getEmployeeName(parseInt(id))).join(', ') : 
+                    getEmployeeName(comp.apprentice)) : '-';
+
                 html += `
-                        <td>${comp.primaryOwner}</td>
-                        <td>${comp.backupOwner || '-'}</td>
-                        <td>${comp.apprentice || '-'}</td>
+                        <td>${primaryName}</td>
+                        <td>${backupName}</td>
+                        <td>${apprenticeName}</td>
                         <td class="risk-${comp.riskLevel}">
                             ${comp.riskLevel === 'high' ? '🔴 Высокий' : 
                               comp.riskLevel === 'medium' ? '🟡 Средний' : '🟢 Низкий'}
@@ -476,28 +667,17 @@
 
             html += `</tbody></table>`;
             container.innerHTML = html;
-
-            // Обновляем JSON вывод
-            document.getElementById('json-output').textContent = 
-                JSON.stringify(matrixData, null, 2);
-        }
-
-        // Функция обновления матрицы
-        function updateMatrix() {
-            // Здесь может быть логика для обновления данных
-            renderMatrix();
-            alert('Матрица обновлена!');
         }
 
         // Функция пересчета рисков
         function calculateRisks() {
             matrixData.competencies.forEach(comp => {
-                const expertCount = Object.values(comp.levels).filter(level => level === 2).length;
-                const basicCount = Object.values(comp.levels).filter(level => level === 1).length;
+                const expertCount = Object.values(comp.levels).filter(level => level >= 3).length;
+                const intermediateCount = Object.values(comp.levels).filter(level => level >= 2).length;
                 
-                if (expertCount === 1 && basicCount === 0) {
+                if (expertCount <= 1) {
                     comp.riskLevel = 'high';
-                } else if (expertCount === 1 && basicCount > 0) {
+                } else if (expertCount === 2 && intermediateCount <= 2) {
                     comp.riskLevel = 'medium';
                 } else {
                     comp.riskLevel = 'low';
@@ -505,21 +685,158 @@
             });
             
             renderMatrix();
-            alert('Риски пересчитаны!');
+            showNotification('Риски успешно пересчитаны!');
+        }
+
+        // Функция "Принять меры"
+        function takeAction() {
+            let actionsTaken = 0;
+
+            matrixData.competencies.forEach(comp => {
+                let changed = false;
+
+                // Автоматическое назначение основных носителей
+                if (!comp.primaryOwner) {
+                    // Находим сотрудника с максимальным уровнем
+                    let maxLevel = 0;
+                    let bestEmployeeId = null;
+                    
+                    Object.entries(comp.levels).forEach(([empId, level]) => {
+                        if (level > maxLevel && level >= 3) {
+                            maxLevel = level;
+                            bestEmployeeId = parseInt(empId);
+                        }
+                    });
+                    
+                    if (bestEmployeeId) {
+                        comp.primaryOwner = bestEmployeeId;
+                        changed = true;
+                    }
+                }
+
+                // Автоматическое назначение резервных носителей
+                if (!comp.backupOwner && comp.primaryOwner) {
+                    // Находим сотрудника со вторым по величине уровнем (не основного носителя)
+                    let candidates = [];
+                    
+                    Object.entries(comp.levels).forEach(([empId, level]) => {
+                        const employeeId = parseInt(empId);
+                        if (employeeId !== comp.primaryOwner && level >= 2) {
+                            candidates.push({ id: employeeId, level: level });
+                        }
+                    });
+                    
+                    if (candidates.length > 0) {
+                        // Сортируем по уровню и выбираем лучшего
+                        candidates.sort((a, b) => b.level - a.level);
+                        comp.backupOwner = candidates[0].id;
+                        changed = true;
+                    }
+                }
+
+                // Автоматическое назначение учеников
+                if (!comp.apprentice) {
+                    // Находим наименее загруженного сотрудника с низким уровнем
+                    const employeeWorkload = calculateEmployeeWorkload();
+                    let bestApprentice = null;
+                    let minWorkload = Infinity;
+                    
+                    Object.entries(comp.levels).forEach(([empId, level]) => {
+                        const employeeId = parseInt(empId);
+                        if (level <= 1 && employeeWorkload[employeeId] < minWorkload) {
+                            minWorkload = employeeWorkload[employeeId];
+                            bestApprentice = employeeId;
+                        }
+                    });
+                    
+                    if (bestApprentice) {
+                        comp.apprentice = bestApprentice;
+                        changed = true;
+                    }
+                }
+
+                // Автоматическое заполнение плана передачи
+                if (!comp.transferPlan.goal || comp.transferPlan.goal.includes('Определить цели')) {
+                    if (comp.apprentice) {
+                        const apprenticeName = getEmployeeName(comp.apprentice);
+                        const currentLevel = comp.levels[comp.apprentice] || 0;
+                        const targetLevel = Math.min(currentLevel + 2, 5); // Ставим амбициозную цель
+                        comp.transferPlan.goal = `${apprenticeName} → уровень ${targetLevel}`;
+                        changed = true;
+                    }
+                }
+
+                if (!comp.transferPlan.deadline || comp.transferPlan.deadline === 'Установить сроки') {
+                    // Определяем срок в зависимости от сложности
+                    const apprenticeLevel = comp.apprentice ? (comp.levels[comp.apprentice] || 0) : 0;
+                    const months = Math.max(2, 6 - apprenticeLevel); // Чем ниже уровень, тем больше времени
+                    comp.transferPlan.deadline = `${months} месяца`;
+                    changed = true;
+                }
+
+                if (!comp.transferPlan.method || comp.transferPlan.method.includes('Выбрать методы')) {
+                    // Выбираем случайный метод из списка
+                    const randomMethod = TRANSFER_METHODS[Math.floor(Math.random() * TRANSFER_METHODS.length)];
+                    comp.transferPlan.method = randomMethod;
+                    changed = true;
+                }
+
+                if (changed) {
+                    actionsTaken++;
+                }
+            });
+
+            renderMatrix();
+            
+            if (actionsTaken > 0) {
+                showNotification(`Приняты меры для ${actionsTaken} компетенций! Автоматически назначены роли и планы.`);
+            } else {
+                showNotification('Все компетенции уже имеют назначенные роли и планы.', 'success');
+            }
+        }
+
+        // Функция для расчета загрузки сотрудников (сколько раз они являются учениками)
+        function calculateEmployeeWorkload() {
+            const workload = {};
+            matrixData.employees.forEach(emp => {
+                workload[emp.id] = 0;
+            });
+
+            matrixData.competencies.forEach(comp => {
+                if (comp.apprentice) {
+                    if (typeof comp.apprentice === 'string') {
+                        // Если несколько учеников через запятую
+                        comp.apprentice.split(',').forEach(id => {
+                            const empId = parseInt(id.trim());
+                            if (workload[empId] !== undefined) {
+                                workload[empId]++;
+                            }
+                        });
+                    } else {
+                        // Если один ученик
+                        workload[comp.apprentice]++;
+                    }
+                }
+            });
+
+            return workload;
         }
 
         // Функция экспорта в CSV
         function exportToCSV() {
-            let csv = 'Компетенция;';
-            csv += matrixData.employees.join(';') + ';';
+            let csv = 'Компетенция;Описание;';
+            csv += matrixData.employees.map(emp => emp.name).join(';') + ';';
             csv += 'Основной носитель;Резервный носитель;Ученик;Уровень риска;Цель;Срок;Метод\n';
 
             matrixData.competencies.forEach(comp => {
                 csv += `"${comp.name}";`;
-                csv += matrixData.employees.map(emp => comp.levels[emp] || 0).join(';') + ';';
-                csv += `${comp.primaryOwner};`;
-                csv += `${comp.backupOwner || ''};`;
-                csv += `${comp.apprentice || ''};`;
+                csv += `"${comp.description}";`;
+                csv += matrixData.employees.map(emp => comp.levels[emp.id] || 0).join(';') + ';';
+                csv += `${comp.primaryOwner ? getEmployeeName(comp.primaryOwner) : ''};`;
+                csv += `${comp.backupOwner ? getEmployeeName(comp.backupOwner) : ''};`;
+                csv += `${comp.apprentice ? (typeof comp.apprentice === 'string' ? 
+                    comp.apprentice.split(',').map(id => getEmployeeName(parseInt(id))).join(', ') : 
+                    getEmployeeName(comp.apprentice)) : ''};`;
                 csv += `${comp.riskLevel};`;
                 csv += `"${comp.transferPlan.goal}";`;
                 csv += `"${comp.transferPlan.deadline}";`;
@@ -535,22 +852,25 @@
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+            
+            showNotification('Матрица экспортирована в CSV!');
         }
 
-        // Функция добавления тестовых данных
-        function addSampleData() {
+        // Функция добавления компетенции
+        function addCompetence() {
+            const competenceName = prompt('Введите название новой компетенции:');
+            if (!competenceName || !competenceName.trim()) {
+                return;
+            }
+
             const newCompetence = {
-                id: matrixData.competencies.length + 1,
-                name: 'Новая компетенция',
+                id: Math.max(...matrixData.competencies.map(c => c.id)) + 1,
+                name: competenceName.trim(),
                 description: 'Описание новой компетенции',
-                levels: {
-                    'Иванов': 0,
-                    'Петрова': 0,
-                    'Сидоров': 0
-                },
-                primaryOwner: '',
-                backupOwner: '',
-                apprentice: '',
+                levels: {},
+                primaryOwner: null,
+                backupOwner: null,
+                apprentice: null,
                 riskLevel: 'high',
                 transferPlan: {
                     goal: 'Определить цели обучения',
@@ -559,14 +879,150 @@
                 }
             };
             
+            // Инициализируем уровни для всех сотрудников
+            matrixData.employees.forEach(emp => {
+                newCompetence.levels[emp.id] = 0;
+            });
+            
             matrixData.competencies.push(newCompetence);
             renderMatrix();
-            alert('Новая компетенция добавлена!');
+            showNotification(`Компетенция "${competenceName}" добавлена!`);
+        }
+
+        // Функция добавления сотрудника
+        function addEmployee() {
+            const employeeName = prompt('Введите имя нового сотрудника:');
+            if (employeeName && employeeName.trim()) {
+                const name = employeeName.trim();
+                
+                // Проверяем, нет ли уже сотрудника с таким именем
+                if (matrixData.employees.find(emp => emp.name === name)) {
+                    showNotification('Сотрудник с таким именем уже существует!', 'error');
+                    return;
+                }
+
+                const newEmployee = {
+                    id: Math.max(...matrixData.employees.map(emp => emp.id)) + 1,
+                    name: name
+                };
+                
+                matrixData.employees.push(newEmployee);
+                
+                // Добавляем уровни для нового сотрудника во все компетенции
+                matrixData.competencies.forEach(comp => {
+                    comp.levels[newEmployee.id] = 0;
+                });
+                
+                renderMatrix();
+                showNotification(`Сотрудник "${name}" добавлен!`);
+            }
+        }
+
+        // Функция обновления JSON редактора
+        function updateJsonEditor() {
+            document.getElementById('json-editor').value = JSON.stringify(matrixData, null, 2);
+        }
+
+        // Функция загрузки матрицы из JSON
+        function loadMatrixFromJson() {
+            try {
+                const jsonText = document.getElementById('json-editor').value;
+                const newData = JSON.parse(jsonText);
+                
+                // Валидация данных
+                if (!newData.employees || !newData.competencies) {
+                    throw new Error('Неверный формат данных: отсутствуют employees или competencies');
+                }
+                
+                // Проверяем структуру сотрудников
+                if (!newData.employees.every(emp => emp.id && emp.name)) {
+                    throw new Error('Неверный формат сотрудников: каждый должен иметь id и name');
+                }
+                
+                matrixData = newData;
+                renderMatrix();
+                showNotification('Матрица успешно загружена из JSON!');
+                switchTab('matrix');
+            } catch (error) {
+                showNotification(`Ошибка загрузки JSON: ${error.message}`, 'error');
+            }
+        }
+
+        // Функция экспорта JSON
+        function exportJson() {
+            const dataStr = JSON.stringify(matrixData, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json;charset=utf-8' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'knowledge_transfer_matrix.json');
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showNotification('Матрица экспортирована в JSON!');
+        }
+
+        // Функция сброса к тестовым данным
+        function resetToSampleData() {
+            matrixData = {
+                employees: [
+                    { id: 1, name: 'Иванов' },
+                    { id: 2, name: 'Петрова' },
+                    { id: 3, name: 'Сидоров' }
+                ],
+                competencies: [
+                    {
+                        id: 1,
+                        name: 'Тестирование платежного модуля',
+                        description: 'Полное тестирование функционала платежей и транзакций',
+                        levels: {
+                            1: 3,
+                            2: 1,
+                            3: 4
+                        },
+                        primaryOwner: 1,
+                        backupOwner: 3,
+                        apprentice: 2,
+                        riskLevel: 'medium',
+                        transferPlan: {
+                            goal: 'Петрова → уровень 3',
+                            deadline: '3 месяца',
+                            method: 'Парное тестирование + ведение регресса'
+                        }
+                    },
+                    {
+                        id: 2,
+                        name: 'Настройка Selenium Grid',
+                        description: 'Развертывание и поддержка инфраструктуры для автотестов',
+                        levels: {
+                            1: 5,
+                            2: 0,
+                            3: 0
+                        },
+                        primaryOwner: 1,
+                        backupOwner: null,
+                        apprentice: '2,3',
+                        riskLevel: 'high',
+                        transferPlan: {
+                            goal: 'Петрова, Сидоров → уровень 2',
+                            deadline: '2 месяца',
+                            method: 'Воркшопы + документация'
+                        }
+                    }
+                ]
+            };
+            
+            updateJsonEditor();
+            renderMatrix();
+            showNotification('Данные сброшены к тестовым!');
         }
 
         // Инициализация при загрузке страницы
         document.addEventListener('DOMContentLoaded', function() {
             renderMatrix();
+            updateJsonEditor();
         });
     </script>
 </body>
