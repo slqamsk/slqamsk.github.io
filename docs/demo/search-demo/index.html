@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Поиск элементов на веб-странице</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            padding: 30px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eaeaea;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            margin-top: 0;
+        }
+        
+        h2 {
+            color: #3498db;
+            margin-top: 30px;
+        }
+        
+        .methods-list {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .methods-list ul {
+            list-style-type: none;
+            padding-left: 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+        }
+        
+        .methods-list li {
+            background-color: white;
+            padding: 12px 15px;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
+        }
+        
+        .methods-list li:hover {
+            transform: translateY(-2px);
+        }
+        
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+        }
+        
+        .links-section {
+            background-color: #e8f4fc;
+        }
+        
+        .forms-section {
+            background-color: #f0f8f0;
+        }
+        
+        .buttons-section {
+            background-color: #fff8e1;
+        }
+        
+        .elements-section {
+            background-color: #f5f0ff;
+        }
+        
+        .link-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .link-list a {
+            display: inline-block;
+            padding: 10px 15px;
+            background-color: white;
+            border-radius: 6px;
+            text-decoration: none;
+            color: #2c3e50;
+            border: 1px solid #ddd;
+            transition: all 0.3s;
+        }
+        
+        .link-list a:hover {
+            background-color: #3498db;
+            color: white;
+            border-color: #3498db;
+            transform: translateY(-2px);
+        }
+        
+        .form-row {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        label {
+            min-width: 150px;
+        }
+        
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 250px;
+        }
+        
+        input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+        }
+        
+        button {
+            padding: 12px 24px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        .buttons-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .element-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .element-item {
+            padding: 15px;
+            background-color: white;
+            border-radius: 6px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .highlight {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        
+        footer {
+            margin-top: 40px;
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #eaeaea;
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+        
+        @media (max-width: 768px) {
+            .methods-list ul {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            label {
+                min-width: auto;
+                margin-bottom: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Поиск элементов на веб-странице</h1>
+            <p>Элементы (теги) на веб-странице можно найти с помощью 6 специфичных методов:</p>
+        </header>
+        
+        <div class="methods-list">
+            <ul>
+                <li>По атрибуту <span class="highlight">id</span></li>
+                <li>По атрибуту <span class="highlight">name</span></li>
+                <li>По атрибуту <span class="highlight">class</span></li>
+                <li>По имени <span class="highlight">тега</span></li>
+                <li>По <span class="highlight">полному тексту ссылки</span></li>
+                <li>По <span class="highlight">частичному тексту ссылки</span></li>
+            </ul>
+        </div>
+        
+        <div class="section links-section">
+            <h2>Ссылки для поиска</h2>
+            <p>Эти ссылки можно найти по полному или частичному тексту:</p>
+            <div class="link-list">
+                <!-- Ссылка с полным текстом для поиска -->
+                <a href="#" id="main-link">Главная страница сайта с описанием возможностей</a>
+                
+                <!-- Ссылка с уникальным текстом для поиска -->
+                <a href="#" class="nav-link" name="catalog-link">Каталог товаров и услуг для покупателей</a>
+                
+                <!-- Еще ссылки -->
+                <a href="#" class="nav-link">О компании и нашей истории развития</a>
+                
+                <!-- Ссылка с длинным текстом -->
+                <a href="#" id="long-text-link">Эта ссылка содержит очень длинный текст, который можно использовать для поиска по частичному тексту. Например, можно искать по слову "длинный" или "текст".</a>
+                
+                <!-- Ссылка для поиска по частичному тексту -->
+                <a href="#">Контакты и обратная связь</a>
+                
+                <!-- Ссылка с конкретным текстом для поиска -->
+                <a href="#" class="special-link">Регистрация нового пользователя в системе</a>
+                
+                <!-- Еще длинная ссылка -->
+                <a href="#">Подробное руководство по использованию всех функций нашего веб-приложения для новичков</a>
+            </div>
+        </div>
+        
+        <div class="section forms-section">
+            <h2>Формы для поиска по атрибутам</h2>
+            <p>Эти элементы форм можно найти по атрибутам id, name и class:</p>
+            
+            <div class="form-row">
+                <label for="username">Имя пользователя:</label>
+                <input type="text" id="username" name="user_name" class="form-input">
+                <span>(id="username", name="user_name", class="form-input")</span>
+            </div>
+            
+            <div class="form-row">
+                <label for="user-email">Электронная почта:</label>
+                <input type="email" id="user-email" name="user_email" class="form-input email-field">
+                <span>(id="user-email", name="user_email", class="form-input email-field")</span>
+            </div>
+            
+            <div class="form-row">
+                <label for="user-password">Пароль:</label>
+                <input type="password" id="user-password" name="user_password" class="form-input password-field">
+                <span>(id="user-password", name="user_password", class="form-input password-field")</span>
+            </div>
+            
+            <div class="form-row">
+                <label>Выберите интересы:</label>
+                <div>
+                    <input type="checkbox" id="interest-tech" name="interests" value="tech" class="interest-checkbox">
+                    <label for="interest-tech">Технологии</label>
+                    
+                    <input type="checkbox" id="interest-sports" name="interests" value="sports" class="interest-checkbox">
+                    <label for="interest-sports">Спорт</label>
+                    
+                    <input type="checkbox" id="interest-music" name="interests" value="music" class="interest-checkbox">
+                    <label for="interest-music">Музыка</label>
+                    
+                    <span>(name="interests", class="interest-checkbox")</span>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <label for="country">Страна:</label>
+                <select id="country" name="user_country" class="form-select">
+                    <option value="ru">Россия</option>
+                    <option value="by">Беларусь</option>
+                    <option value="kz">Казахстан</option>
+                </select>
+                <span>(id="country", name="user_country", class="form-select")</span>
+            </div>
+        </div>
+        
+        <div class="section buttons-section">
+            <h2>Кнопки для поиска</h2>
+            <p>Эти кнопки можно найти по различным атрибутам:</p>
+            <div class="buttons-container">
+                <button id="submit-button" class="btn primary">Отправить форму</button>
+                <button id="cancel-button" name="cancel_btn" class="btn secondary">Отмена действия</button>
+                <button id="save-button" name="save_btn" class="btn success">Сохранить изменения</button>
+                <button id="delete-button" class="btn danger">Удалить запись</button>
+                <button id="search-button" name="search_btn" class="btn info">Поиск по сайту</button>
+            </div>
+        </div>
+        
+        <div class="section elements-section">
+            <h2>Разные элементы для поиска по имени тега</h2>
+            <p>Эти элементы можно найти по имени тега (div, span, p, h3 и т.д.):</p>
+            <div class="element-grid">
+                <div class="element-item">
+                    <h3>Заголовок H3</h3>
+                    <p>Абзац текста внутри div элемента.</p>
+                </div>
+                
+                <div class="element-item">
+                    <h4>Заголовок H4</h4>
+                    <p>Еще один абзац <span>со span элементом</span> внутри.</p>
+                </div>
+                
+                <div class="element-item">
+                    <h3>Еще один H3</h3>
+                    <p>Текст с <strong>жирным выделением</strong> и <em>курсивом</em>.</p>
+                </div>
+                
+                <div class="element-item">
+                    <h4>Последний H4</h4>
+                    <ul>
+                        <li>Элемент списка 1</li>
+                        <li>Элемент списка 2</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>Веб-страница создана для демонстрации поиска элементов с помощью 6 методов.</p>
+            <p>Все элементы на этой странице можно найти по: id, name, class, имени тега, полному или частичному тексту ссылки.</p>
+        </footer>
+    </div>
+    
+    <script>
+        // Добавим немного интерактивности для демонстрации
+        document.addEventListener('DOMContentLoaded', function() {
+            // Обработчики для ссылок
+            const links = document.querySelectorAll('a');
+            links.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    alert(`Вы кликнули на ссылку с текстом: "${this.textContent.substring(0, 50)}..."`);
+                });
+            });
+            
+            // Обработчики для кнопок
+            const buttons = document.querySelectorAll('button');
+            buttons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const buttonText = this.textContent;
+                    const buttonId = this.id || 'без id';
+                    alert(`Нажата кнопка: "${buttonText}" (id: ${buttonId})`);
+                });
+            });
+            
+            // Подсветка полей формы при фокусе
+            const inputs = document.querySelectorAll('input, select');
+            inputs.forEach(input => {
+                input.addEventListener('focus', function() {
+                    this.style.borderColor = '#3498db';
+                    this.style.boxShadow = '0 0 0 2px rgba(52, 152, 219, 0.2)';
+                });
+                
+                input.addEventListener('blur', function() {
+                    this.style.borderColor = '#ddd';
+                    this.style.boxShadow = 'none';
+                });
+            });
+        });
+    </script>
+</body>
+</html>
