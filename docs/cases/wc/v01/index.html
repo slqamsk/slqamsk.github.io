@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Походный туалет</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 30px;
+      background-color: #f9f9f9;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .buttons {
+      margin: 15px 0;
+    }
+
+    button {
+      padding: 10px 20px;
+      margin: 0 10px;
+      font-size: 16px;
+      cursor: pointer;
+      border: none;
+      border-radius: 6px;
+      background-color: #007bff;
+      color: white;
+      transition: background-color 0.2s;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    #result {
+      margin-top: 20px;
+      font-size: 20px;
+      font-weight: bold;
+      color: #444;
+      min-height: 1.5em;
+    }
+
+    .arrow {
+      font-size: 36px;
+      line-height: 1;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Какой у вас пол?</h2>
+
+  <div class="buttons">
+    <button type="button" onclick="showDirection('male')">Мужской</button>
+    <button type="button" onclick="showDirection('female')">Женский</button>
+  </div>
+
+  <div id="result"></div>
+
+  <script>
+    function showDirection(gender) {
+      const resultDiv = document.getElementById('result');
+      if (gender === 'male') {
+        resultDiv.innerHTML = 'Мальчики налево<br><span class="arrow">→</span>'; // стрелка перепутана!
+      } else if (gender === 'female') {
+        resultDiv.innerHTML = 'Девочки направо<br><span class="arrow">←</span>'; // стрелка перепутана!
+      }
+    }
+  </script>
+
+</body>
+</html>

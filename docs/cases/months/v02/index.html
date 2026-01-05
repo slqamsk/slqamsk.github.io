@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Времена года</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 30px;
+      background-color: #f9f9f9;
+    }
+    select {
+      padding: 8px 16px;
+      font-size: 16px;
+      margin: 10px 0;
+    }
+    #result {
+      margin-top: 20px;
+      font-size: 20px;
+      font-weight: bold;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Выберите месяц:</h2>
+
+  <select id="monthSelect">
+    <option value="">—</option>
+    <option value="1">Январь</option>
+    <option value="2">Февраль</option>
+    <option value="3">Март</option>
+    <option value="4">Апрель</option>
+    <option value="5">Май</option>
+    <option value="6">Июнь</option>
+    <option value="7">Июль</option>
+    <option value="8">Август</option>
+    <option value="9">Сентябрь</option>
+    <option value="10">Октябрь</option>
+    <option value="11">Ноябрь</option>
+    <option value="12">Декабрь</option>
+  </select>
+
+  <div id="result"></div>
+
+  <script>
+    const select = document.getElementById('monthSelect');
+    const resultDiv = document.getElementById('result');
+
+    select.addEventListener('change', () => {
+      const month = parseInt(select.value, 10);
+      let season = '';
+
+      if (isNaN(month)) {
+        resultDiv.textContent = '';
+        return;
+      }
+
+      if (month === 12 || month === 1 || month === 2) {
+        season = 'Зима';
+      } else if (month >= 3 && month <= 5) {
+        season = 'Весна';
+      } else if (month >= 6 && month <= 8) {
+        season = 'Лето';
+      } else if (month >= 9 && month <= 11) {
+        season = 'Осень';
+      }
+
+      resultDiv.textContent = season;
+    });
+  </script>
+
+</body>
+</html>

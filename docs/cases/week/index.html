@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Дни недели</title>
+</head>
+<body>
+
+  <form id="weekForm">
+    <label><input type="radio" name="day" value="1"> Понедельник</label><br>
+    <label><input type="radio" name="day" value="2"> Вторник</label><br>
+    <label><input type="radio" name="day" value="3"> Среда</label><br>
+    <label><input type="radio" name="day" value="4"> Четверг</label><br>
+    <label><input type="radio" name="day" value="5"> Пятница</label><br>
+    <label><input type="radio" name="day" value="6"> Суббота</label><br>
+    <label><input type="radio" name="day" value="7"> Воскресенье</label><br>
+  </form>
+
+  <div id="result"></div>
+
+  <script>
+    const radios = document.querySelectorAll('input[name="day"]');
+    const resultDiv = document.getElementById('result');
+
+    radios.forEach(radio => {
+      radio.addEventListener('change', () => {
+        const dayNumber = parseInt(radio.value, 10);
+        if (dayNumber >= 1 && dayNumber <= 5) {
+          resultDiv.textContent = "Сегодня будний день";
+        } else {
+          resultDiv.textContent = "Сегодня выходной";
+        }
+      });
+    });
+  </script>
+
+</body>
+</html>
