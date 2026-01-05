@@ -103,21 +103,22 @@
         }
         
         .link-list a {
-            display: inline-block;
-            padding: 10px 15px;
-            background-color: white;
-            border-radius: 6px;
-            text-decoration: none;
-            color: #2c3e50;
-            border: 1px solid #ddd;
-            transition: all 0.3s;
+            display: inline;
+            padding: 0;
+            background-color: transparent;
+            border-radius: 0;
+            text-decoration: underline;
+            color: #3498db;
+            border: none;
+            transition: none;
         }
-        
+
         .link-list a:hover {
-            background-color: #3498db;
-            color: white;
-            border-color: #3498db;
-            transform: translateY(-2px);
+            background-color: transparent;
+            color: #2980b9;
+            border-color: transparent;
+            transform: none;
+            text-decoration: underline;
         }
         
         .form-row {
@@ -235,25 +236,31 @@
         <div class="section links-section">
             <h2>Ссылки для поиска</h2>
             <p>Эти ссылки можно найти по полному или частичному тексту:</p>
-            <div class="link-list">
+            <div>
                 <!-- Ссылка с полным текстом для поиска -->
                 <a href="#" id="main-link">Главная страница сайта с описанием возможностей</a>
-                
+                <br>
+                <br>
                 <!-- Ссылка с уникальным текстом для поиска -->
                 <a href="#" class="nav-link" name="catalog-link">Каталог товаров и услуг для покупателей</a>
-                
+                <br>
+                <br>
                 <!-- Еще ссылки -->
                 <a href="#" class="nav-link">О компании и нашей истории развития</a>
-                
+                <br>
+                <br>
                 <!-- Ссылка с длинным текстом -->
                 <a href="#" id="long-text-link">Эта ссылка содержит очень длинный текст, который можно использовать для поиска по частичному тексту. Например, можно искать по слову "длинный" или "текст".</a>
-                
+                <br>
+                <br>
                 <!-- Ссылка для поиска по частичному тексту -->
                 <a href="#">Контакты и обратная связь</a>
-                
+                <br>
+                <br>
                 <!-- Ссылка с конкретным текстом для поиска -->
                 <a href="#" class="special-link">Регистрация нового пользователя в системе</a>
-                
+                <br>
+                <br>
                 <!-- Еще длинная ссылка -->
                 <a href="#">Подробное руководство по использованию всех функций нашего веб-приложения для новичков</a>
             </div>

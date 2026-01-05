@@ -90,6 +90,7 @@ function createLayoutTemplate(content) {
         <nav class="header-right">
           <a href="index.html">Главная</a>
           <a href="about.html">Обо мне</a>
+          <a href="instructor.html">Чему я учу</a>
         </nav>
       </header>
       <div class="layout-content">
@@ -137,6 +138,7 @@ function createSidebarMenu() {
           <ul class="submenu">
             <li><a href="index.html">Главная</a></li>
             <li><a href="about.html">Обо мне</a></li>
+            <li><a href="instructor.html">Чему я учу</a></li>
           </ul>
         </li>
       </ul>
