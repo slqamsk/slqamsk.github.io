@@ -18,11 +18,14 @@
         .date-container input { width: auto; }
         .history-controls { margin: 20px 0; }
         .history-controls select { width: 200px; padding: 5px; margin-right: 10px; }
+        .debug-info { margin-top: 20px; padding: 10px; background-color: #f9f9f9; border: 1px solid #ddd; }
+        .debug-info h3 { margin-top: 0; }
+        .debug-json { white-space: pre-wrap; word-break: break-all; font-family: monospace; font-size: 0.9em; }
     </style>
 </head>
 <body>
 
-<h1>Журнал Активностей</h1>
+<h1>Журнал Активностей - V03</h1>
 
 <div class="date-container">
     <label for="logDate">Дата:</label>
@@ -58,6 +61,13 @@
         <option value="">-- Выберите дату --</option>
     </select>
     <button class="action-btn" onclick="loadFromHistory()">Загрузить дату</button>
+</div>
+
+<!-- Новый блок для отладочной информации -->
+<div class="debug-info">
+    <h3>Содержимое LocalStorage:</h3>
+    <div id="localStorageContent" class="debug-json"></div>
+    <button class="action-btn" onclick="updateDebugInfo()">Обновить</button>
 </div>
 
 <script>
@@ -112,6 +122,8 @@
         }
         // Обновляем список истории при загрузке страницы
         updateHistoryList();
+        // Обновляем отладочную информацию
+        updateDebugInfo();
     }
 
     // Сохранение текущих данных в localStorage
@@ -143,8 +155,11 @@
             entries: entries
         };
         localStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(history));
+        console.log("Сохранена история для даты:", date, history[date]); // Отладочный вывод
         // Обновляем список истории после сохранения
         updateHistoryList();
+        // Обновляем отладочную информацию
+        updateDebugInfo();
     }
 
     // Загрузка из истории
@@ -160,6 +175,7 @@
         const savedEntry = history[selectedDate];
 
         if (savedEntry) {
+            console.log("Загружаем из истории для даты:", selectedDate, savedEntry); // Отладочный вывод
             // Заполняем поля
             document.getElementById('logDate').value = savedEntry.date;
             predefinedActivities.forEach(activity => {
@@ -310,6 +326,20 @@
             }
         });
     });
+
+    // --- Отладочные функции ---
+    function updateDebugInfo() {
+        const contentDiv = document.getElementById('localStorageContent');
+        const allItems = {};
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key.startsWith('lifeMetrics')) { // Фильтруем только наши ключи
+                allItems[key] = localStorage.getItem(key);
+            }
+        }
+        contentDiv.textContent = JSON.stringify(allItems, null, 2);
+    }
+
 
     // Загружаем данные при загрузке страницы
     window.onload = loadFromLocalStorage;
