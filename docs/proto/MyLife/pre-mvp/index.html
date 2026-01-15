@@ -22,7 +22,7 @@
 </head>
 <body>
 
-<h1>Журнал Активностей - V02</h1>
+<h1>Журнал Активностей</h1>
 
 <div class="date-container">
     <label for="logDate">Дата:</label>
@@ -110,7 +110,8 @@
             // Если данных нет, установим текущую дату
             document.getElementById('logDate').value = getCurrentDate();
         }
-        updateHistoryList(); // Обновляем список при загрузке
+        // Обновляем список истории при загрузке страницы
+        updateHistoryList();
     }
 
     // Сохранение текущих данных в localStorage
@@ -142,6 +143,7 @@
             entries: entries
         };
         localStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(history));
+        // Обновляем список истории после сохранения
         updateHistoryList();
     }
 
@@ -184,9 +186,14 @@
             select.removeChild(select.lastChild);
         }
 
+        // Читаем историю из LocalStorage
         const history = JSON.parse(localStorage.getItem(STORAGE_KEY_HISTORY) || {});
-        const dates = Object.keys(history).sort((a, b) => new Date(b) - new Date(a)); // Сортировка по убыванию
+        // Получаем все сохранённые даты
+        const dates = Object.keys(history);
+        // Сортируем по убыванию (новые даты первыми)
+        dates.sort((a, b) => new Date(b) - new Date(a));
 
+        // Добавляем даты в выпадающий список
         dates.forEach(date => {
             const option = document.createElement('option');
             option.value = date;
