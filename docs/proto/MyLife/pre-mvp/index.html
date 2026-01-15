@@ -12,7 +12,7 @@
         input[type="text"] { width: 70px; }
         button.now-btn { padding: 2px 6px; font-size: 0.8em; margin-left: 5px; vertical-align: middle; }
         button.action-btn { padding: 5px 10px; font-size: 1em; }
-        textarea { width: 100%; height: 750px; } /* Увеличено в 5 раз */
+        textarea { width: 100%; height: 750px; }
         .date-container { margin: 15px 0; }
         .date-container label { display: inline-block; width: 100px; }
         .date-container input { width: auto; }
@@ -22,7 +22,7 @@
 </head>
 <body>
 
-<h1>Журнал Активностей</h1>
+<h1>Журнал Активностей - V02</h1>
 
 <div class="date-container">
     <label for="logDate">Дата:</label>
@@ -49,10 +49,9 @@
 <button class="action-btn" onclick="clearAll()">Очистить</button>
 
 <h2>Экспорт:</h2>
-<button class="action-btn" onclick="copyToClipboard()">Copy</button> <!-- Перемещена сюда -->
+<button class="action-btn" onclick="copyToClipboard()">Copy</button>
 <textarea id="jsonOutput"></textarea>
 
-<!-- Новые элементы для истории -->
 <div class="history-controls">
     <label for="historySelect">Выбрать сохранённый день:</label>
     <select id="historySelect">
@@ -137,6 +136,7 @@
     // Сохранение в историю
     function saveToHistory(date, entries) {
         const history = JSON.parse(localStorage.getItem(STORAGE_KEY_HISTORY) || {});
+        // Перезаписываем существующую дату или добавляем новую
         history[date] = {
             date: date,
             entries: entries
@@ -220,7 +220,7 @@
                     <option value="5">5</option>
                 </select>
             </td>
-            <td><input type="text" class="comment-input" id="comment_${activity.id}"></td> <!-- Добавлен класс comment-input -->
+            <td><input type="text" class="comment-input" id="comment_${activity.id}"></td>
         `;
         tbody.appendChild(row);
     });
@@ -272,7 +272,7 @@
 
         document.getElementById('jsonOutput').value = JSON.stringify(data, null, 2);
 
-        // Сохраняем в историю
+        // Сохраняем в историю ТЕКУЩЕЕ состояние полей под выбранной датой
         saveToHistory(logDate, entries);
     }
 
@@ -293,7 +293,6 @@
     }
 
     // --- Focus Navigation ---
-    // Теперь учитываем только time-input и comment-input, исключая quality
     const inputs = document.querySelectorAll('.time-input, input.comment-input');
     inputs.forEach((input, index) => {
         input.addEventListener('keydown', function(e) {
