@@ -25,7 +25,7 @@
 </head>
 <body>
 
-<h1>Журнал Активностей - V03</h1>
+<h1>Журнал Активностей - Версия 05</h1>
 
 <div class="date-container">
     <label for="logDate">Дата:</label>
@@ -63,7 +63,6 @@
     <button class="action-btn" onclick="loadFromHistory()">Загрузить дату</button>
 </div>
 
-<!-- Новый блок для отладочной информации -->
 <div class="debug-info">
     <h3>Содержимое LocalStorage:</h3>
     <div id="localStorageContent" class="debug-json"></div>
@@ -82,8 +81,9 @@
         { id: 7, name: "Рабочий блок", description: "Выделить время на осознанную работу" }
     ];
 
+    // Исправленные ключи
     const STORAGE_KEY_DATA = 'lifeMetricsCurrentData'; // Для текущих данных
-    const STORAGE_KEY_HISTORY = 'lifeMetricsHistory'; // Для истории
+    const STORAGE_KEY_HISTORY = 'lifeMetricsHistoryData'; // Для истории - исправлено имя
 
     // Функция для получения текущей даты в формате YYYY-MM-DD
     function getCurrentDate() {
@@ -148,14 +148,14 @@
 
     // Сохранение в историю
     function saveToHistory(date, entries) {
-        const history = JSON.parse(localStorage.getItem(STORAGE_KEY_HISTORY) || {});
+        const history = JSON.parse(localStorage.getItem(STORAGE_KEY_HISTORY) || {}); // Чтение из правильного ключа
         // Перезаписываем существующую дату или добавляем новую
         history[date] = {
             date: date,
             entries: entries
         };
-        localStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(history));
-        console.log("Сохранена история для даты:", date, history[date]); // Отладочный вывод
+        localStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(history)); // Сохранение в правильный ключ
+        console.log("Сохранена история для даты:", date, history[date]);
         // Обновляем список истории после сохранения
         updateHistoryList();
         // Обновляем отладочную информацию
@@ -171,11 +171,11 @@
             return;
         }
 
-        const history = JSON.parse(localStorage.getItem(STORAGE_KEY_HISTORY) || {});
+        const history = JSON.parse(localStorage.getItem(STORAGE_KEY_HISTORY) || {}); // Чтение из правильного ключа
         const savedEntry = history[selectedDate];
 
         if (savedEntry) {
-            console.log("Загружаем из истории для даты:", selectedDate, savedEntry); // Отладочный вывод
+            console.log("Загружаем из истории для даты:", selectedDate, savedEntry);
             // Заполняем поля
             document.getElementById('logDate').value = savedEntry.date;
             predefinedActivities.forEach(activity => {
@@ -194,7 +194,7 @@
         }
     }
 
-    // Обновление списка истории
+    // Обновление списка истории - теперь читает из правильного ключа
     function updateHistoryList() {
         const select = document.getElementById('historySelect');
         // Очищаем список, кроме первой опции
@@ -202,7 +202,7 @@
             select.removeChild(select.lastChild);
         }
 
-        // Читаем историю из LocalStorage
+        // Читаем историю из LocalStorage - из правильного ключа
         const history = JSON.parse(localStorage.getItem(STORAGE_KEY_HISTORY) || {});
         // Получаем все сохранённые даты
         const dates = Object.keys(history);
@@ -339,7 +339,6 @@
         }
         contentDiv.textContent = JSON.stringify(allItems, null, 2);
     }
-
 
     // Загружаем данные при загрузке страницы
     window.onload = loadFromLocalStorage;
