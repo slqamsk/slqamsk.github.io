@@ -25,7 +25,7 @@
 </head>
 <body>
 
-<h1>Журнал Активностей - Версия 05</h1>
+<h1>Журнал Активностей - Версия 06</h1>
 
 <div class="date-container">
     <label for="logDate">Дата:</label>
@@ -146,15 +146,18 @@
         localStorage.setItem(STORAGE_KEY_DATA, JSON.stringify(dataToSave));
     }
 
-    // Сохранение в историю
+    // Сохранение в историю (ИСПРАВЛЕНА)
     function saveToHistory(date, entries) {
-        const history = JSON.parse(localStorage.getItem(STORAGE_KEY_HISTORY) || {}); // Чтение из правильного ключа
+        // Исправлено: корректная обработка отсутствия данных
+        const historyStr = localStorage.getItem(STORAGE_KEY_HISTORY);
+        const history = historyStr ? JSON.parse(historyStr) : {};
+        
         // Перезаписываем существующую дату или добавляем новую
         history[date] = {
             date: date,
             entries: entries
         };
-        localStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(history)); // Сохранение в правильный ключ
+        localStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(history));
         console.log("Сохранена история для даты:", date, history[date]);
         // Обновляем список истории после сохранения
         updateHistoryList();
@@ -162,7 +165,7 @@
         updateDebugInfo();
     }
 
-    // Загрузка из истории
+    // Загрузка из истории (ИСПРАВЛЕНА)
     function loadFromHistory() {
         const select = document.getElementById('historySelect');
         const selectedDate = select.value;
@@ -171,7 +174,9 @@
             return;
         }
 
-        const history = JSON.parse(localStorage.getItem(STORAGE_KEY_HISTORY) || {}); // Чтение из правильного ключа
+        // Исправлено: корректная обработка отсутствия данных
+        const historyStr = localStorage.getItem(STORAGE_KEY_HISTORY);
+        const history = historyStr ? JSON.parse(historyStr) : {};
         const savedEntry = history[selectedDate];
 
         if (savedEntry) {
@@ -194,7 +199,7 @@
         }
     }
 
-    // Обновление списка истории - теперь читает из правильного ключа
+    // Обновление списка истории (ИСПРАВЛЕНА)
     function updateHistoryList() {
         const select = document.getElementById('historySelect');
         // Очищаем список, кроме первой опции
@@ -202,8 +207,10 @@
             select.removeChild(select.lastChild);
         }
 
-        // Читаем историю из LocalStorage - из правильного ключа
-        const history = JSON.parse(localStorage.getItem(STORAGE_KEY_HISTORY) || {});
+        // Исправлено: корректная обработка отсутствия данных
+        const historyStr = localStorage.getItem(STORAGE_KEY_HISTORY);
+        const history = historyStr ? JSON.parse(historyStr) : {};
+        
         // Получаем все сохранённые даты
         const dates = Object.keys(history);
         // Сортируем по убыванию (новые даты первыми)
