@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Високосный год</title>
+</head>
+<body>
+    <h3>Определение високосного года</h3>
+    <label>Введите год: </label>
+    <input type="number" id="yearInput" placeholder="например, 2024">
+    <button onclick="checkLeapYear()">Рассчитать</button>
+    <p id="result"></p>
+
+    <script>
+        function checkLeapYear() {
+            const year = document.getElementById('yearInput').value;
+            let resultText = '';
+
+            if (year === '') {
+                resultText = 'Пожалуйста, введите год';
+            } else {
+                const y = parseInt(year);
+                if ((y % 4 === 0 && y % 100 !== 0) || (y % 400 === 0)) {
+                    resultText = 'Високосный';
+                } else {
+                    resultText = 'Не високосный';
+                }
+            }
+
+            document.getElementById('result').innerHTML = resultText;
+        }
+    </script>
+</body>
+</html>
