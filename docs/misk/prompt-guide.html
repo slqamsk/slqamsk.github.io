@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Промпт для Markdown в HTML</title>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/zero-md@3?register"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1/themes/prism.css">
+</head>
+<body>
+    <zero-md>
+        <script type="text/markdown">
+# Как получить HTML-страницу с Markdown от ИИ
+
+Используй этот промпт после того, как ИИ дал текстовый ответ, который нужно оформить.
+        </script>
+    </zero-md>
+
+    <pre style="background: #f5f5f5; border-left: 4px solid #0366d6; padding: 16px; border-radius: 6px; overflow-x: auto; font-family: monospace; font-size: 14px; line-height: 1.5;">
+Отформатируй предыдущий ответ как Markdown и вставь в этот HTML:
+
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;meta charset=&quot;utf-8&quot;&gt;
+    &lt;title&gt;ЗАГОЛОВОК_ТЕМЫ&lt;/title&gt;
+    &lt;script type=&quot;module&quot; src=&quot;https://cdn.jsdelivr.net/npm/zero-md@3?register&quot;&gt;&lt;/script&gt;
+    &lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdn.jsdelivr.net/npm/prismjs@1/themes/prism.css&quot;&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;zero-md&gt;
+        &lt;script type=&quot;text/markdown&quot;&gt;
+СЮДА_ОТВЕТ_В_MARKDOWN
+        &lt;/script&gt;
+    &lt;/zero-md&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+
+Важно:
+- Замени ЗАГОЛОВОК_ТЕМЫ на название статьи.
+- Для приблизительных дат используй ≈ вместо ~ (тильда вызывает ~~зачёркивание~~).
+- Не добавляй своих CSS-стилей — шаблон уже готов.
+- Верни только HTML, без пояснений.
+    </pre>
+
+    <zero-md>
+        <script type="text/markdown">
+## Как использовать
+
+Скопируй этот промпт и вставь в чат с ИИ **сразу после того, как получил от него текстовый ответ**, который хочешь превратить в HTML-страницу.
+
+ИИ возьмёт свой предыдущий ответ, отформатирует его как Markdown, вставит в шаблон и вернёт готовый `.html` файл. Тебе останется только сохранить его и открыть в браузере или загрузить на сайт.
+        </script>
+    </zero-md>
+</body>
+</html>
