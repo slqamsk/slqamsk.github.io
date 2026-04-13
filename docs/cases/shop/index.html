@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QA-Shop | Карточка товара 18+</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ========== ШАПКА (ЛОГО - МЕНЮ - КОРЗИНА) ========== */
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            position: relative;
+        }
+
+        /* Логотип — активная кнопка/ссылка */
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            text-decoration: none;
+            color: white;
+            user-select: none;
+        }
+
+        .logo:hover {
+            opacity: 0.8;
+        }
+
+        .logo span {
+            color: #3498db;
+        }
+
+        /* Обычное меню (десктоп) */
+        .nav-desktop {
+            display: flex;
+            list-style: none;
+            gap: 30px;
+        }
+
+        .nav-desktop a {
+            text-decoration: none;
+            color: white;
+            font-weight: 500;
+            padding: 5px 0;
+            transition: color 0.2s;
+            border-bottom: 2px solid transparent;
+        }
+
+        .nav-desktop a:hover {
+            color: #3498db;
+        }
+
+        .nav-desktop a.active {
+            color: #3498db;
+            border-bottom-color: #3498db;
+        }
+
+        /* Корзина */
+        .cart {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #34495e;
+            padding: 8px 16px;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .cart:hover {
+            background: #3d566e;
+        }
+
+        .cart-icon {
+            font-size: 20px;
+        }
+
+        .cart-count {
+            background: #e74c3c;
+            color: white;
+            font-weight: bold;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 14px;
+            min-width: 24px;
+            text-align: center;
+        }
+
+        /* ========== СЭНДВИЧ-МЕНЮ (МОБИЛЬНОЕ) ========== */
+        .mobile-menu-wrapper {
+            display: none;
+            align-items: center;
+            gap: 15px;
+        }
+
+        /* Чекбокс-гамбургер (чистый CSS) */
+        .menu-toggle {
+            display: none;
+        }
+
+        .burger-icon {
+            font-size: 28px;
+            cursor: pointer;
+            user-select: none;
+            padding: 5px;
+            color: white;
+        }
+
+        .mobile-nav {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: #2c3e50;
+            width: 200px;
+            border-radius: 0 0 0 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            display: none;
+            z-index: 100;
+        }
+
+        .menu-toggle:checked ~ .mobile-nav {
+            display: block;
+        }
+
+        .mobile-nav ul {
+            list-style: none;
+            padding: 10px 0;
+        }
+
+        .mobile-nav li {
+            padding: 12px 20px;
+            border-bottom: 1px solid #3d566e;
+        }
+
+        .mobile-nav li:last-child {
+            border-bottom: none;
+        }
+
+        .mobile-nav a {
+            color: white;
+            text-decoration: none;
+            display: block;
+        }
+
+        .mobile-nav a:hover {
+            color: #3498db;
+        }
+
+        /* ========== КОНТЕНТ ========== */
+        .main {
+            flex: 1;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            max-width: 450px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .product-image {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 220px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 64px;
+            position: relative;
+        }
+
+        .product-badge {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: #e74c3c;
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .product-info {
+            padding: 25px;
+        }
+
+        .product-title {
+            font-size: 22px;
+            margin-bottom: 8px;
+            color: #2c3e50;
+        }
+
+        .product-price {
+            font-size: 28px;
+            font-weight: bold;
+            color: #27ae60;
+            margin-bottom: 20px;
+        }
+
+        .product-price small {
+            font-size: 14px;
+            color: #7f8c8d;
+            font-weight: normal;
+        }
+
+        /* Форма */
+        .age-form {
+            margin-bottom: 20px;
+        }
+
+        .age-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        .age-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: border-color 0.2s;
+        }
+
+        .age-input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .age-input.error {
+            border-color: #e74c3c;
+            background: #fef5f5;
+        }
+
+        /* Кнопка */
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 10px rgba(52,152,219,0.3);
+        }
+
+        .btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(52,152,219,0.4);
+        }
+
+        /* Сообщения */
+        .message {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 14px;
+            text-align: center;
+            display: none;
+        }
+
+        .message.show {
+            display: block;
+        }
+
+        .message.error-msg {
+            background: #fdecea;
+            color: #c0392b;
+            border: 1px solid #f5c6cb;
+        }
+
+        .message.success-msg {
+            background: #d4efdf;
+            color: #1e8449;
+            border: 1px solid #a9dfbf;
+        }
+
+        /* Подвал */
+        .footer {
+            background: #2c3e50;
+            color: #bdc3c7;
+            text-align: center;
+            padding: 20px;
+            font-size: 14px;
+            margin-top: auto;
+        }
+
+        .footer a {
+            color: #3498db;
+            text-decoration: none;
+        }
+
+
+        /* Планшет и десктоп: показываем обычное меню */
+        @media (min-width: 501px) {
+            .nav-desktop {
+                display: flex;
+            }
+            .mobile-menu-wrapper {
+                display: none;
+            }
+        }
+
+        /* ========== АДАПТИВНОСТЬ (≤500px) ========== */
+        @media (max-width: 500px) {
+            /* Прячем десктопное меню */
+            .nav-desktop {
+                display: none;
+            }
+
+            /* Показываем мобильное меню (корзина + бургер) */
+            .mobile-menu-wrapper {
+                display: flex;
+            }
+
+            /* Корзина в десктопной версии скрывается (она уже внутри мобильного блока) */
+            #desktopCart {
+                display: none;
+            }
+
+            /* Шапка — компактнее */
+            .header {
+                padding: 12px 20px;
+            }
+
+            /* Контент — меньше отступы */
+            .main {
+                padding: 20px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ШАПКА: ЛОГО - МЕНЮ - КОРЗИНА -->
+    <header class="header">
+        <!-- Логотип — активная ссылка/кнопка для сброса -->
+        <a class="logo" id="resetLogo">QA-<span>Shop</span></a>
+
+        <!-- Десктопное меню (показывается при >500px) -->
+        <ul class="nav-desktop">
+            <li><a href="#" class="active">Каталог</a></li>
+            <li><a href="#">Доставка</a></li>
+            <li><a href="#">Контакты</a></li>
+        </ul>
+
+        <!-- Мобильное меню-сэндвич (показывается при ≤500px, правее корзины) -->
+        <div class="mobile-menu-wrapper">
+            <!-- Корзина в мобильной версии -->
+            <div class="cart">
+                <span class="cart-icon">🛒</span>
+                <span class="cart-count" id="cartCounter">0</span>
+            </div>
+            
+            <!-- Гамбургер -->
+            <input type="checkbox" id="menuToggle" class="menu-toggle">
+            <label for="menuToggle" class="burger-icon">☰</label>
+            
+            <!-- Выпадающее меню -->
+            <div class="mobile-nav">
+                <ul>
+                    <li><a href="#" class="active">Каталог</a></li>
+                    <li><a href="#">Доставка</a></li>
+                    <li><a href="#">Контакты</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Корзина для десктопа (в мобильной версии она уже внутри mobile-menu-wrapper) -->
+        <div class="cart" id="desktopCart">
+            <span class="cart-icon">🛒</span>
+            <span class="cart-count" id="cartCounterDesktop">0</span>
+        </div>
+    </header>
+
+    <!-- ОСНОВНОЙ КОНТЕНТ -->
+    <main class="main">
+        <div class="product-card">
+            <div class="product-image">
+                <span class="product-badge">18+</span>
+                🎮
+            </div>
+            <div class="product-info">
+                <h2 class="product-title">Игровая консоль MegaGame Pro</h2>
+                <div class="product-price">49 990 <small>₽</small></div>
+
+                <div class="age-form">
+                    <label class="age-label" for="ageInput">
+                        🔞 Введите ваш возраст:
+                    </label>
+                    <input 
+                        type="number" 
+                        id="ageInput" 
+                        class="age-input" 
+                        placeholder="число полных лет"
+                        min="0" 
+                        max="120"
+                        required
+                    >
+                </div>
+
+                <button class="btn" id="addToCartBtn">Добавить в корзину</button>
+
+                <div id="messageBox" class="message"></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ПОДВАЛ -->
+    <footer class="footer">
+        © 2024 QA-Shop. <a href="#">Политика конфиденциальности</a><br>
+        <small>Тестовое приложение для курса «Тестирование ПО»</small>
+    </footer>
+
+    <script>
+        // ========== DOM-ЭЛЕМЕНТЫ ==========
+        const ageInput = document.getElementById('ageInput');
+        const addButton = document.getElementById('addToCartBtn');
+        const messageBox = document.getElementById('messageBox');
+        const cartCounter = document.getElementById('cartCounter');
+        const cartCounterDesktop = document.getElementById('cartCounterDesktop');
+        const resetLogo = document.getElementById('resetLogo');
+        const desktopCart = document.getElementById('desktopCart');
+        const menuToggle = document.getElementById('menuToggle');
+
+        // Счётчик товаров
+        let cartItems = 0;
+
+        // Функция обновления обоих счётчиков (десктоп + мобильный)
+        function updateCartDisplay() {
+            cartCounter.textContent = cartItems;
+            cartCounterDesktop.textContent = cartItems;
+        }
+
+        // Показать сообщение
+        function showMessage(text, type) {
+            messageBox.textContent = text;
+            messageBox.className = `message show ${type}-msg`;
+        }
+
+        // Скрыть сообщение
+        function hideMessage() {
+            messageBox.classList.remove('show');
+        }
+
+        // Ошибка в поле
+        function showFieldError(text) {
+            ageInput.classList.add('error');
+            showMessage(text, 'error');
+        }
+
+        // Сброс всего (по клику на логотип)
+        function resetAll() {
+            // Сброс счётчика
+            cartItems = 0;
+            updateCartDisplay();
+            
+            // Очистка поля возраста
+            ageInput.value = '';
+            ageInput.classList.remove('error');
+            
+            // Скрываем сообщения
+            hideMessage();
+            
+            // Закрываем мобильное меню, если открыто
+            if (menuToggle) {
+                menuToggle.checked = false;
+            }
+            
+            console.log('[QA-Shop] Сброс: корзина очищена, поле возраста очищено');
+        }
+
+        // Валидация и добавление в корзину
+        function handleAddToCart() {
+            const ageValue = ageInput.value;
+            
+            // Проверка 1: пусто
+            if (ageValue === '' || ageValue === null) {
+                showFieldError('❌ Пожалуйста, введите возраст');
+                return;
+            }
+
+            const age = Number(ageValue);
+
+            // Проверка 2: не число
+            if (isNaN(age)) {
+                showFieldError('❌ Введите корректное число');
+                return;
+            }
+
+            // Проверка 3: целое
+            if (!Number.isInteger(age)) {
+                showFieldError('❌ Возраст должен быть целым числом');
+                return;
+            }
+
+            // Проверка 4: 18+
+            if (age < 18) {
+                showFieldError('🔞 Товар только для лиц старше 18 лет');
+                return;
+            }
+
+            // Проверка 5: JS-ограничение 99 (HTML разрешает 120)
+            if (age > 99) {
+                showFieldError('❌ Максимальный возраст — 99 лет');
+                return;
+            }
+
+            // Успех
+            ageInput.classList.remove('error');
+            cartItems++;
+            updateCartDisplay();
+            
+            // Сообщение без указания возраста
+            showMessage('✅ Товар добавлен в корзину!', 'success');
+
+            console.log(`[QA-Shop] Товар добавлен. Всего товаров: ${cartItems}`);
+        }
+
+        // Обработчики событий
+        addButton.addEventListener('click', handleAddToCart);
+        
+        resetLogo.addEventListener('click', function(e) {
+            e.preventDefault();  // чтобы не было перехода по ссылке
+            resetAll();
+        });
+
+        ageInput.addEventListener('input', function() {
+            ageInput.classList.remove('error');
+            if (!messageBox.classList.contains('success-msg')) {
+                hideMessage();
+            }
+        });
+
+        // Закрываем мобильное меню при клике вне его (для удобства)
+        document.addEventListener('click', function(e) {
+            if (menuToggle && menuToggle.checked) {
+                const isMenuClick = e.target.closest('.mobile-menu-wrapper');
+                if (!isMenuClick) {
+                    menuToggle.checked = false;
+                }
+            }
+        });
+
+        // Синхронизация корзин при загрузке
+        updateCartDisplay();
+
+        // Инструкции в консоль
+        console.log('%c🧪 QA-Shop — Демо для тестировщиков', 'font-size: 16px; font-weight: bold; color: #3498db');
+        console.log('1. Попробуйте ввести возраст > 99 (например, 101) — JS выдаст ошибку');
+        console.log('2. Отключите JavaScript и попробуйте снова — HTML пропустит');
+        console.log('3. Клик по логотипу "QA-Shop" сбрасывает корзину и поле возраста');
+        console.log('%cВывод: клиентская валидация не защищает. Сервер обязан проверять!', 'color: #e74c3c; font-weight: bold');
+    </script>
+</body>
+</html>
