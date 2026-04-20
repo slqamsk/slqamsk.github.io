@@ -1,2 +1,3 @@
 theme: minima
+includes_dir: _includes
 keep_files: ["*.html"]
