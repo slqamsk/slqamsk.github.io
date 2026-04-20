@@ -1,6 +1,5 @@
 ---
 layout: default
-title: Тест Mermaid
 ---
 # Тест диаграммы
 
