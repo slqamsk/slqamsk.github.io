@@ -1,5 +1,5 @@
 ---
-layout: default
+layout: instructions
 title: Инструкции по настройке
 ---
 # 📚 Инструкции по настройке
