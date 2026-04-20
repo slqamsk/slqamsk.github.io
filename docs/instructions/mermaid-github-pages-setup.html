@@ -119,16 +119,23 @@ Front Matter остаётся без изменений.</p>
 
 <h2>❓ Часто задаваемые вопросы</h2>
 
-<p><strong>1. Где в логах GitHub Actions смотреть, применилась ли тема?</strong><br>
+<p><strong>1. Где в логах GitHub Actions смотреть, что тема и шаблоны применились правильно?</strong><br>
 На вкладке Actions вашего репозитория найдите последний запуск workflow <code>pages-build-deployment</code>. 
-Раскройте шаг <strong>«Build with Jekyll»</strong> и найдите в логе строку:</p>
+Раскройте шаг <strong>«Build with Jekyll»</strong> и проверьте две ключевые строки.</p>
+
+<p><strong>Проверка темы:</strong></p>
 <pre>Theme: minima</pre>
 <p>Если вместо <code>minima</code> вы видите другую тему (например, <code>jekyll-theme-primer</code>) — 
 значит ваш <code>_config.yml</code> не найден или проигнорирован. Проверьте, что файл лежит в правильной папке 
 (<code>docs/</code> или корень репозитория в зависимости от настройки Pages).</p>
-<p>Также в логе должна быть строка:</p>
-<pre>Layout source: /github/workspace/docs/_layouts/default.html</pre>
-<p>Это подтверждает, что используется ваш пользовательский шаблон, а не шаблон из темы.</p>
+
+<p><strong>Проверка шаблонов:</strong></p>
+<pre>Layout source: site</pre>
+<p>Запись <code>site</code> означает, что Jekyll использует ваши пользовательские шаблоны из папки <code>_layouts/</code>. 
+Если бы шаблоны не были переопределены, вы увидели бы <code>Layout source: theme</code> (используется встроенный шаблон темы).</p>
+<p>В логе вы увидите такие строки для каждой обрабатываемой страницы, например:<br>
+<code>Rendering Layout: courses/ai-qa-draft.md</code><br>
+<code>Layout source: site</code></p>
 
 <p><strong>2. Почему скрипт в шаблоне — это необходимый «костыль»?</strong><br>
 Jekyll и Mermaid «говорят на разных языках». Jekyll считает диаграмму кодом для подсветки синтаксиса 
