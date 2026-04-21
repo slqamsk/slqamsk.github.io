@@ -58,9 +58,6 @@ graph LR
 
 ```
 
-## Дополнительные курсы по ИИ - вариант-1
-
-
 
 ## Дополнительный курс по АТ
 ```mermaid
@@ -110,6 +107,116 @@ graph LR
     class at-api-short,ai-qa newCourse
     class at-api-long futureCourse
 ```
+
+
+
+## Дополнительные курсы по ИИ - вариант-1
+```mermaid
+block
+    columns 1
+    
+    block:row1
+        columns 5
+        dzhv1a["Java-1,\n40 а.ч."]
+        empty1_1[" "]
+        java2["Java-2,\n40 а.ч."]
+        empty1_2[" "]
+        avtest["AT-Java-Web,\n40 а.ч."]
+    end
+    
+    space
+    
+    block:row2
+        columns 5
+        oproga["ОПРОГ,\n24 а.ч."]
+        empty3_1[" "]
+        tpo["ТПО, Уровень 1,\n40 а.ч."]
+        empty3_2[" "]
+        tpo21["Тест-дизайн,\n24 а.ч."]
+    end
+    
+    space
+    
+    block:row3
+        columns 5
+        bkp2["Excel,\n16 а.ч."]
+        empty5_1[" "]
+        B32[" "]
+        empty5_2[" "]
+        upkot["Тест-менеджмент,\n16 а.ч."]
+    end
+    
+    space
+        
+    block:row5
+        columns 5
+        aiqa["Применение ИИ,\n16 а.ч."]
+        space3[" "]
+        promptingqa["Применение\nPrompting,\n24 а.ч."]
+        space4[" "]
+        ragqa["Применение\nRAG,\n40 а.ч."]
+    end
+
+    space
+
+    block:row4
+        columns 5
+        ai1["Основы ИИ,\n16 а.ч."]
+        space1[" "]
+        prompting["Prompting,\n24 а.ч."]
+        space2[" "]
+        rag["RAG,\n40 а.ч."]
+    end
+
+    dzhv1a --> java2
+    java2 --> avtest
+
+    oproga --> tpo
+    bkp2 --> tpo
+
+    tpo --> tpo21
+    tpo --> upkot
+
+    tpo --> avtest
+
+    ai1 --> prompting 
+    prompting --> rag
+    
+    aiqa --> promptingqa 
+    promptingqa --> ragqa
+
+    ai1 --> aiqa
+    prompting --> promptingqa
+    rag --> ragqa
+
+
+    tpo --> aiqa
+
+    
+    classDef invisible fill:none,stroke:none,color:transparent
+    class empty1_1,empty1_2,empty3_1,empty3_2,empty5_1,empty5_2,space1,space2,space3,space4,B32 invisible
+    
+    classDef transparentBlock fill:none,stroke:none
+    class row1,row2,row3,row4,row5 transparentBlock
+    
+    classDef defaultCourse fill:#e8e2d8,stroke:#ac9c8c,stroke-width:1.5px,color:#333
+    classDef usualCourse fill:#e8f0fe,stroke:#4a90e2,stroke-width:1.5px
+    classDef newCourse fill:#ffcdd2,stroke:#d32f2f,stroke-width:2.5px,font-weight:bold
+    classDef futureCourse fill:#dfcef0,stroke:#9c7abe,stroke-width:1.5px,color:#333
+   
+    class oproga,bkp2,dzhv1a,java2 defaultCourse
+    class tpo,tpo21,upkot,avtest usualCourse
+    class ai1,prompting,rag,aiqa,promptingqa,ragqa newCourse
+
+```
+
+
+
+
+## Дополнительные курсы по ИИ - вариант-2
+
+
+
 
 ## Линейка курсов для ручного тестирования
 ```mermaid
