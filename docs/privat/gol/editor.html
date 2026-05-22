@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Редактор рангов и категорий</title>
+  <style>
+    /* Убраны глобальные цвета, чтобы не перебивать contrast-color */
+    :root { --bg-page: #f4f6f8; --panel-bg: #ffffff; }
+    body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg-page); padding: 20px; margin: 0; }
+    h2 { margin: 0 0 10px; font-size: 22px; }
+    
+    textarea { width: 100%; height: 260px; font-family: 'Courier New', monospace; font-size: 13px; padding: 10px; border: 1px solid #c9d1d9; border-radius: 6px; background: #0d1117; color: #e6edf3; }
+    button { background: #2563eb; color: white; border: none; padding: 10px 18px; font-size: 14px; border-radius: 6px; cursor: pointer; margin: 12px 0; }
+    button:hover { background: #1d4ed8; }
+    
+    table.main-table { width: auto; margin: 0 auto; border-collapse: collapse; background: var(--panel-bg); margin-top: 10px; font-size: 13px; border: 2px solid #000; }
+    th.main-th, td.main-td { border: 1px solid #000; padding: 0; vertical-align: top; }
+    th.main-th { background: #e5e7eb; padding: 8px 12px; text-align: left; border-bottom: 2px solid #000; }
+
+    .cell { padding: 6px 10px; min-height: 40px; display: flex; flex-direction: column; justify-content: center; gap: 2px; cursor: pointer; transition: filter 0.2s; white-space: nowrap; }
+    .cell:hover { filter: brightness(0.95); }
+    .info-title { font-weight: 600; font-size: 13px; }
+    .info-colors { font-size: 11px; opacity: 0.85; }
+
+    .status { padding: 8px; border-radius: 6px; margin: 10px 0; display: none; font-size: 13px; }
+    .status.success { background: #d1fae5; color: #065f46; }
+    .status.error { background: #fee2e2; color: #991b1b; }
+
+    #modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+    #modal-overlay.active { opacity: 1; pointer-events: auto; }
+    #color-picker-modal { background: var(--panel-bg); padding: 16px; border-radius: 8px; width: 90%; max-width: 750px; max-height: 85vh; display: flex; flex-direction: column; }
+    #color-picker-modal h3 { margin: 0 0 10px; font-size: 16px; font-weight: 600; }
+    #close-modal { background: #ef4444; color: white; border: none; padding: 4px 10px; font-size: 12px; margin: 0 0 8px auto; border-radius: 4px; cursor: pointer; }
+    #palette-container { overflow-y: auto; padding: 2px; flex: 1; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+
+    .palette-table { width: auto; margin: 0 auto; border-collapse: collapse; font-size: 12px; background: #fff; border: 2px solid #000; }
+    .palette-table th { background: #f8f9fa; padding: 4px 8px; border: 1px solid #000; text-align: left; white-space: nowrap; }
+    .palette-table td { padding: 1px 6px; border: 1px solid #000; cursor: pointer; white-space: nowrap; line-height: 1.2; vertical-align: middle; }
+    .palette-table tr:hover td { filter: brightness(0.92); }
+
+    .group-header { background-color: #f8f9fa; padding-top: 14px; padding-bottom: 4px; text-align: left; vertical-align: bottom; cursor: default; }
+    .group-header:hover td { filter: none; }
+
+    .credit-line { font-size: 10px; color: #6b7280; text-align: center; margin-top: 8px; line-height: 1.4; }
+    .credit-line a { color: #2563eb; text-decoration: none; }
+
+    /* Единственное правило, задающее цвет текста на динамических фонах */
+    td.main-td, .cell, .palette-table td {
+      color: contrast-color(var(--bg));
+    }
+  </style>
+</head>
+<body>
+
+  <h2>🛠 Редактор цветов рангов и категорий</h2>
+  <textarea id="json-input" placeholder="Вставьте time-tracker-categories.json..."></textarea>
+  <br>
+  <button id="apply-btn">Применить</button>
+  <div id="status-box" class="status"></div>
+
+  <table class="main-table" id="result-table">
+    <thead><tr><th class="main-th">Ранги</th><th class="main-th">Категории</th></tr></thead>
+    <tbody id="table-body"></tbody>
+  </table>
+
+  <div id="modal-overlay">
+    <div id="color-picker-modal">
+      <button id="close-modal">Закрыть</button>
+      <h3>Выберите цвет (английское название сохранится в JSON)</h3>
+      <div id="palette-container"></div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'time-tracker-categories';
+    let appData = null;
+    let activePath = null;
+
+    const PALETTE_GROUPS = [
+      { header: "Красные тона", colors: [
+        {name:"IndianRed", hex:"#CD5C5C", ru:"Индийский красный"}, {name:"LightCoral", hex:"#F08080", ru:"Светлый коралл"},
+        {name:"Salmon", hex:"#FA8072", ru:"Лососевый"}, {name:"DarkSalmon", hex:"#E9967A", ru:"Тёмный лососевый"},
+        {name:"LightSalmon", hex:"#FFA07A", ru:"Светлый лососевый"}, {name:"Crimson", hex:"#DC143C", ru:"Малиновый"},
+        {name:"Red", hex:"#FF0000", ru:"Красный"}, {name:"FireBrick", hex:"#B22222", ru:"Кирпичный"},
+        {name:"DarkRed", hex:"#8B0000", ru:"Тёмно-красный"}
+      ]},
+      { header: "Розовые тона", colors: [
+        {name:"Pink", hex:"#FFC0CB", ru:"Розовый"}, {name:"LightPink", hex:"#FFB6C1", ru:"Светло-розовый"},
+        {name:"HotPink", hex:"#FF69B4", ru:"Ярко-розовый"}, {name:"DeepPink", hex:"#FF1493", ru:"Глубокий розовый"},
+        {name:"MediumVioletRed", hex:"#C71585", ru:"Средний фиолетово-красный"}, {name:"PaleVioletRed", hex:"#DB7093", ru:"Бледный фиолетово-красный"}
+      ]},
+      { header: "Оранжевые тона", colors: [
+        {name:"LightSalmon", hex:"#FFA07A", ru:"Светлый лососевый"}, {name:"Coral", hex:"#FF7F50", ru:"Коралловый"},
+        {name:"Tomato", hex:"#FF6347", ru:"Томатный"}, {name:"OrangeRed", hex:"#FF4500", ru:"Оранжево-красный"},
+        {name:"DarkOrange", hex:"#FF8C00", ru:"Тёмно-оранжевый"}, {name:"Orange", hex:"#FFA500", ru:"Оранжевый"}
+      ]},
+      { header: "Жёлтые тона", colors: [
+        {name:"Gold", hex:"#FFD700", ru:"Золотой"}, {name:"Yellow", hex:"#FFFF00", ru:"Жёлтый"},
+        {name:"LightYellow", hex:"#FFFFE0", ru:"Светло-жёлтый"}, {name:"LemonChiffon", hex:"#FFFACD", ru:"Лимонный шифон"},
+        {name:"LightGoldenrodYellow", hex:"#FAFAD2", ru:"Светлый золотарник"}, {name:"PapayaWhip", hex:"#FFEFD5", ru:"Взбитая папайя"},
+        {name:"Moccasin", hex:"#FFE4B5", ru:"Мокасин"}, {name:"PeachPuff", hex:"#FFDAB9", ru:"Персиковый пух"},
+        {name:"PaleGoldenrod", hex:"#EEE8AA", ru:"Бледный золотарник"}, {name:"Khaki", hex:"#F0E68C", ru:"Хаки"},
+        {name:"DarkKhaki", hex:"#BDB76B", ru:"Тёмный хаки"}
+      ]},
+      { header: "Фиолетовые тона", colors: [
+        {name:"Lavender", hex:"#E6E6FA", ru:"Лавандовый"}, {name:"Thistle", hex:"#D8BFD8", ru:"Чертополох"},
+        {name:"Plum", hex:"#DDA0DD", ru:"Сливовый"}, {name:"Violet", hex:"#EE82EE", ru:"Фиалковый"},
+        {name:"Orchid", hex:"#DA70D6", ru:"Орхидея"}, {name:"Fuchsia", hex:"#FF00FF", ru:"Фуксия"},
+        {name:"Magenta", hex:"#FF00FF", ru:"Маджента"}, {name:"MediumOrchid", hex:"#BA55D3", ru:"Средняя орхидея"},
+        {name:"MediumPurple", hex:"#9370DB", ru:"Средний пурпурный"}, {name:"BlueViolet", hex:"#8A2BE2", ru:"Сине-фиолетовый"},
+        {name:"DarkViolet", hex:"#9400D3", ru:"Тёмно-фиолетовый"}, {name:"DarkOrchid", hex:"#9932CC", ru:"Тёмная орхидея"},
+        {name:"DarkMagenta", hex:"#8B008B", ru:"Тёмная маджента"}, {name:"Purple", hex:"#800080", ru:"Пурпурный"},
+        {name:"Indigo", hex:"#4B0082", ru:"Индиго"}, {name:"SlateBlue", hex:"#6A5ACD", ru:"Серо-синий"},
+        {name:"DarkSlateBlue", hex:"#483D8B", ru:"Тёмно-серо-синий"}
+      ]},
+      { header: "Коричневые тона", colors: [
+        {name:"Cornsilk", hex:"#FFF8DC", ru:"Кукурузный шёлк"}, {name:"BlanchedAlmond", hex:"#FFEBCD", ru:"Бланшированный миндаль"},
+        {name:"Bisque", hex:"#FFE4C4", ru:"Бисквитный"}, {name:"NavajoWhite", hex:"#FFDEAD", ru:"Белый навахо"},
+        {name:"Wheat", hex:"#F5DEB3", ru:"Пшеничный"}, {name:"BurlyWood", hex:"#DEB887", ru:"Тяжёлое дерево"},
+        {name:"Tan", hex:"#D2B48C", ru:"Загар"}, {name:"RosyBrown", hex:"#BC8F8F", ru:"Розовато-коричневый"},
+        {name:"SandyBrown", hex:"#F4A460", ru:"Песочно-коричневый"}, {name:"Goldenrod", hex:"#DAA520", ru:"Золотарник"},
+        {name:"DarkGoldenRod", hex:"#B8860B", ru:"Тёмный золотарник"}, {name:"Peru", hex:"#CD853F", ru:"Перу"},
+        {name:"Chocolate", hex:"#D2691E", ru:"Шоколадный"}, {name:"SaddleBrown", hex:"#8B4513", ru:"Кожаное седло"},
+        {name:"Sienna", hex:"#A0522D", ru:"Сиена"}, {name:"Brown", hex:"#A52A2A", ru:"Коричневый"},
+        {name:"Maroon", hex:"#800000", ru:"Бордовый"}
+      ]},
+      { header: "Основные цвета", colors: [
+        {name:"Black", hex:"#000000", ru:"Чёрный"}, {name:"Gray", hex:"#808080", ru:"Серый"},
+        {name:"Silver", hex:"#C0C0C0", ru:"Серебряный"}, {name:"White", hex:"#FFFFFF", ru:"Белый"},
+        {name:"Fuchsia", hex:"#FF00FF", ru:"Фуксия"}, {name:"Purple", hex:"#800080", ru:"Пурпурный"},
+        {name:"Red", hex:"#FF0000", ru:"Красный"}, {name:"Maroon", hex:"#800000", ru:"Бордовый"},
+        {name:"Yellow", hex:"#FFFF00", ru:"Жёлтый"}, {name:"Olive", hex:"#808000", ru:"Оливковый"},
+        {name:"Lime", hex:"#00FF00", ru:"Лайм"}, {name:"Green", hex:"#008000", ru:"Зелёный"},
+        {name:"Aqua", hex:"#00FFFF", ru:"Аква"}, {name:"Teal", hex:"#008080", ru:"Бирюзовый"},
+        {name:"Blue", hex:"#0000FF", ru:"Синий"}, {name:"Navy", hex:"#000080", ru:"Тёмно-синий"}
+      ]},
+      { header: "Зелёные тона", colors: [
+        {name:"GreenYellow", hex:"#ADFF2F", ru:"Зелёно-жёлтый"}, {name:"Chartreuse", hex:"#7FFF00", ru:"Шартрез"},
+        {name:"LawnGreen", hex:"#7CFC00", ru:"Газонный зелёный"}, {name:"Lime", hex:"#00FF00", ru:"Лайм"},
+        {name:"LimeGreen", hex:"#32CD32", ru:"Лаймово-зелёный"}, {name:"PaleGreen", hex:"#98FB98", ru:"Бледно-зелёный"},
+        {name:"LightGreen", hex:"#90EE90", ru:"Светло-зелёный"}, {name:"MediumSpringGreen", hex:"#00FA9A", ru:"Средний весенний"},
+        {name:"SpringGreen", hex:"#00FF7F", ru:"Весенний зелёный"}, {name:"MediumSeaGreen", hex:"#3CB371", ru:"Средний морской"},
+        {name:"SeaGreen", hex:"#2E8B57", ru:"Морской зелёный"}, {name:"ForestGreen", hex:"#228B22", ru:"Лесной зелёный"},
+        {name:"Green", hex:"#008000", ru:"Зелёный"}, {name:"DarkGreen", hex:"#006400", ru:"Тёмно-зелёный"},
+        {name:"YellowGreen", hex:"#9ACD32", ru:"Жёлто-зелёный"}, {name:"OliveDrab", hex:"#6B8E23", ru:"Оливково-бурый"},
+        {name:"Olive", hex:"#808000", ru:"Оливковый"}, {name:"DarkOliveGreen", hex:"#556B2F", ru:"Тёмный оливково-зелёный"},
+        {name:"MediumAquamarine", hex:"#66CDAA", ru:"Средний аквамарин"}, {name:"DarkSeaGreen", hex:"#8FBC8F", ru:"Тёмный морской"},
+        {name:"LightSeaGreen", hex:"#20B2AA", ru:"Светлый морской"}, {name:"DarkCyan", hex:"#008B8B", ru:"Тёмный циан"},
+        {name:"Teal", hex:"#008080", ru:"Бирюзовый"}
+      ]},
+      { header: "Синие тона", colors: [
+        {name:"Aqua", hex:"#00FFFF", ru:"Аква"}, {name:"Cyan", hex:"#00FFFF", ru:"Циан"},
+        {name:"LightCyan", hex:"#E0FFFF", ru:"Светлый циан"}, {name:"PaleTurquoise", hex:"#AFEEEE", ru:"Бледный бирюзовый"},
+        {name:"Aquamarine", hex:"#7FFFD4", ru:"Аквамарин"}, {name:"Turquoise", hex:"#40E0D0", ru:"Бирюзовый"},
+        {name:"MediumTurquoise", hex:"#48D1CC", ru:"Средний бирюзовый"}, {name:"DarkTurquoise", hex:"#00CED1", ru:"Тёмный бирюзовый"},
+        {name:"CadetBlue", hex:"#5F9EA0", ru:"Кадетский синий"}, {name:"SteelBlue", hex:"#4682B4", ru:"Стальной синий"},
+        {name:"LightSteelBlue", hex:"#B0C4DE", ru:"Светлый стальной"}, {name:"PowderBlue", hex:"#B0E0E6", ru:"Пороховой синий"},
+        {name:"LightBlue", hex:"#ADD8E6", ru:"Светло-синий"}, {name:"SkyBlue", hex:"#87CEEB", ru:"Небесный"},
+        {name:"LightSkyBlue", hex:"#87CEFA", ru:"Светло-небесный"}, {name:"DeepSkyBlue", hex:"#00BFFF", ru:"Глубокий небесный"},
+        {name:"DodgerBlue", hex:"#1E90FF", ru:"Доджер синий"}, {name:"CornflowerBlue", hex:"#6495ED", ru:"Васильковый"},
+        {name:"MediumSlateBlue", hex:"#7B68EE", ru:"Средний серо-синий"}, {name:"RoyalBlue", hex:"#4169E1", ru:"Королевский синий"},
+        {name:"Blue", hex:"#0000FF", ru:"Синий"}, {name:"MediumBlue", hex:"#0000CD", ru:"Средний синий"},
+        {name:"DarkBlue", hex:"#00008B", ru:"Тёмно-синий"}, {name:"Navy", hex:"#000080", ru:"Тёмно-синий"},
+        {name:"MidnightBlue", hex:"#191970", ru:"Полуночно-синий"}
+      ]},
+      { header: "Белые тона", colors: [
+        {name:"White", hex:"#FFFFFF", ru:"Белый"}, {name:"Snow", hex:"#FFFAFA", ru:"Снежный"},
+        {name:"Honeydew", hex:"#F0FFF0", ru:"Медовая роса"}, {name:"MintCream", hex:"#F5FFFA", ru:"Мятный крем"},
+        {name:"Azure", hex:"#F0FFFF", ru:"Лазурный"}, {name:"AliceBlue", hex:"#F0F8FF", ru:"Алиса синий"},
+        {name:"GhostWhite", hex:"#F8F8FF", ru:"Призрачно-белый"}, {name:"WhiteSmoke", hex:"#F5F5F5", ru:"Белый дым"},
+        {name:"Seashell", hex:"#FFF5EE", ru:"Морская ракушка"}, {name:"Beige", hex:"#F5F5DC", ru:"Бежевый"},
+        {name:"OldLace", hex:"#FDF5E6", ru:"Старое кружево"}, {name:"FloralWhite", hex:"#FFFAF0", ru:"Цветочно-белый"},
+        {name:"Ivory", hex:"#FFFFF0", ru:"Слоновая кость"}, {name:"AntiqueWhite", hex:"#FAEBD7", ru:"Античный белый"},
+        {name:"Linen", hex:"#FAF0E6", ru:"Льняной"}, {name:"LavenderBlush", hex:"#FFF0F5", ru:"Лавандовый румянец"},
+        {name:"MistyRose", hex:"#FFE4E1", ru:"Туманная роза"}
+      ]},
+      { header: "Серые тона", colors: [
+        {name:"Gainsboro", hex:"#DCDCDC", ru:"Гейнсборо"}, {name:"LightGrey", hex:"#D3D3D3", ru:"Светло-серый"},
+        {name:"LightGray", hex:"#D3D3D3", ru:"Светло-серый"}, {name:"Silver", hex:"#C0C0C0", ru:"Серебряный"},
+        {name:"DarkGray", hex:"#A9A9A9", ru:"Тёмно-серый"}, {name:"DarkGrey", hex:"#A9A9A9", ru:"Тёмно-серый"},
+        {name:"Gray", hex:"#808080", ru:"Серый"}, {name:"Grey", hex:"#808080", ru:"Серый"},
+        {name:"DimGray", hex:"#696969", ru:"Приглушённо-серый"}, {name:"DimGrey", hex:"#696969", ru:"Приглушённо-серый"},
+        {name:"LightSlateGray", hex:"#778899", ru:"Светлый аспидный"}, {name:"LightSlateGrey", hex:"#778899", ru:"Светлый аспидный"},
+        {name:"SlateGray", hex:"#708090", ru:"Аспидно-серый"}, {name:"SlateGrey", hex:"#708090", ru:"Аспидно-серый"},
+        {name:"DarkSlateGray", hex:"#2F4F4F", ru:"Тёмный аспидный"}, {name:"DarkSlateGrey", hex:"#2F4F4F", ru:"Тёмный аспидный"},
+        {name:"Black", hex:"#000000", ru:"Чёрный"}
+      ]}
+    ];
+
+    function init() {
+      buildPalette();
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        try {
+          appData = JSON.parse(stored);
+          document.getElementById('json-input').value = JSON.stringify(appData, null, 2);
+          renderTable();
+          showStatus('Данные загружены из LocalStorage', 'success');
+        } catch(e) { showStatus('Ошибка в сохранённых данных. Очищаю кэш.', 'error'); localStorage.removeItem(STORAGE_KEY); }
+      }
+    }
+
+    function buildPalette() {
+      const container = document.getElementById('palette-container');
+      container.innerHTML = '';
+      const table = document.createElement('table');
+      table.className = 'palette-table';
+      
+      const thead = document.createElement('thead');
+      thead.innerHTML = `<tr><th>Название</th><th>Name</th><th>HEX</th></tr>`;
+      table.appendChild(thead);
+      
+      const tbody = document.createElement('tbody');
+      PALETTE_GROUPS.forEach(group => {
+        const trHeader = document.createElement('tr');
+        trHeader.innerHTML = `<td colspan="3" class="group-header">${group.header}</td>`;
+        tbody.appendChild(trHeader);
+
+        group.colors.forEach(c => {
+          const tr = document.createElement('tr');
+          tr.style.backgroundColor = c.name;
+          tr.style.setProperty('--bg', c.name);
+          tr.onclick = () => applyColor(c.name);
+          tr.innerHTML = `<td>${c.ru}</td><td>${c.name}</td><td style="font-family:monospace; text-align:center">${c.hex}</td>`;
+          tbody.appendChild(tr);
+        });
+      });
+      table.appendChild(tbody);
+      container.appendChild(table);
+      
+      const credit = document.createElement('div');
+      credit.className = 'credit-line';
+      credit.innerHTML = 'Сделано нейросетью Qwen3.6-Plus по запросу <a href="https://slqamsk.github.io/" target="_blank">Сергея Слесарева</a> на основе страницы <a href="https://findh.org/5060-konverter-tsvetov.html" target="_blank">https://findh.org/5060-konverter-tsvetov.html</a>';
+      container.appendChild(credit);
+    }
+
+    function openModal(path) {
+      activePath = path;
+      document.getElementById('modal-overlay').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('modal-overlay').classList.remove('active');
+      activePath = null;
+    }
+
+    document.getElementById('close-modal').onclick = closeModal;
+    document.getElementById('modal-overlay').onclick = (e) => { if(e.target.id === 'modal-overlay') closeModal(); };
+
+    function setNested(obj, path, value) {
+      const keys = path.split('.');
+      let curr = obj;
+      for(let i=0; i<keys.length-1; i++) curr = curr[keys[i]];
+      curr[keys[keys.length-1]] = value;
+    }
+
+    function getColorInfo(value) {
+      if (!value) return { name: 'White', ru: 'Белый', hex: '#FFFFFF' };
+      const searchVal = value.toLowerCase();
+      for(const g of PALETTE_GROUPS) {
+        const found = g.colors.find(c => c.name.toLowerCase() === searchVal);
+        if(found) return { name: found.name, ru: found.ru, hex: found.hex };
+      }
+      return { name: value, ru: value, hex: '#FFFFFF' };
+    }
+
+    function applyColor(name) {
+      if (!activePath || !appData) return;
+      setNested(appData, activePath, name);
+      document.getElementById('json-input').value = JSON.stringify(appData, null, 2);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+      
+      const td = document.querySelector(`[data-path="${activePath}"]`);
+      if(td) {
+        const info = getColorInfo(name);
+        td.style.backgroundColor = info.name;
+        td.style.setProperty('--bg', info.name);
+        td.querySelector('.en').textContent = info.name;
+        td.querySelector('.ru').textContent = info.ru;
+      }
+      showStatus(`Цвет ${name} применён и сохранён`, 'success');
+      closeModal();
+    }
+
+    function renderTable() {
+      const tbody = document.getElementById('table-body');
+      tbody.innerHTML = '';
+      if(!appData?.ranks) return showStatus('Не найден массив "ranks"', 'error');
+
+      appData.ranks.forEach((rank, rIdx) => {
+        const cats = rank.categories || [];
+        const rankValue = rank.color || 'White';
+        const rankInfo = getColorInfo(rankValue);
+        
+        cats.forEach((cat, cIdx) => {
+          const tr = document.createElement('tr');
+          
+          if(cIdx === 0) {
+            const td = document.createElement('td');
+            td.rowSpan = cats.length;
+            td.className = 'main-td';
+            td.style.backgroundColor = rankInfo.name;
+            td.style.setProperty('--bg', rankInfo.name);
+            td.dataset.path = `ranks.${rIdx}.color`;
+            td.innerHTML = `<div class="cell"><div class="info-title">${rank.rank}. ${rank.name}</div><div class="info-colors">EN: <span class="en">${rankInfo.name}</span> | RU: <span class="ru">${rankInfo.ru}</span></div></div>`;
+            td.onclick = () => openModal(td.dataset.path);
+            tr.appendChild(td);
+          }
+
+          const catValue = cat.color || rankValue;
+          const catInfo = getColorInfo(catValue);
+          const tdCat = document.createElement('td');
+          tdCat.className = 'main-td';
+          tdCat.style.backgroundColor = catInfo.name;
+          tdCat.style.setProperty('--bg', catInfo.name);
+          tdCat.dataset.path = `ranks.${rIdx}.categories.${cIdx}.color`;
+          tdCat.innerHTML = `<div class="cell"><div class="info-title">${cat.id}. ${cat.name}</div><div class="info-colors">EN: <span class="en">${catInfo.name}</span> | RU: <span class="ru">${catInfo.ru}</span></div></div>`;
+          tdCat.onclick = () => openModal(tdCat.dataset.path);
+          tr.appendChild(tdCat);
+          tbody.appendChild(tr);
+        });
+      });
+    }
+
+    function showStatus(msg, type) {
+      const el = document.getElementById('status-box');
+      el.textContent = msg; el.className = `status ${type}`; el.style.display = 'block';
+      setTimeout(()=> el.style.display='none', 2500);
+    }
+
+    document.getElementById('apply-btn').onclick = () => {
+      try {
+        appData = JSON.parse(document.getElementById('json-input').value);
+        renderTable();
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+        showStatus('JSON применён и сохранён', 'success');
+      } catch(e) { showStatus(`Ошибка JSON: ${e.message}`, 'error'); }
+    };
+
+    init();
+  </script>
+</body>
+</html>

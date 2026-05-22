@@ -3,6 +3,72 @@ layout: default
 title: Развитие линейки курсов по тестированию
 ---
 
+
+Для презентации
+```mermaid
+graph LR
+    bkp24[Базовая компьютерная подготовка, 24 а.ч.]
+    oprog-a[<span style="white-space: nowrap;">Основы программирования</span> и баз данных, 24 а.ч.]
+    bkp2[Microsoft Excel. <br> Уровень 1, 16 а.ч.]
+    ai-base[Нейросети с нуля, 16 а.ч.]
+
+    ai-qa["Инструменты искусственного интеллекта (ИИ) для тестировщиков, 24 а.ч."]    
+    tpo[Тестирование ПО. Уровень 1, 40 а.ч.]
+
+    tpo21[Тестирование ПО. Уровень 2. Тест-дизайн, 24 а.ч.]
+    upkot[Тестирование ПО. Уровень 2. Управление командой тестирования, 16 а.ч.]
+
+    oprog-a --> tpo
+    bkp2 --> tpo
+    bkp24 --> ai-qa
+    ai-base -.->|Не обязательно| ai-qa
+
+    tpo -.->|Не обязательно| ai-qa
+
+    ai-qa -.->|Не обязательно| tpo21
+    tpo --> tpo21
+    
+    ai-qa -.->|Не обязательно| upkot
+    tpo --> upkot
+
+    classDef defaultCourse fill:#e8e2d8,stroke:#ac9c8c,stroke-width:1.5px,color:#333
+    classDef usualCourse fill:#e8f0fe,stroke:#4a90e2,stroke-width:1.5px
+    classDef newCourse fill:#ffcdd2,stroke:#d32f2f,stroke-width:2.5px,font-weight:bold
+   
+    class bkp24,oprog-a,bkp2,ai-base defaultCourse
+    class tpo,tpo21,upkot usualCourse
+    class ai-qa newCourse
+```
+
+Для презентации версия 2
+
+```mermaid
+graph LR
+       
+    tpo[Тестирование ПО. Уровень 1, 40 а.ч.]
+
+    tpo21[Тестирование ПО. Уровень 2. Тест-дизайн, 24 а.ч.]
+    upkot[Тестирование ПО. Уровень 2. Управление командой тестирования, 16 а.ч.]
+    ai-qa["Нейросети в тестировании ПО, 24 а.ч."] 
+    avtest[Автоматизированное тестирование веб-приложений с использованием Selenium, 40 а.ч.]   
+
+    tpo --> tpo21
+    tpo --> upkot
+    tpo --> ai-qa
+    tpo --> avtest
+
+    classDef defaultCourse fill:#e8e2d8,stroke:#ac9c8c,stroke-width:1.5px,color:#333
+    classDef usualCourse fill:#e8f0fe,stroke:#4a90e2,stroke-width:1.5px
+    classDef newCourse fill:#ffcdd2,stroke:#d32f2f,stroke-width:2.5px,font-weight:bold
+   
+    class bkp24,oprog-a,bkp2,ai-base defaultCourse
+    class tpo,tpo21,upkot,avtest usualCourse
+    class ai-qa newCourse
+```
+
+
+
+
 # Курсы по тестированию и обеспечению качества
 ## Легенда
 ```mermaid

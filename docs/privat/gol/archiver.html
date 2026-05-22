@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Архив расписаний</title>
+  <style>
+    :root {
+      --bg: #f4f6f8; --panel: #ffffff; --border: #cbd5e1; --text: #1e293b;
+      --muted: #64748b; --accent: #2563eb; --accent-hover: #1d4ed8;
+      --success: #10b981; --danger: #ef4444; --danger-hover: #dc2626;
+      --archive-bg: #f0fdf4; --archive-border: #bbf7d0;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; padding: 24px; background: var(--bg); color: var(--text);
+      font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; min-height: 100vh;
+    }
+    .page-name {
+      text-align: center; font-size: 14px; color: var(--muted); margin-bottom: 20px;
+      background: var(--panel); padding: 8px; border-radius: 6px; border: 1px dashed var(--border);
+      font-family: monospace; letter-spacing: 0.5px;
+    }
+    .container { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+    .panel {
+      background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
+      padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px; }
+    h2 { margin: 0; font-size: 18px; font-weight: 600; }
+    .schedule-list { display: flex; flex-direction: column; gap: 6px; max-height: 400px; overflow-y: auto; padding-right: 8px; }
+    .schedule-item {
+      display: flex; align-items: center; padding: 10px 12px; background: var(--bg);
+      border-radius: 6px; border: 1px solid var(--border); gap: 10px; cursor: pointer;
+      transition: background 0.15s;
+    }
+    .schedule-item:hover { background: #e2e8f0; }
+    .schedule-item input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent); flex-shrink: 0; cursor: pointer; }
+    .schedule-date { font-weight: 600; font-size: 14px; min-width: 100px; }
+    .schedule-count { font-size: 12px; color: var(--muted); background: #e2e8f0; padding: 2px 8px; border-radius: 4px; }
+    
+    .archive-item {
+      border-left: 4px solid var(--success); background: var(--archive-bg);
+      border-top: 1px solid var(--archive-border); border-right: 1px solid var(--archive-border);
+      border-bottom: 1px solid var(--archive-border); border-radius: 6px; margin-bottom: 8px;
+    }
+    .archive-item input[type="checkbox"] { accent-color: var(--danger); }
+    .archive-item:hover { background: #dcfce7; }
+
+    .btn {
+      padding: 9px 18px; border: none; border-radius: 6px; font-size: 14px; font-weight: 600;
+      cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px;
+    }
+    .btn-primary { background: var(--accent); color: #fff; } .btn-primary:hover { background: var(--accent-hover); }
+    .btn-danger { background: var(--danger); color: #fff; } .btn-danger:hover { background: var(--danger-hover); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .status-box { padding: 12px; border-radius: 8px; font-size: 14px; font-weight: 500; display: none; }
+    .status-box.success { background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; }
+    .status-box.error { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+    .status-box.info { background: #e0f2fe; color: #075985; border: 1px solid #7dd3fc; }
+
+    .empty-state { text-align: center; padding: 30px; color: var(--muted); font-size: 14px; border: 2px dashed var(--border); border-radius: 8px; }
+    
+    .stats-row { display: flex; gap: 16px; flex-wrap: wrap; }
+    .stat-item { background: var(--bg); padding: 8px 12px; border-radius: 6px; font-size: 12px; color: var(--muted); }
+    .stat-item span { font-weight: 700; color: var(--text); font-size: 16px; display: block; margin-top: 2px; }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="page-name">archiver.html</div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <h2>📅 Расписания для архивации</h2>
+        <div class="stats-row">
+          <div class="stat-item">Всего дней<span id="total-days">0</span></div>
+          <div class="stat-item">Выбрано<span id="selected-count">0</span></div>
+        </div>
+      </div>
+      <div id="schedules-list" class="schedule-list"></div>
+      <div style="margin-top: 12px;">
+        <button class="btn btn-primary" id="btn-archive" onclick="addToArchive()">📦 Добавить избранные в архив</button>
+        <span id="archive-status" class="status-box" style="margin-top: 10px;"></span>
+      </div>
+    </div>
+
+    <div class="panel" id="archives-panel" style="display:none;">
+      <div class="panel-header">
+        <h2>🗂 Добавлено в архив</h2>
+        <button class="btn btn-danger" id="btn-delete-archived" onclick="deleteArchivedSchedules()">🗑 Удалить отмеченные расписания</button>
+      </div>
+      <div id="archived-list" class="schedule-list"></div>
+      <div id="delete-status" class="status-box" style="margin-top: 10px;"></div>
+    </div>
+
+    <div class="panel" id="archives-history-panel" style="display:none;">
+      <div class="panel-header"><h2>📚 История архивов</h2></div>
+      <div id="archives-history-list" class="schedule-list"></div>
+    </div>
+  </div>
+
+  <script>
+    let schedulesData = null;
+    let categoriesData = null;
+    let archivedDates = [];
+    let lastArchivedDates = [];
+
+    function init() {
+      loadSchedules();
+      if(!schedulesData) {
+        document.getElementById('schedules-list').innerHTML = '<div class="empty-state">Не найдены расписания в localStorage (ключ "schedules")</div>';
+        return;
+      }
+      loadCategories();
+      loadArchives();
+      renderSchedulesList();
+      renderArchivesHistory();
+    }
+
+    function loadSchedules() {
+      try {
+        const raw = localStorage.getItem('schedules');
+        if(!raw) return;
+        schedulesData = JSON.parse(raw);
+      } catch(e) {
+        console.error('Ошибка загрузки schedules:', e);
+        schedulesData = null;
+      }
+    }
+
+    function loadCategories() {
+      try {
+        const raw = localStorage.getItem('time-tracker-categories');
+        if(raw) categoriesData = JSON.parse(raw);
+      } catch(e) {
+        console.error('Ошибка загрузки time-tracker-categories:', e);
+      }
+    }
+
+    function loadArchives() {
+      try {
+        const raw = localStorage.getItem('schedule_archives');
+        if(raw) return JSON.parse(raw);
+      } catch(e) {
+        console.error('Ошибка загрузки schedule_archives:', e);
+      }
+      return [];
+    }
+
+    function renderSchedulesList() {
+      const container = document.getElementById('schedules-list');
+      container.innerHTML = '';
+      if(!schedulesData || !schedulesData.schedules) {
+        container.innerHTML = '<div class="empty-state">Расписания отсутствуют или имеют неверный формат</div>';
+        document.getElementById('total-days').textContent = '0';
+        return;
+      }
+
+      const dates = Object.keys(schedulesData.schedules).sort();
+      document.getElementById('total-days').textContent = dates.length;
+
+      if(dates.length === 0) {
+        container.innerHTML = '<div class="empty-state">Нет дней в расписании</div>';
+        return;
+      }
+
+      dates.forEach(date => {
+        const dayData = schedulesData.schedules[date];
+        const acts = Array.isArray(dayData) ? dayData : (dayData.activities || []);
+        
+        const item = document.createElement('div');
+        item.className = 'schedule-item';
+        item.innerHTML = `
+          <input type="checkbox" data-date="${date}" onchange="updateSelectedCount()">
+          <span class="schedule-date">${date}</span>
+          <span class="schedule-count">${acts.length} активн.</span>
+        `;
+        item.addEventListener('click', (e) => {
+          if(e.target.tagName !== 'INPUT') {
+            const cb = item.querySelector('input[type="checkbox"]');
+            cb.checked = !cb.checked;
+            updateSelectedCount();
+          }
+        });
+        container.appendChild(item);
+      });
+
+      updateSelectedCount();
+    }
+
+    function updateSelectedCount() {
+      const checked = document.querySelectorAll('#schedules-list input[type="checkbox"]:checked');
+      document.getElementById('selected-count').textContent = checked.length;
+      document.getElementById('btn-archive').disabled = checked.length === 0;
+    }
+
+    function addToArchive() {
+      const checkboxes = document.querySelectorAll('#schedules-list input[type="checkbox"]:checked');
+      if(checkboxes.length === 0) return;
+
+      const selectedDates = Array.from(checkboxes).map(cb => cb.dataset.date);
+      const archiveEntry = {
+        archive_id: Date.now(),
+        current_datetime: schedulesData.current_datetime || new Date().toISOString(),
+        fiels_descriptions: schedulesData.fiels_descriptions || {},
+        time_tracker_categories: categoriesData || null,
+        schedules: {},
+        created_at: new Date().toISOString()
+      };
+
+      selectedDates.forEach(date => {
+        archiveEntry.schedules[date] = schedulesData.schedules[date];
+      });
+
+      let archives = loadArchives() || [];
+      archives.push(archiveEntry);
+      
+      try {
+        localStorage.setItem('schedule_archives', JSON.stringify(archives));
+        lastArchivedDates = selectedDates;
+        archivedDates = [...archivedDates, ...selectedDates];
+        
+        showStatus('archive-status', `✅ Успешно добавлено в архив: ${selectedDates.length} расписаний. ID архива: ${archiveEntry.archive_id}`, 'success');
+        
+        renderArchivedList(selectedDates);
+        document.getElementById('archives-panel').style.display = 'block';
+        renderArchivesHistory();
+        
+        // Reset checkboxes
+        checkboxes.forEach(cb => cb.checked = false);
+        updateSelectedCount();
+      } catch(e) {
+        showStatus('archive-status', `❌ Ошибка сохранения архива: ${e.message}`, 'error');
+      }
+    }
+
+    function renderArchivedList(dates) {
+      const container = document.getElementById('archived-list');
+      container.innerHTML = '';
+
+      dates.forEach(date => {
+        const item = document.createElement('div');
+        item.className = 'schedule-item archive-item';
+        item.innerHTML = `
+          <input type="checkbox" data-archive-date="${date}">
+          <span class="schedule-date">${date}</span>
+          <span class="schedule-count">в архиве</span>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    function deleteArchivedSchedules() {
+      const checkboxes = document.querySelectorAll('#archived-list input[type="checkbox"]:checked');
+      if(checkboxes.length === 0) {
+        showStatus('delete-status', '⚠️ Выберите расписания для удаления', 'info');
+        return;
+      }
+
+      const datesToDelete = Array.from(checkboxes).map(cb => cb.dataset.archiveDate);
+      
+      if(!confirm(`Удалить ${datesToDelete.length} расписаний из основного хранилища?`)) return;
+
+      try {
+        datesToDelete.forEach(date => {
+          delete schedulesData.schedules[date];
+        });
+        
+        localStorage.setItem('schedules', JSON.stringify(schedulesData));
+        
+        // Remove deleted items from archived list
+        checkboxes.forEach(cb => cb.closest('.schedule-item').remove());
+        
+        showStatus('delete-status', `✅ Удалено расписаний: ${datesToDelete.length}`, 'success');
+        
+        // Refresh main list
+        renderSchedulesList();
+      } catch(e) {
+        showStatus('delete-status', `❌ Ошибка удаления: ${e.message}`, 'error');
+      }
+    }
+
+    function renderArchivesHistory() {
+      const archives = loadArchives() || [];
+      if(archives.length === 0) return;
+
+      document.getElementById('archives-history-panel').style.display = 'block';
+      const container = document.getElementById('archives-history-list');
+      container.innerHTML = '';
+
+      archives.slice().reverse().forEach(archive => {
+        const dates = Object.keys(archive.schedules || {});
+        const item = document.createElement('div');
+        item.className = 'schedule-item';
+        item.style.background = '#f8fafc';
+        
+        const createdDate = archive.created_at ? new Date(archive.created_at).toLocaleString('ru-RU') : 'неизвестно';
+        
+        item.innerHTML = `
+          <span class="schedule-date" style="font-size: 12px; color: var(--muted);">ID: ${archive.archive_id}</span>
+          <span style="font-weight: 600; font-size: 14px;">📦 ${createdDate}</span>
+          <span class="schedule-count">${dates.length} расписаний</span>
+          <span style="font-size: 11px; color: var(--muted); margin-left: auto;">${dates.join(', ') || 'пусто'}</span>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    function showStatus(elementId, message, type) {
+      const el = document.getElementById(elementId);
+      el.textContent = message;
+      el.className = `status-box ${type}`;
+      el.style.display = 'block';
+      setTimeout(() => { el.style.display = 'none'; }, 5000);
+    }
+
+    window.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
+

@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Tracker v6</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter/400.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter/600.css">
+<style>
+  :root {
+    --bg: #f8fafc; --surface: #ffffff; --border: #e2e8f0; --text: #0f172a;
+    --text-muted: #64748b; --axis: #94a3b8; --accent: #3b82f6;
+    --success: #10b981; --danger: #ef4444; --in-progress: #f59e0b;
+    --px-per-hour: 60; --label-width: 60px; --blocks-start: 80px;
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; padding:0; background:var(--bg); color:var(--text); font-family:'Inter',sans-serif; min-height:100vh; display:flex; flex-direction:column; }
+
+  header {
+    padding:12px 24px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;
+    border-bottom:1px solid var(--border); background:var(--surface); position:sticky; top:0; z-index:1000;
+    box-shadow:0 2px 8px rgba(0,0,0,0.04); flex-shrink:0;
+  }
+  .brand { display:flex; align-items:center; gap:10px; }
+  #date-nav { display:flex; align-items:center; gap:8px; }
+  #date-input { padding:6px; border:1px solid var(--border); border-radius:4px; font-family:inherit; font-size:14px; cursor:pointer; }
+  
+  .stats { display:flex; gap:14px; align-items:center; flex-wrap:wrap; }
+  .stat-box { text-align:center; }
+  .stat-box label { display:block; font-size:10px; color:var(--text-muted); margin-bottom:2px; text-transform:uppercase; letter-spacing:0.5px; white-space:nowrap; }
+  .stat-box .value { font-size:16px; font-weight:700; font-variant-numeric:tabular-nums; font-family:monospace; }
+  .balance.positive { color:var(--success); } .balance.negative { color:var(--danger); } .time-passed { color:var(--accent); }
+
+  .actions { display:flex; gap:10px; align-items:center; }
+  .btn {
+    padding:7px 14px; border:1px solid var(--border); border-radius:6px; font-size:13px; font-weight:600;
+    cursor:pointer; transition:all 0.2s; background:var(--bg); color:var(--text);
+  }
+  .btn:hover { background:var(--border); }
+  .btn-primary { background:var(--accent); color:#fff; border:none; } .btn-primary:hover { background:#2563eb; }
+  .btn-ghost { background:transparent; color:var(--text-muted); border-color:transparent; } .btn-ghost:hover { background:var(--bg); color:var(--text); }
+
+  .dropdown { position:relative; display:inline-block; }
+  .dropdown-menu { 
+    display:none; position:absolute; right:0; top:100%; margin-top:6px;
+    background:var(--surface); border:1px solid var(--border); border-radius:8px;
+    box-shadow:0 8px 24px rgba(0,0,0,0.12); min-width:240px; z-index:200; overflow:hidden;
+  }
+  .dropdown-menu.active { display:block; }
+  .dropdown-menu button {
+    display:block; width:100%; padding:10px 14px; text-align:left; background:none; 
+    border:none; border-bottom:1px solid var(--border); cursor:pointer; font-size:13px; color:var(--text);
+  }
+  .dropdown-menu button:last-child { border-bottom:none; }
+  .dropdown-menu button:hover { background:var(--bg); color:var(--accent); }
+
+  #app-content { flex:1; padding:24px 32px 40px; display:flex; flex-direction:column; gap:20px; }
+
+  #timeline-wrapper {
+    position:relative; width:100%; min-width:500px; margin:0 auto; background:var(--surface);
+    border:1px solid var(--border); border-radius:10px; box-shadow:0 1px 4px rgba(0,0,0,0.03); overflow:visible; z-index:1;
+  }
+  .axis-line { position:absolute; left:var(--label-width); top:0; bottom:0; width:2px; background:var(--axis); z-index:5; }
+  .tick { position:absolute; left:var(--label-width); height:1px; background:var(--border); transform:translateY(-50%); }
+  .tick.major { width:8px; background:var(--text-muted); } .tick.minor { width:4px; opacity:0.4; }
+  .time-label { position:absolute; left:0; width:var(--label-width); padding-right:8px; text-align:right; font-size:12px; font-weight:600; color:var(--text-muted); transform:translateY(-50%); }
+
+  .current-time-line { position:absolute; left:var(--label-width); right:0; height:2px; background:var(--accent); z-index:60; pointer-events:none; box-shadow:0 0 6px rgba(59,130,246,0.4); transition:top 0.5s linear; }
+  .current-time-marker { position:absolute; left:-10px; top:-8px; width:0; height:0; border-top:8px solid transparent; border-bottom:8px solid transparent; border-left:10px solid var(--accent); }
+  .current-time-badge { position:absolute; left:-50px; top:-16px; background:var(--accent); color:#fff; font-size:11px; font-weight:700; padding:2px 6px; border-radius:4px; white-space:nowrap; }
+
+  #blocks-container { position:absolute; left:var(--blocks-start); top:0; right:20px; bottom:0; z-index:10; }
+  .block {
+    position:absolute; left:0; min-height:4px; border-radius:6px; cursor:grab; user-select:none;
+    transition:transform 0.15s, box-shadow 0.15s, opacity 0.2s; display:flex; flex-direction:column;
+    justify-content:center; overflow:hidden; border:1px solid rgba(0,0,0,0.05);
+    box-shadow:0 1px 3px rgba(0,0,0,0.08); max-width:850px;
+  }
+  .block.dragging { cursor:grabbing; opacity:0.85; transform:scale(1.01); z-index:100 !important; box-shadow:0 8px 20px rgba(0,0,0,0.25); border:2px solid var(--text); }
+  .block:hover { transform:translateY(-1px); box-shadow:0 4px 12px rgba(0,0,0,0.15); }
+  .block.status-done { opacity:0.6; filter:grayscale(0.4); }
+  .block.status-in_progress { border: 2px dashed var(--in-progress); }
+  .block.status-done::after { content:'✓'; position:absolute; right:10px; top:50%; transform:translateY(-50%); background:rgba(255,255,255,0.3); font-size:14px; font-weight:bold; width:20px; height:20px; display:flex; align-items:center; justify-content:center; border-radius:50%; box-shadow:0 1px 4px rgba(0,0,0,0.2); }
+  
+  .block-content { padding:4px 10px; display:flex; align-items:center; white-space:nowrap; overflow:hidden; font-size:13px; font-weight:600; }
+  .block-time { opacity:0.95; margin-right:6px; }
+  .block-delta { opacity:0.9; margin-right:6px; background:rgba(0,0,0,0.15); padding:1px 5px; border-radius:3px; font-size:11px; }
+  .block-rank-tag { opacity:0.8; margin-right:6px; font-size:10px; background:rgba(0,0,0,0.1); padding:1px 5px; border-radius:3px; }
+  .block-name { opacity:0.95; flex:1; text-overflow:ellipsis; overflow:hidden; }
+  .block-comment { opacity:0.85; font-size:11px; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+  .legend-scroll { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:12px; box-shadow:0 1px 3px rgba(0,0,0,0.02); max-width:900px; margin:0 auto; width:100%; }
+  .legend-rank { margin-bottom:8px; } .legend-rank:last-child { margin-bottom:0; }
+  .legend-rank-title { font-size:12px; font-weight:700; margin-bottom:4px; display:flex; align-items:center; gap:6px; }
+  .legend-rank-title .dot { width:12px; height:12px; border-radius:3px; border:1px solid rgba(0,0,0,0.2); }
+  .legend-subcats { display:flex; gap:12px; padding-left:18px; flex-wrap:wrap; }
+  .legend-sub { display:flex; align-items:center; gap:5px; font-size:11px; color:var(--text-muted); }
+  .legend-sub .dot { width:8px; height:8px; border-radius:50%; }
+
+  .bottom-panels { max-width:900px; width:100%; margin:0 auto; display:flex; flex-direction:column; gap:16px; }
+  .panel { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:16px; box-shadow:0 1px 3px rgba(0,0,0,0.02); }
+  .panel-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+  .panel-header h3 { margin:0; font-size:15px; font-weight:600; }
+  textarea.editor { width:100%; height:250px; background:var(--bg); border:1px solid var(--border); color:var(--text); font-family:'Menlo',monospace; font-size:12px; padding:10px; border-radius:6px; resize:vertical; }
+  textarea.editor:focus { outline:none; border-color:var(--accent); }
+  .panel-actions { margin-top:10px; display:flex; justify-content:flex-end; gap:8px; }
+
+  .instructions { background:var(--bg); border:1px dashed var(--border); border-radius:10px; padding:14px; max-width:900px; width:100%; margin:0 auto; font-size:13px; color:var(--text-muted); line-height:1.5; }
+  .instructions h4 { margin:0 0 8px; color:var(--text); font-size:14px; }
+  .instructions ul { margin:0; padding-left:20px; } .instructions li { margin-bottom:3px; }
+
+  #modal-overlay, #template-overlay, #templates-list-overlay, #validation-overlay, #overlap-overlay, #overlaps-list-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.2); display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition:opacity 0.2s; z-index:2000; }
+  #modal-overlay.active, #template-overlay.active, #templates-list-overlay.active, #validation-overlay.active, #overlap-overlay.active, #overlaps-list-overlay.active { opacity:1; pointer-events:all; }
+  .modal { background:var(--surface); border:1px solid var(--border); width:480px; padding:22px; border-radius:12px; box-shadow:0 12px 32px rgba(0,0,0,0.15); position:relative; max-height:90vh; overflow-y:auto; }
+  .modal h2 { margin:0 0 16px; font-size:18px; }
+  .form-group { margin-bottom:14px; }
+  .form-group label { display:block; margin-bottom:4px; font-size:12px; color:var(--text-muted); }
+  .form-group input, .form-group select, .form-group textarea { width:100%; padding:8px 12px; background:var(--bg); border:1px solid var(--border); color:var(--text); border-radius:6px; font-size:14px; font-family:inherit; }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline:none; border-color:var(--accent); }
+  .form-row { display:flex; gap:10px; }
+  .form-actions { display:flex; justify-content:space-between; margin-top:20px; flex-wrap:wrap; gap:8px; }
+  .btn-danger { color:var(--danger); background:transparent; border:1px solid transparent; } .btn-danger:hover { background:#fef2f2; border-color:#fecaca; }
+  
+  .status-group { display:flex; gap:12px; margin-top:4px; }
+  .status-option { display:flex; align-items:center; gap:4px; cursor:pointer; font-size:13px; }
+  .status-option input { margin:0; accent-color: var(--accent); }
+  
+  .action-btns { display:flex; gap:6px; margin-top:4px; }
+  .rank-select-group { display:flex; gap:10px; } .rank-select-group > div { flex:1; }
+
+  .modal-actions { display:flex; flex-direction:column; gap:8px; margin-top:16px; }
+  .tpl-item { display:flex; justify-content:space-between; align-items:center; padding:10px; border:1px solid var(--border); border-radius:6px; margin-bottom:8px; background:var(--bg); gap:12px; }
+  .tpl-item.active { border-color:var(--success); background:#f0fdf4; }
+  .tpl-name { font-weight:600; }
+  .ov-btn { padding: 10px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600; border: 1px solid var(--border); background: var(--surface); color: var(--text); margin-bottom: 8px; }
+  .ov-btn:hover { background: var(--bg); border-color: var(--accent); }
+  #shift-controls { display:none; margin-top:10px; padding:10px; background:var(--bg); border-radius:6px; border:1px solid var(--border); }
+  #shift-controls label { font-size:12px; margin-bottom:4px; display:block; }
+  input[type="range"] { width:100%; margin:8px 0; }
+
+  .toast { position:fixed; bottom:20px; right:20px; background:var(--text); color:#fff; padding:10px 16px; border-radius:6px; font-size:13px; font-weight:500; opacity:0; transform:translateY(10px); transition:all 0.3s; z-index:3000; box-shadow:0 4px 12px rgba(0,0,0,0.2); }
+  .toast.show { opacity:1; transform:translateY(0); }
+
+  #config-error { display:none; position:fixed; inset:0; background:#f8fafc; z-index:9999; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:40px; }
+  #config-error h1 { font-size:20px; max-width:600px; line-height:1.5; }
+  #config-error code { background:#e2e8f0; padding:2px 6px; border-radius:4px; }
+</style>
+</head>
+<body>
+
+<div id="config-error">
+  <h1>Ошибка конфигурации<br><br>Необходимо загрузить конфигурацию рангов и категорий в localStorage под ключом <code>time-tracker-categories</code>.<br>Сделайте это на другой странице или проверьте корректность данных.</h1>
+</div>
+
+<header id="app-header">
+  <div id="date-nav">
+    <input type="date" id="date-input" onchange="navigateToDate(this.value)">
+  </div>
+  <div class="stats">
+    <div class="stat-box"><label>План баланс</label><div class="value balance" id="stat-planned-bal">0</div></div>
+    <div class="stat-box"><label>Факт баланс</label><div class="value balance" id="stat-actual-bal">0</div></div>
+    <div class="stat-box"><label>Всего в плане</label><div class="value" id="stat-total-h">00:00</div></div>
+    <div class="stat-box"><label>Сделано</label><div class="value positive" id="stat-done-h">00:00</div></div>
+    <div class="stat-box"><label>Не сделано</label><div class="value negative" id="stat-undone-h">00:00</div></div>
+    <div class="stat-box"><label>Осталось</label><div class="value time-passed" id="stat-remain-h">00:00</div></div>
+    <div class="stat-box" id="stat-diff-box" style="display:none"><label id="stat-diff-label"></label><div class="value" id="stat-diff-val"></div></div>
+  </div>
+  <div class="actions">
+    <div class="dropdown">
+      <button class="btn btn-ghost" onclick="toggleDropdown(event)">Расписания</button>
+      <div id="schedule-dropdown" class="dropdown-menu">
+        <button onclick="checkOverlaps('all'); closeDropdown()">Проверить пересечения</button>
+        <button onclick="checkOverlaps('pending'); closeDropdown()">Проверить отложенные</button>
+        <button onclick="openOverlapsModal(); closeDropdown()">Посмотреть пересечения</button>
+        <button onclick="deleteDay(); closeDropdown()">Удалить день</button>
+        <button onclick="loadDefault(); closeDropdown()">Загрузить дефолтное</button>
+        <button onclick="openTemplateModal('save'); closeDropdown()">Сохранить как шаблон</button>
+        <button onclick="openTemplateModal('load'); closeDropdown()">Загрузить из шаблона</button>
+        <button onclick="openTemplatesListModal(); closeDropdown()">Шаблоны</button>
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="openModal()">+ Добавить</button>
+  </div>
+</header>
+
+<div id="app-content">
+  <div id="timeline-wrapper">
+    <div class="axis-line"></div>
+    <div id="ticks-container"></div>
+    <div id="labels-container"></div>
+    <div id="current-time-line" class="current-time-line">
+      <div class="current-time-marker"></div>
+      <div class="current-time-badge" id="current-time-badge">00:00</div>
+    </div>
+    <div id="blocks-container"></div>
+  </div>
+
+  <div class="legend-scroll" id="legend"></div>
+
+  <div class="bottom-panels">
+    <div class="panel">
+      <div class="panel-header"><h3>Расписания (JSON)</h3></div>
+      <textarea class="editor" id="json-editor" spellcheck="false"></textarea>
+      <div class="panel-actions">
+        <span style="font-size:12px; color:var(--text-muted); align-self:center; margin-right:auto;">Объект расписаний. Измените и нажмите Применить.</span>
+        <button class="btn btn-primary" onclick="applySchedulesJson()">Применить</button>
+      </div>
+    </div>
+
+    <div class="instructions">
+      <h4>Инструкция</h4>
+      <ul>
+        <li><strong>Мульти-день:</strong> Данные сохраняются для каждой даты отдельно. Используйте календарь для переключения.</li>
+        <li><strong>Перетаскивание:</strong> Зажмите блок и перемещайте вверх/вниз для смены времени. Шаг 5 мин. Дельта/перерывы сохраняются. Клик открывает редактирование.</li>
+        <li><strong>Пересечения:</strong> Система автоматически выявляет наложения времени и предлагает варианты решения.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div id="modal-overlay">
+  <div class="modal">
+    <h2 id="modal-title">Новое дело</h2>
+    <div class="form-row">
+      <div class="form-group" style="flex:2"><label>Ранг</label><select id="inp-rank" onchange="onCategoryChange()"></select></div>
+      <div class="form-group" style="flex:2"><label>Категория</label><select id="inp-category" onchange="updateActivityOptions()"></select></div>
+    </div>
+    <div class="form-group">
+      <label>Активность</label>
+      <select id="inp-action"></select>
+    </div>
+    <div class="form-group">
+      <label>Комментарий</label>
+      <input type="text" id="inp-comment" placeholder="Необязательно">
+    </div>
+    <div class="form-group">
+      <label>Статус</label>
+      <div class="status-group">
+        <label class="status-option"><input type="radio" name="status" value="planned"> Запланировано</label>
+        <label class="status-option"><input type="radio" name="status" value="in_progress"> Выполняется</label>
+        <label class="status-option"><input type="radio" name="status" value="done"> Сделано</label>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group" style="flex:1">
+        <label>Дельта (мин)</label>
+        <input type="number" id="inp-delta" step="5" min="0" max="1440" value="0">
+      </div>
+      <div class="form-group" style="flex:1">
+        <label>Время выполнения (мин)</label>
+        <input type="number" id="inp-active" step="5" min="0" max="1440" value="0">
+      </div>
+      <div class="form-group" style="flex:1">
+        <label>Перерывы (мин)</label>
+        <input type="number" id="inp-breaks" step="5" min="0" max="1440" value="0">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group" style="flex:1">
+        <label>Начало</label>
+        <div class="action-btns"><input type="time" id="inp-start" style="flex:1"><button class="btn btn-primary" onclick="btnStart()" style="padding:0 10px; font-size:12px;">Начать</button></div>
+      </div>
+      <div class="form-group" style="flex:1">
+        <label>Конец</label>
+        <div class="action-btns"><input type="time" id="inp-end" style="flex:1"><button class="btn btn-primary" onclick="btnDone()" style="padding:0 10px; font-size:12px;">Сделано</button></div>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-danger" id="btn-delete" style="display:none" onclick="deleteCurrent()">Удалить</button>
+      <button class="btn btn-ghost" onclick="closeModal()">Отмена</button>
+      <button class="btn btn-primary" onclick="saveActivity()">Сохранить</button>
+    </div>
+    <button class="btn btn-ghost" id="btn-add-next" style="display:none; width:100%; margin-top:10px;" onclick="addNextTask()">+ Добавить следующую</button>
+  </div>
+</div>
+
+<div id="overlap-overlay">
+  <div class="modal">
+    <h2>Пересечение времени</h2>
+    <p id="ov-desc" style="margin-bottom:16px;"></p>
+    <div id="ov-options"></div>
+    <div id="shift-controls">
+      <label>Установить новое окончание первой активности</label>
+      <input type="range" id="ov-slider" min="0" max="1440" step="1">
+      <div style="text-align:center; font-weight:600; font-family:monospace;" id="ov-slider-val">00:00</div>
+      <button class="btn btn-primary" onclick="applyShift()" style="width:100%; margin-top:8px;">Применить и убрать пересечение</button>
+    </div>
+    <button class="btn btn-ghost" onclick="skipOverlap()" style="width:100%; margin-top:8px;">Пропустить сейчас</button>
+  </div>
+</div>
+
+<div id="overlaps-list-overlay">
+  <div class="modal" style="width: 520px;">
+    <h2>Пересечения за <span id="ov-date-title"></span></h2>
+    <div id="ov-list-container" style="max-height:400px; overflow-y:auto; margin-bottom:16px;"></div>
+    <div class="form-actions">
+      <button class="btn btn-ghost" onclick="closeOverlapsModal()">Закрыть</button>
+    </div>
+  </div>
+</div>
+
+<div id="template-overlay">
+  <div class="modal">
+    <h2 id="template-modal-title">Шаблоны</h2>
+    <div class="form-group">
+      <label>Выберите шаблон</label>
+      <select id="template-select" onchange="onTemplateSelectChange()"></select>
+    </div>
+    <div class="form-group" id="new-template-name-group" style="display:none">
+      <label>Имя нового шаблона</label>
+      <input type="text" id="new-template-name" placeholder="Например: Продуктивный день">
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-ghost" onclick="closeTemplateModal()">Отмена</button>
+      <button class="btn btn-primary" id="template-action-btn" onclick="executeTemplateAction()">Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<div id="templates-list-overlay">
+  <div class="modal">
+    <h2>Управление шаблонами</h2>
+    <div id="templates-list-container" style="max-height:300px; overflow-y:auto; margin-bottom:16px;"></div>
+    <div class="form-group">
+      <label>Назначить по умолчанию</label>
+      <select id="default-tpl-select"></select>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-ghost" onclick="closeTemplatesListModal()">Отмена</button>
+      <button class="btn btn-primary" onclick="setDefaultTemplate()">Применить</button>
+    </div>
+  </div>
+</div>
+
+<div id="validation-overlay">
+  <div class="modal">
+    <h2 id="val-title">Рассогласование</h2>
+    <p id="val-msg"></p>
+    <div class="modal-actions">
+      <button class="btn btn-primary" id="v-btn-1"></button>
+      <button class="btn btn-primary" id="v-btn-2"></button>
+      <button class="btn btn-primary" id="v-btn-3"></button>
+      <button class="btn btn-ghost" onclick="closeValModal()">Вернуться к редактированию</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const STATE = {
+  selectedDate: '',
+  schedules: {},
+  settings: null,
+  templates: {},
+  defaultTemplate: '',
+  editingId: null,
+  currentDraft: {},
+  contrastCache: new Map(),
+  overlapQueue: [],
+  currentOverlap: null
+};
+
+const PX_PER_HOUR = 60;
+const TOTAL_HEIGHT = PX_PER_HOUR * 24;
+
+const SCHEDULES_FIELDS_DESC = {
+  "current_datetime": "Текущая дата-время при последнем сохранении",
+  "schedules": "Объект расписаний по дням",
+  "schedules.<date>.activities": "Массив активностей для конкретного дня",
+  "schedules.<date>.overlaps": "Массив пересечений",
+  "schedules.<date>.activities[].id": "Уникальный ID активности",
+  "schedules.<date>.activities[].start": "Время начала HH:MM",
+  "schedules.<date>.activities[].end": "Время окончания HH:MM",
+  "schedules.<date>.activities[].delta": "Дельта в минутах",
+  "schedules.<date>.activities[].active": "Время работы в мин",
+  "schedules.<date>.activities[].breaks": "Перерывы в мин",
+  "schedules.<date>.activities[].status": "planned | in_progress | done",
+  "schedules.<date>.overlaps[].type": "pending | parallel | interrupt",
+  "schedules.<date>.overlaps[].id1": "ID первой активности",
+  "schedules.<date>.overlaps[].id2": "ID второй активности"
+};
+
+const TEMPLATES_FIELDS_DESC = {
+  "default_template": "Имя шаблона, назначенного по умолчанию",
+  "fiels_descriptions": "Описание полей",
+  "schedule_templates": "Объект шаблонов расписаний",
+  "schedule_templates.<name>.activities": "Массив активностей шаблона",
+  "schedule_templates.<name>.overlaps": "Массив пересечений шаблона"
+};
+
+function getContrastColor(color) {
+  if(STATE.contrastCache.has(color)) return STATE.contrastCache.get(color);
+  const c = document.createElement('canvas');
+  c.width = 1; c.height = 1;
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = color;
+  ctx.fillRect(0,0,1,1);
+  const [r,g,b] = ctx.getImageData(0,0,1,1).data;
+  const lum = (0.299*r + 0.587*g + 0.114*b) > 128;
+  const res = lum ? '#0f172a' : '#ffffff';
+  STATE.contrastCache.set(color, res);
+  return res;
+}
+
+function normalizeDay(data) {
+  if(!data || typeof data !== 'object') return { activities: [], overlaps: [] };
+  if(Array.isArray(data)) return { activities: data, overlaps: [] };
+  return { activities: data.activities || [], overlaps: data.overlaps || [] };
+}
+
+function loadState() {
+  try {
+    const rawSchedules = localStorage.getItem('schedules');
+    if(rawSchedules) {
+      const parsed = JSON.parse(rawSchedules);
+      STATE.schedules = {};
+      if(parsed.schedules && typeof parsed.schedules === 'object') {
+        for(const [date, val] of Object.entries(parsed.schedules)) {
+          STATE.schedules[date] = normalizeDay(val);
+        }
+      }
+    }
+  } catch(e) { STATE.schedules = {}; }
+
+  try {
+    const rawSets = localStorage.getItem('time-tracker-categories');
+    if (!rawSets) { STATE.settings = null; return; }
+    STATE.settings = JSON.parse(rawSets);
+    if (!STATE.settings.ranks || !Array.isArray(STATE.settings.ranks)) throw new Error('Invalid structure');
+  } catch(e) { STATE.settings = null; }
+
+  try {
+    const rawTpls = localStorage.getItem('schedule_templates');
+    if(rawTpls) {
+      const obj = JSON.parse(rawTpls);
+      STATE.templates = {};
+      if(obj.schedule_templates && typeof obj.schedule_templates === 'object') {
+        for(const [name, val] of Object.entries(obj.schedule_templates)) {
+          STATE.templates[name] = normalizeDay(val);
+        }
+      }
+      STATE.defaultTemplate = obj.default_template || '';
+    }
+  } catch(e) {}
+
+  if(Object.keys(STATE.templates).length > 0 && !STATE.defaultTemplate) {
+    STATE.defaultTemplate = Object.keys(STATE.templates)[0];
+    saveTemplates();
+  }
+}
+
+function saveState() {
+  const now = new Date();
+  const cleanSchedules = {};
+  for(const [date, val] of Object.entries(STATE.schedules)) {
+    cleanSchedules[date] = {
+      activities: val.activities.map(a => { const {_col, ...rest} = a; return rest; }),
+      overlaps: val.overlaps || []
+    };
+  }
+  const outputObj = {
+    current_datetime: `${getTodayStr()} ${minutesToTimeStr(now.getHours()*60+now.getMinutes())}`,
+    fiels_descriptions: SCHEDULES_FIELDS_DESC,
+    schedules: cleanSchedules
+  };
+  localStorage.setItem('schedules', JSON.stringify(outputObj));
+}
+
+function saveTemplates() { 
+  const cleanTemplates = {};
+  for(const [name, val] of Object.entries(STATE.templates)) {
+    cleanTemplates[name] = {
+      activities: val.activities.map(a => { const {_col, ...rest} = a; return rest; }),
+      overlaps: val.overlaps || []
+    };
+  }
+  const obj = {
+    default_template: STATE.defaultTemplate,
+    fiels_descriptions: TEMPLATES_FIELDS_DESC,
+    schedule_templates: cleanTemplates
+  };
+  localStorage.setItem('schedule_templates', JSON.stringify(obj)); 
+}
+
+function getTodayStr() {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+}
+
+function minutesToTimeStr(min) {
+  min = ((min % 1440) + 1440) % 1440;
+  return `${String(Math.floor(min / 60)).padStart(2, '0')}:${String(min % 60).padStart(2, '0')}`;
+}
+function timeStrToMinutes(t) { if(!t)return 0; const [h,m]=t.split(':').map(Number); return h*60+m; }
+function formatDuration(min) { const t=Math.max(0,Math.round(min)); return `${String(Math.floor(t/60)).padStart(2,'0')}:${String(t%60).padStart(2,'0')}`; }
+function formatBalance(num) { return num > 0 ? `+${Math.round(num).toLocaleString('ru-RU')}` : Math.round(num).toLocaleString('ru-RU'); }
+function getNextIdForDay(date) {
+  const dayData = STATE.schedules[date]?.activities || [];
+  return dayData.length ? Math.max(...dayData.map(a => a.id)) + 1 : 1;
+}
+
+function generateDefaultDay() {
+  return [
+    { id:1, action:"Ночной сон", rankId:4, categoryId:"4-1", start:"00:00", end:"08:00", delta:480, active:480, breaks:0, comment:"", status:"planned" },
+    { id:2, action:"Душ", rankId:4, categoryId:"4-3", start:"08:00", end:"08:20", delta:20, active:20, breaks:0, comment:"", status:"planned" },
+    { id:3, action:"Завтрак", rankId:4, categoryId:"4-2", start:"08:30", end:"09:00", delta:30, active:30, breaks:0, comment:"", status:"planned" },
+    { id:4, action:"Сочинение музыки", rankId:1, categoryId:"1-1", start:"09:00", end:"09:30", delta:30, active:30, breaks:0, comment:"", status:"planned" },
+    { id:5, action:"Поиск работы", rankId:2, categoryId:"2-3", start:"09:30", end:"10:30", delta:60, active:60, breaks:0, comment:"", status:"planned" },
+    { id:6, action:"Зарядка", rankId:2, categoryId:"2-1", start:"10:30", end:"11:00", delta:30, active:30, breaks:0, comment:"", status:"planned" },
+    { id:7, action:"Контрастный душ", rankId:2, categoryId:"2-1", start:"11:00", end:"11:15", delta:15, active:15, breaks:0, comment:"", status:"planned" },
+    { id:8, action:"Обед", rankId:4, categoryId:"4-2", start:"11:30", end:"12:00", delta:30, active:30, breaks:0, comment:"", status:"planned" },
+    { id:9, action:"Проведение уроков", rankId:4, categoryId:"4-4", start:"12:30", end:"14:00", delta:90, active:90, breaks:0, comment:"", status:"planned" },
+    { id:10, action:"Прогулки", rankId:3, categoryId:"3-1", start:"14:00", end:"14:30", delta:30, active:30, breaks:0, comment:"", status:"planned" },
+    { id:11, action:"Обучение", rankId:3, categoryId:"3-3", start:"14:30", end:"15:30", delta:60, active:60, breaks:0, comment:"", status:"planned" },
+    { id:12, action:"Чтение", rankId:3, categoryId:"3-4", start:"15:30", end:"16:30", delta:60, active:60, breaks:0, comment:"", status:"planned" },
+    { id:13, action:"Музлит-классика", rankId:3, categoryId:"3-5", start:"16:30", end:"17:00", delta:30, active:30, breaks:0, comment:"", status:"planned" },
+    { id:14, action:"Приготовление еды", rankId:5, categoryId:"5-1", start:"17:00", end:"18:00", delta:60, active:60, breaks:0, comment:"", status:"planned" },
+    { id:15, action:"Ужин", rankId:4, categoryId:"4-2", start:"18:00", end:"18:45", delta:45, active:45, breaks:0, comment:"", status:"planned" },
+    { id:16, action:"Просмотр хороших фильмов", rankId:3, categoryId:"3-4", start:"18:45", end:"20:30", delta:105, active:105, breaks:0, comment:"", status:"planned" },
+    { id:17, action:"Цифровые паразиты", rankId:6, categoryId:"6-1", start:"20:30", end:"21:30", delta:60, active:60, breaks:0, comment:"", status:"planned" },
+    { id:18, action:"Чистка зубов", rankId:4, categoryId:"4-3", start:"21:30", end:"21:45", delta:15, active:15, breaks:0, comment:"", status:"planned" },
+    { id:19, action:"Ночной сон", rankId:4, categoryId:"4-1", start:"22:00", end:"23:00", delta:60, active:60, breaks:0, comment:"", status:"planned" }
+  ].map((a, i) => ({...a, id: i + 1}));
+}
+
+function getDaySchedule() {
+  if(STATE.defaultTemplate && STATE.templates[STATE.defaultTemplate]) {
+    return JSON.parse(JSON.stringify(STATE.templates[STATE.defaultTemplate]));
+  }
+  return { activities: generateDefaultDay(), overlaps: [] };
+}
+
+function showToast(msg) {
+  const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2500);
+}
+
+function toggleDropdown(e) {
+  e.stopPropagation();
+  document.getElementById('schedule-dropdown').classList.toggle('active');
+}
+function closeDropdown() { document.getElementById('schedule-dropdown').classList.remove('active'); }
+document.addEventListener('click', (e) => {
+  if(!e.target.closest('.dropdown')) closeDropdown();
+});
+
+function getRank(id) { return STATE.settings.ranks.find(r => r.rank === parseInt(id)); }
+function getCategory(rankId, catId) { const r=getRank(rankId); return r ? r.categories.find(c => c.id === catId) : null; }
+function getCategoryColor(rid, cid) { return getCategory(rid, cid)?.color || 'gray'; }
+function getCategoryName(rid, cid) { return getCategory(rid, cid)?.name || ''; }
+function getRankName(rid) { return getRank(rid)?.name || ''; }
+
+function navigateToDate(dateStr) {
+  if (!dateStr) return;
+  STATE.selectedDate = dateStr;
+  document.getElementById('date-input').value = dateStr;
+  
+  if (!STATE.schedules[STATE.selectedDate]) {
+    STATE.schedules[STATE.selectedDate] = getDaySchedule();
+    saveState();
+  }
+  persistAndRender();
+}
+
+function updateTimeUI() {
+  const today = getTodayStr();
+  const line = document.getElementById('current-time-line');
+  if (STATE.selectedDate === today) {
+    const now=new Date();
+    const top = Math.min(((now.getHours()*60+now.getMinutes())/60)*PX_PER_HOUR, TOTAL_HEIGHT-2);
+    line.style.top = `${top}px`;
+    line.style.display = 'block';
+    document.getElementById('current-time-badge').textContent = minutesToTimeStr(now.getHours()*60+now.getMinutes());
+  } else {
+    line.style.display = 'none';
+  }
+}
+
+function updateStats() {
+  const acts = STATE.schedules[STATE.selectedDate]?.activities || [];
+  let pBal=0, aBal=0, tMin=0, dMin=0, uMin=0;
+  acts.forEach(act => {
+    const rank = getRank(act.rankId) || STATE.settings.ranks[3];
+    const d = Math.max(0, act.delta||0), h = d/60, rate = rank.rate || (rank.coefficient*375);
+    tMin += d;
+    if(act.status === 'done') { dMin+=d; aBal += h*rate; } else { uMin+=d; }
+    pBal += h*rate;
+  });
+  const set=(i,v)=>document.getElementById(i).textContent=v, cls=(i,c)=>document.getElementById(i).className=`value ${c}`;
+  set('stat-planned-bal', formatBalance(pBal)); cls('stat-planned-bal', pBal>=0?'balance positive':'balance negative');
+  set('stat-actual-bal', formatBalance(aBal)); cls('stat-actual-bal', aBal>=0?'balance positive':'balance negative');
+  set('stat-total-h', formatDuration(tMin)); set('stat-done-h', formatDuration(dMin)); cls('stat-done-h','positive');
+  set('stat-undone-h', formatDuration(uMin)); cls('stat-undone-h','negative');
+  
+  const diffBox = document.getElementById('stat-diff-box');
+  if(STATE.selectedDate === getTodayStr()) {
+    const now=new Date(), cur=now.getHours()*60+now.getMinutes(), rem=1440-cur;
+    set('stat-remain-h', formatDuration(rem));
+    const diff=rem-uMin;
+    if(Math.abs(diff)<30) { diffBox.style.display='none'; } 
+    else {
+      diffBox.style.display='block';
+      document.getElementById('stat-diff-label').textContent = diff>0?'Резерв':'Нехватка';
+      document.getElementById('stat-diff-val').textContent = formatDuration(Math.abs(diff));
+      document.getElementById('stat-diff-val').className = `value balance ${diff>0?'positive':'negative'}`;
+    }
+  } else {
+    set('stat-remain-h', '00:00');
+    diffBox.style.display='none';
+  }
+}
+
+function renderAxis() {
+  const ticks=document.getElementById('ticks-container'), labs=document.getElementById('labels-container');
+  ticks.innerHTML=''; labs.innerHTML='';
+  for(let m=0;m<=1440;m+=5) {
+    const top=(m/60)*PX_PER_HOUR, isH=m%60===0;
+    const t=document.createElement('div'); t.className=isH?'tick major':'tick minor'; t.style.top=`${top}px`; ticks.appendChild(t);
+    if(isH) { const l=document.createElement('div'); l.className='time-label'; l.textContent=minutesToTimeStr(m); l.style.top=`${top}px`; labs.appendChild(l); }
+  }
+}
+
+function populateSelectors() {
+  const rSel=document.getElementById('inp-rank');
+  rSel.innerHTML = STATE.settings.ranks.map(r=>`<option value="${r.rank}">${r.name} (×${r.coefficient})</option>`).join('');
+  onCategoryChange();
+}
+
+function onCategoryChange() {
+  const rId=document.getElementById('inp-rank').value;
+  const rank=getRank(rId);
+  const cSel=document.getElementById('inp-category');
+  cSel.innerHTML = rank ? rank.categories.map(c=>`<option value="${c.id}">${c.name}</option>`).join('') : '';
+  updateActivityOptions();
+}
+
+function updateActivityOptions() {
+  const rId = document.getElementById('inp-rank').value;
+  const cId = document.getElementById('inp-category').value;
+  const aSel = document.getElementById('inp-action');
+  const cat = getCategory(rId, cId);
+  aSel.innerHTML = '';
+  if (!cat) return;
+  cat.activities.forEach(act => {
+    const opt = document.createElement('option');
+    opt.value = act; opt.textContent = act;
+    if(act === STATE.currentDraft.action) opt.selected = true;
+    aSel.appendChild(opt);
+  });
+}
+
+function renderLegend() {
+  document.getElementById('legend').innerHTML = STATE.settings.ranks.map(rank=>`
+    <div class="legend-rank">
+      <div class="legend-rank-title"><div class="dot" style="background:${rank.color}"></div><span>${rank.name} (×${rank.coefficient})</span></div>
+      <div class="legend-subcats">${rank.categories.map(c=>`<div class="legend-sub"><div class="dot" style="background:${c.color}"></div><span>${c.name}</span></div>`).join('')}</div>
+    </div>`).join('');
+}
+
+function calculateColumns(acts) {
+  const sorted=[...acts].sort((a,b)=>timeStrToMinutes(a.start)-timeStrToMinutes(b.start));
+  const ends=[];
+  sorted.forEach(act=>{
+    const s=timeStrToMinutes(act.start), e=timeStrToMinutes(act.end)||s+10;
+    if(e<=s){act._col=0;return;} let c=0; while(ends[c]&&ends[c]>s) c++; ends[c]=e; act._col=c;
+  }); return sorted;
+}
+
+let dragState = null;
+function onDragMove(e) {
+  if (!dragState) return;
+  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+  const deltaY = clientY - dragState.startY;
+  if (!dragState.isDragging && Math.abs(deltaY) > 3) {
+    dragState.isDragging = true;
+    dragState.blockEl.classList.add('dragging');
+  }
+  if (dragState.isDragging) {
+    if(e.cancelable) e.preventDefault();
+    let newTop = dragState.initialTop + deltaY;
+    newTop = Math.round(newTop / 5) * 5;
+    newTop = Math.max(0, Math.min(newTop, TOTAL_HEIGHT - parseFloat(dragState.blockEl.style.height)));
+    dragState.blockEl.style.top = `${newTop}px`;
+    const newStartMin = Math.round(newTop);
+    const duration = timeStrToMinutes(dragState.act.end) - timeStrToMinutes(dragState.act.start);
+    dragState.act.start = minutesToTimeStr(newStartMin);
+    dragState.act.end = minutesToTimeStr(newStartMin + duration);
+  }
+}
+function onDragEnd(e) {
+  if (!dragState) return;
+  if (dragState.isDragging) {
+    persistAndRender();
+    showToast(`Время изменено: ${dragState.act.start} - ${dragState.act.end}`);
+  } else {
+    openModal(dragState.act.id);
+  }
+  dragState.blockEl.classList.remove('dragging');
+  dragState = null;
+  document.removeEventListener('mousemove', onDragMove);
+  document.removeEventListener('mouseup', onDragEnd);
+  document.removeEventListener('touchmove', onDragMove);
+  document.removeEventListener('touchend', onDragEnd);
+}
+
+function renderActivities() {
+  const cont=document.getElementById('blocks-container'); cont.innerHTML='';
+  const acts = STATE.schedules[STATE.selectedDate]?.activities || [];
+  if(!acts.length) return;
+  const sorted=calculateColumns(acts), w=850, g=12, maxC=Math.max(0,...sorted.map(a=>a._col||0));
+  cont.style.width=`${(maxC+1)*(w+g)}px`;
+  sorted.forEach(act=>{
+    const top=(timeStrToMinutes(act.start)/60)*PX_PER_HOUR;
+    const rawHeight = (act.delta / 60) * PX_PER_HOUR;
+    const heightPx = Math.max(4, rawHeight);
+    const col=getCategoryColor(act.rankId, act.categoryId);
+    const rankName = getRankName(act.rankId);
+    const catName = getCategoryName(act.rankId, act.categoryId);
+    const tagContent = catName ? `${rankName} — ${catName}` : rankName;
+    const comment = act.comment ? `<div class="block-comment">💬 ${act.comment}</div>` : '';
+    const txtColor = getContrastColor(col);
+    
+    const el=document.createElement('div');
+    el.className=`block status-${act.status}`;
+    el.style.cssText=`left:${(act._col||0)*(w+g)}px; top:${top}px; height:${heightPx}px; width:${w}px; background-color:${col}; color:${txtColor}; cursor:grab;`;
+    el.innerHTML=`<div class="block-content">
+      <span class="block-time">${act.start} — ${act.end}</span>
+      <span class="block-delta">${formatDuration(act.delta)}</span>
+      <span class="block-rank-tag">${tagContent}</span>
+      <span class="block-name">${act.action}</span>
+    </div>${comment}`;
+    
+    const startDrag = (ev) => {
+      ev.preventDefault();
+      const startY = ev.touches ? ev.touches[0].clientY : ev.clientY;
+      dragState = { act, startY, initialTop: top, blockEl: el, isDragging: false };
+      document.addEventListener('mousemove', onDragMove);
+      document.addEventListener('mouseup', onDragEnd);
+      document.addEventListener('touchmove', onDragMove, { passive: false });
+      document.addEventListener('touchend', onDragEnd);
+    };
+    el.addEventListener('mousedown', startDrag);
+    el.addEventListener('touchstart', startDrag, { passive: false });
+    cont.appendChild(el);
+  });
+}
+
+function updateJsonEditor() { 
+  const now = new Date();
+  const cleanSchedules = {};
+  for(const [date, val] of Object.entries(STATE.schedules)) {
+    cleanSchedules[date] = {
+      activities: val.activities.map(a => { const {_col, ...rest} = a; return rest; }),
+      overlaps: val.overlaps || []
+    };
+  }
+  const outputObj = {
+    current_datetime: `${getTodayStr()} ${minutesToTimeStr(now.getHours()*60+now.getMinutes())}`,
+    fiels_descriptions: SCHEDULES_FIELDS_DESC,
+    schedules: cleanSchedules
+  };
+  document.getElementById('json-editor').value = JSON.stringify(outputObj, null, 2); 
+}
+
+function renderDraft() {
+  const d = STATE.currentDraft;
+  document.getElementById('inp-rank').value = d.rankId || 1; onCategoryChange();
+  document.getElementById('inp-category').value = d.categoryId || '1-1'; updateActivityOptions();
+  document.getElementById('inp-action').value = d.action || '';
+  document.getElementById('inp-comment').value = d.comment || '';
+  document.querySelectorAll('input[name="status"]').forEach(r => { r.checked = r.value === (d.status || 'planned'); });
+  document.getElementById('inp-delta').value = d.delta || 0;
+  document.getElementById('inp-active').value = d.active || 0;
+  document.getElementById('inp-breaks').value = d.breaks || 0;
+  document.getElementById('inp-start').value = d.start || '00:00';
+  document.getElementById('inp-end').value = d.end || '00:00';
+}
+
+function readDraft() {
+  const d = STATE.currentDraft;
+  d.rankId = parseInt(document.getElementById('inp-rank').value);
+  d.categoryId = document.getElementById('inp-category').value;
+  d.action = document.getElementById('inp-action').value;
+  d.comment = document.getElementById('inp-comment').value;
+  d.status = document.querySelector('input[name="status"]:checked').value;
+  d.delta = parseInt(document.getElementById('inp-delta').value) || 0;
+  d.active = parseInt(document.getElementById('inp-active').value) || 0;
+  d.breaks = parseInt(document.getElementById('inp-breaks').value) || 0;
+  d.start = document.getElementById('inp-start').value;
+  d.end = document.getElementById('inp-end').value;
+}
+
+function openModal(id=null) {
+  STATE.editingId=id;
+  document.getElementById('modal-title').textContent=id?'Редактировать дело':'Новое дело';
+  document.getElementById('btn-delete').style.display=id?'block':'none';
+  document.getElementById('btn-add-next').style.display=id?'block':'none';
+  populateSelectors();
+  
+  if(id) {
+    const a=(STATE.schedules[STATE.selectedDate]?.activities||[]).find(x=>x.id===id);
+    STATE.currentDraft = {...a};
+  } else {
+    const now=new Date(), m=now.getHours()*60+Math.round(now.getMinutes());
+    STATE.currentDraft = {
+      id: getNextIdForDay(STATE.selectedDate), action:'', rankId:1, categoryId:'1-1',
+      start: minutesToTimeStr(m), end: minutesToTimeStr(m+60),
+      delta: 60, active: 60, breaks: 0, comment: '', status: 'planned'
+    };
+  }
+  renderDraft();
+  document.getElementById('modal-overlay').classList.add('active');
+}
+function closeModal() { document.getElementById('modal-overlay').classList.remove('active'); STATE.editingId=null; }
+
+function btnStart() {
+  const now=new Date(), m=now.getHours()*60+Math.round(now.getMinutes());
+  const d = STATE.currentDraft;
+  d.start = minutesToTimeStr(m); d.status = 'in_progress';
+  d.end = minutesToTimeStr(m + (d.delta || 60)); renderDraft();
+}
+function btnDone() {
+  const now=new Date(), m=now.getHours()*60+Math.round(now.getMinutes());
+  const d = STATE.currentDraft;
+  d.end = minutesToTimeStr(m); d.status = 'done';
+  let diff = timeStrToMinutes(d.end) - timeStrToMinutes(d.start); if(diff < 0) diff += 1440;
+  d.delta = Math.max(0, diff); d.active = d.delta; d.breaks = 0; renderDraft();
+}
+
+function addNextTask() {
+  if (!STATE.editingId) return showToast('Сначала сохраните текущую задачу');
+  const day = STATE.schedules[STATE.selectedDate];
+  const current = day?.activities.find(a => a.id === STATE.editingId);
+  if (!current) return showToast('Сначала сохраните текущую задачу');
+
+  const startMin = timeStrToMinutes(current.end);
+  const dur = current.delta || 60;
+  STATE.currentDraft = {
+    id: getNextIdForDay(STATE.selectedDate), action: '', rankId: current.rankId, categoryId: current.categoryId,
+    start: minutesToTimeStr(startMin), end: minutesToTimeStr(startMin + dur),
+    delta: dur, active: dur, breaks: 0, comment: '', status: 'planned'
+  };
+  STATE.editingId = null;
+  document.getElementById('modal-title').textContent = 'Новое дело (следующее)';
+  document.getElementById('btn-delete').style.display = 'none';
+  document.getElementById('btn-add-next').style.display = 'none';
+  renderDraft();
+}
+
+function openValModal() { document.getElementById('validation-overlay').classList.add('active'); }
+function closeValModal() { document.getElementById('validation-overlay').classList.remove('active'); }
+function setValBtn(id, text, onclick) { const btn = document.getElementById(id); btn.textContent = text; btn.onclick = onclick; btn.style.display = 'block'; }
+
+async function showTimeDialog(diff, delta) {
+  return new Promise(resolve => {
+    const d = STATE.currentDraft;
+    document.getElementById('val-title').textContent = "Рассогласование времени";
+    document.getElementById('val-msg').textContent = `Конец ${d.end} - Начало ${d.start} = ${diff} мин. Дельта = ${delta} мин.`;
+    const newEnd = minutesToTimeStr(timeStrToMinutes(d.start) + delta);
+    const newStart = minutesToTimeStr(timeStrToMinutes(d.end) - delta);
+    setValBtn('v-btn-1', `Сохранить начало/конец и исправить дельту до ${diff}`, () => { d.delta = diff; renderDraft(); closeValModal(); resolve(); });
+    setValBtn('v-btn-2', `Сохранить начало/дельту и исправить конец до ${newEnd}`, () => { d.end = newEnd; renderDraft(); closeValModal(); resolve(); });
+    setValBtn('v-btn-3', `Сохранить конец/дельту и исправить начало до ${newStart}`, () => { d.start = newStart; renderDraft(); closeValModal(); resolve(); });
+    openValModal();
+  });
+}
+
+async function showActiveBreakDialog(delta, sum) {
+  return new Promise(resolve => {
+    const d = STATE.currentDraft;
+    document.getElementById('val-title').textContent = "Рассогласование активности";
+    document.getElementById('val-msg').textContent = `Дельта = ${delta}. Выполнение(${d.active}) + Перерывы(${d.breaks}) = ${sum}`;
+    if(delta > sum) {
+      setValBtn('v-btn-1', `Увеличить выполнение до ${delta - d.breaks}`, () => { d.active = delta - d.breaks; renderDraft(); closeValModal(); resolve(); });
+      setValBtn('v-btn-2', `Увеличить перерывы до ${delta - d.active}`, () => { d.breaks = delta - d.active; renderDraft(); closeValModal(); resolve(); });
+      setValBtn('v-btn-3', `Уменьшить дельту до ${sum}`, () => { d.delta = sum; renderDraft(); closeValModal(); resolve(); });
+    } else {
+      setValBtn('v-btn-1', `Уменьшить выполнение до ${delta - d.breaks}`, () => { d.active = delta - d.breaks; renderDraft(); closeValModal(); resolve(); });
+      setValBtn('v-btn-2', `Уменьшить перерывы до ${delta - d.active}`, () => { d.breaks = delta - d.active; renderDraft(); closeValModal(); resolve(); });
+      setValBtn('v-btn-3', `Увеличить дельту до ${sum}`, () => { d.delta = sum; renderDraft(); closeValModal(); resolve(); });
+    }
+    openValModal();
+  });
+}
+
+async function runValidationCycle() {
+  const d = STATE.currentDraft; let loop = 0;
+  while(loop++ < 10) {
+    let sm = timeStrToMinutes(d.start), em = timeStrToMinutes(d.end);
+    let diff = em - sm; if(diff < 0) diff += 1440;
+    if(diff !== d.delta) { await showTimeDialog(diff, d.delta); continue; }
+    let sum = (d.active || 0) + (d.breaks || 0);
+    if(sum !== d.delta) { await showActiveBreakDialog(d.delta, sum); continue; }
+    return true;
+  }
+  alert("Ошибка валидации"); return false;
+}
+
+async function saveActivity() {
+  readDraft();
+  if(!STATE.currentDraft.action){alert('Выберите активность');return;}
+  if(!await runValidationCycle()) return;
+  readDraft();
+  if(!STATE.schedules[STATE.selectedDate]) STATE.schedules[STATE.selectedDate] = { activities: [], overlaps: [] };
+  const day = STATE.schedules[STATE.selectedDate];
+  if(STATE.editingId) {
+    const i=day.activities.findIndex(a=>a.id===STATE.editingId);
+    const oldStatus = day.activities[i]?.status;
+    if(i>-1) day.activities[i]={...day.activities[i], ...STATE.currentDraft};
+    if(oldStatus === 'planned' && STATE.currentDraft.status !== 'planned') checkOverlapsForActivity(STATE.currentDraft.id);
+  } else day.activities.push({...STATE.currentDraft});
+  persistAndRender(); closeModal();
+}
+
+function deleteCurrent() {
+  if(!STATE.editingId||!confirm('Удалить дело?'))return;
+  STATE.schedules[STATE.selectedDate].activities = STATE.schedules[STATE.selectedDate].activities.filter(a=>a.id!==STATE.editingId);
+  STATE.schedules[STATE.selectedDate].overlaps = STATE.schedules[STATE.selectedDate].overlaps.filter(o => o.id1 !== STATE.editingId && o.id2 !== STATE.editingId);
+  persistAndRender(); closeModal();
+}
+
+function deleteDay() {
+  if(!confirm(`Удалить расписание за ${STATE.selectedDate}?`)) return;
+  if(!confirm('Подтвердите удаление.')) return;
+  delete STATE.schedules[STATE.selectedDate]; saveState();
+  const today = getTodayStr();
+  if(STATE.selectedDate === today && !STATE.schedules[today]) STATE.schedules[today] = getDaySchedule();
+  navigateToDate(getTodayStr());
+}
+
+function loadDefault() {
+  if(!confirm('Загрузить дефолтное расписание в текущий день?')) return;
+  STATE.schedules[STATE.selectedDate] = getDaySchedule();
+  persistAndRender(); showToast('Загружено');
+}
+
+function persistAndRender() { saveState(); renderActivities(); updateStats(); updateJsonEditor(); updateTimeUI(); }
+
+function applySchedulesJson() {
+  try {
+    const txt=document.getElementById('json-editor').value; if(!txt.trim()) return;
+    const parsed=JSON.parse(txt);
+    let newSchedules = parsed.schedules || parsed;
+    if(typeof newSchedules !== 'object' || Array.isArray(newSchedules)) throw new Error('Неверный формат');
+    STATE.schedules = {};
+    for(const [date, val] of Object.entries(newSchedules)) {
+      if(!/\d{4}-\d{2}-\d{2}/.test(date)) throw new Error(`Неверная дата: ${date}`);
+      STATE.schedules[date] = normalizeDay(val);
+    }
+    if(!STATE.schedules[STATE.selectedDate]) STATE.schedules[STATE.selectedDate] = getDaySchedule();
+    persistAndRender(); showToast('Применено');
+  } catch(e) { alert('Ошибка: '+e.message); }
+}
+
+function findOverlaps(filterType) {
+  const day = STATE.schedules[STATE.selectedDate] || { activities: [], overlaps: [] };
+  const acts = day.activities;
+  const overlaps = day.overlaps || [];
+  const found = [];
+  for(let i=0; i<acts.length; i++) {
+    for(let j=i+1; j<acts.length; j++) {
+      const a = acts[i], b = acts[j];
+      const sA = timeStrToMinutes(a.start), eA = timeStrToMinutes(a.end);
+      const sB = timeStrToMinutes(b.start), eB = timeStrToMinutes(b.end);
+      if(sA < eB && sB < eA) {
+        const exists = overlaps.find(o => (o.id1 === a.id && o.id2 === b.id) || (o.id1 === b.id && o.id2 === a.id));
+        if(filterType === 'all' && !exists) found.push({a, b, existing: null});
+        if(filterType === 'pending' && exists?.type === 'pending') found.push({a, b, existing: exists});
+      }
+    }
+  }
+  return found;
+}
+
+function checkOverlaps(filter) {
+  const pairs = findOverlaps(filter === 'pending' ? 'pending' : 'all');
+  if(pairs.length === 0) { showToast(filter === 'pending' ? 'Отложенных пересечений нет' : 'Новых пересечений не найдено'); return; }
+  STATE.overlapQueue = [...STATE.overlapQueue, ...pairs];
+  processNextOverlap();
+}
+
+function checkOverlapsForActivity(id) {
+  const day = STATE.schedules[STATE.selectedDate] || { activities: [], overlaps: [] };
+  const pending = day.overlaps.filter(o => o.type === 'pending' && (o.id1 === id || o.id2 === id));
+  if(pending.length === 0) return;
+  pending.forEach(o => {
+    const a = day.activities.find(x => x.id === o.id1);
+    const b = day.activities.find(x => x.id === o.id2);
+    if(a && b) STATE.overlapQueue.push({a, b, existing: o});
+  });
+  processNextOverlap();
+}
+
+function processNextOverlap() {
+  if(STATE.overlapQueue.length === 0) { persistAndRender(); return; }
+  STATE.currentOverlap = STATE.overlapQueue.shift();
+  showOverlapModal();
+}
+
+function showOverlapModal() {
+  const { a, b } = STATE.currentOverlap;
+  document.getElementById('ov-desc').textContent = `"${a.action}" (${a.start}-${a.end}) пересекается с "${b.action}" (${b.start}-${b.end})`;
+  const cont = document.getElementById('ov-options');
+  cont.innerHTML = '';
+  const sA=timeStrToMinutes(a.start), eA=timeStrToMinutes(a.end), sB=timeStrToMinutes(b.start), eB=timeStrToMinutes(b.end);
+  let first = eA < eB ? a : b, second = first === a ? b : a;
+  const s1=timeStrToMinutes(first.start), e1=timeStrToMinutes(first.end), s2=timeStrToMinutes(second.start);
+
+  const btnPar = document.createElement('button'); btnPar.className='ov-btn'; btnPar.textContent='Параллельно (одновременная работа)';
+  btnPar.onclick=()=>applyChoice('parallel'); cont.appendChild(btnPar);
+
+  const isContain1 = sA >= sB && eA <= eB, isContain2 = sB >= sA && eB <= eA;
+  if(isContain1 || isContain2) {
+    const btnInt = document.createElement('button'); btnInt.className='ov-btn'; btnInt.textContent='Прерывание (вложенность)';
+    btnInt.onclick=()=>applyChoice('interrupt'); cont.appendChild(btnInt);
+  }
+
+  const btnPend = document.createElement('button'); btnPend.className='ov-btn'; btnPend.textContent='Отложить решение';
+  btnPend.onclick=()=>applyChoice('pending'); cont.appendChild(btnPend);
+
+  if(e1 > s2 && e1 < timeStrToMinutes(second.end)) {
+    const btnShift = document.createElement('button'); btnShift.className='ov-btn'; btnShift.textContent='Избавиться от пересечения';
+    btnShift.onclick=()=>{
+      document.getElementById('shift-controls').style.display='block';
+      const slider = document.getElementById('ov-slider'); slider.min = s2; slider.max = e1; slider.value = e1;
+      document.getElementById('ov-slider-val').textContent = minutesToTimeStr(slider.value);
+      slider.oninput = (ev)=>document.getElementById('ov-slider-val').textContent=minutesToTimeStr(ev.target.value);
+    }; cont.appendChild(btnShift);
+    document.getElementById('shift-controls').style.display='none';
+  }
+  document.getElementById('overlap-overlay').classList.add('active');
+}
+
+function closeOverlapModal() { document.getElementById('overlap-overlay').classList.remove('active'); }
+function skipOverlap() { closeOverlapModal(); processNextOverlap(); }
+
+function applyChoice(type) {
+  const { a, b, existing } = STATE.currentOverlap;
+  const day = STATE.schedules[STATE.selectedDate];
+  const sA=timeStrToMinutes(a.start), eA=timeStrToMinutes(a.end);
+  if(type === 'parallel' || type === 'pending') {
+    if(!existing) day.overlaps.push({ type, id1:a.id, id2:b.id });
+    else existing.type = type;
+  } else if(type === 'interrupt') {
+    let outer = a, inner = b;
+    if(sB >= sA && eB <= eA) { outer=a; inner=b; }
+    else { outer=b; inner=a; }
+    outer.breaks = (outer.breaks||0) + inner.delta;
+    outer.active = outer.delta - outer.breaks; if(outer.active < 0) outer.active = 0;
+    if(!existing) day.overlaps.push({ type:'interrupt', id1:outer.id, id2:inner.id });
+    else { existing.type = 'interrupt'; existing.id1 = outer.id; existing.id2 = inner.id; }
+  }
+  closeOverlapModal(); processNextOverlap();
+}
+
+function applyShift() {
+  const { a, b } = STATE.currentOverlap;
+  const newVal = parseInt(document.getElementById('ov-slider').value);
+  const day = STATE.schedules[STATE.selectedDate];
+  if(timeStrToMinutes(a.end) < timeStrToMinutes(b.end)) a.end = minutesToTimeStr(newVal);
+  else b.end = minutesToTimeStr(newVal);
+  if(STATE.currentOverlap.existing) day.overlaps = day.overlaps.filter(o => !(o.id1===a.id && o.id2===b.id));
+  closeOverlapModal(); processNextOverlap();
+}
+
+// Overlaps List Management
+function openOverlapsModal() {
+  const day = STATE.schedules[STATE.selectedDate];
+  const overlaps = day?.overlaps || [];
+  const container = document.getElementById('ov-list-container');
+  document.getElementById('ov-date-title').textContent = STATE.selectedDate;
+  container.innerHTML = '';
+  if(overlaps.length === 0) { container.innerHTML = '<p style="text-align:center; color:var(--text-muted); padding:20px;">Пересечений нет</p>'; }
+  
+  overlaps.forEach((ov, idx) => {
+    const a = day.activities.find(x => x.id === ov.id1);
+    const b = day.activities.find(x => x.id === ov.id2);
+    if(!a || !b) return;
+    
+    const div = document.createElement('div');
+    div.className = 'tpl-item';
+    div.innerHTML = `
+      <div style="flex:1;">
+        <div class="tpl-name">${a.action} ↔ ${b.action}</div>
+        <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">${a.start}-${a.end} & ${b.start}-${b.end}</div>
+      </div>
+      <div style="display:flex; gap:8px; align-items:center;">
+        <select onchange="changeOverlapType(${idx}, this.value)" style="padding:5px; border-radius:4px; border:1px solid var(--border);">
+          <option value="pending" ${ov.type==='pending'?'selected':''}>pending</option>
+          <option value="parallel" ${ov.type==='parallel'?'selected':''}>parallel</option>
+          <option value="interrupt" ${ov.type==='interrupt'?'selected':''}>interrupt</option>
+        </select>
+        <button class="btn btn-danger-text" onclick="deleteOverlap(${idx})" style="padding:5px 8px;">✕</button>
+      </div>
+    `;
+    container.appendChild(div);
+  });
+  document.getElementById('overlaps-list-overlay').classList.add('active');
+}
+function changeOverlapType(idx, type) {
+  STATE.schedules[STATE.selectedDate].overlaps[idx].type = type;
+  persistAndRender(); openOverlapsModal(); showToast('Тип пересечения изменён');
+}
+function deleteOverlap(idx) {
+  if(!confirm('Удалить это пересечение?')) return;
+  STATE.schedules[STATE.selectedDate].overlaps.splice(idx, 1);
+  persistAndRender(); openOverlapsModal(); showToast('Пересечение удалено');
+}
+function closeOverlapsModal() { document.getElementById('overlaps-list-overlay').classList.remove('active'); }
+
+let templateActionMode = 'save';
+function openTemplateModal(mode) {
+  templateActionMode = mode;
+  document.getElementById('template-modal-title').textContent = mode === 'save' ? 'Сохранить как шаблон' : 'Загрузить из шаблона';
+  document.getElementById('template-action-btn').textContent = mode === 'save' ? 'Сохранить' : 'Загрузить';
+  const sel = document.getElementById('template-select'); sel.innerHTML = '';
+  const names = Object.keys(STATE.templates || {}).sort();
+  names.forEach(n => { const opt = document.createElement('option'); opt.value = n; opt.textContent = n; sel.appendChild(opt); });
+  const optNew = document.createElement('option'); optNew.value = '__new__'; optNew.textContent = 'Создать новый...'; sel.appendChild(optNew);
+  sel.value = names.length ? names[0] : '__new__';
+  onTemplateSelectChange(); document.getElementById('template-overlay').classList.add('active');
+}
+function onTemplateSelectChange() { document.getElementById('new-template-name-group').style.display = document.getElementById('template-select').value === '__new__' && templateActionMode === 'save' ? 'block' : 'none'; }
+function closeTemplateModal() { document.getElementById('template-overlay').classList.remove('active'); }
+function executeTemplateAction() {
+  let name = document.getElementById('template-select').value;
+  if(name === '__new__') { name = document.getElementById('new-template-name').value.trim(); if(!name) { alert('Введите имя'); return; } }
+  if(templateActionMode === 'save') {
+    const currentActs = STATE.schedules[STATE.selectedDate]?.activities || [];
+    const currentOv = STATE.schedules[STATE.selectedDate]?.overlaps || [];
+    const isNew = Object.keys(STATE.templates).length === 0;
+    STATE.templates[name] = { activities: JSON.parse(JSON.stringify(currentActs)), overlaps: JSON.parse(JSON.stringify(currentOv)) };
+    if(isNew) STATE.defaultTemplate = name;
+    saveTemplates(); showToast(`Шаблон "${name}" сохранён${isNew?' и назначен дефолтным':''}`);
+  } else {
+    if(!STATE.templates[name]) { alert('Шаблон не найден'); return; }
+    STATE.schedules[STATE.selectedDate] = JSON.parse(JSON.stringify(STATE.templates[name]));
+    persistAndRender(); showToast(`Загружен шаблон "${name}"`);
+  }
+  closeTemplateModal();
+}
+
+function openTemplatesListModal() {
+  const listCont = document.getElementById('templates-list-container'); const sel = document.getElementById('default-tpl-select');
+  listCont.innerHTML = ''; sel.innerHTML = '';
+  const names = Object.keys(STATE.templates).sort();
+  names.forEach(n => {
+    const isActive = n === STATE.defaultTemplate;
+    const div = document.createElement('div'); div.className = `tpl-item ${isActive ? 'active' : ''}`;
+    div.innerHTML = `<span class="tpl-name">${n} ${isActive ? '★' : ''}</span><span style="color:var(--text-muted)">${STATE.templates[n].activities.length} активностей</span>`;
+    listCont.appendChild(div);
+    const opt = document.createElement('option'); opt.value = n; opt.textContent = n; if(isActive) opt.selected = true; sel.appendChild(opt);
+  });
+  if(names.length === 0) listCont.innerHTML = '<p style="color:var(--text-muted); text-align:center;">Нет сохранённых шаблонов</p>';
+  document.getElementById('templates-list-overlay').classList.add('active');
+}
+function closeTemplatesListModal() { document.getElementById('templates-list-overlay').classList.remove('active'); }
+function setDefaultTemplate() {
+  const val = document.getElementById('default-tpl-select').value;
+  if(!val) return alert('Выберите шаблон');
+  STATE.defaultTemplate = val; saveTemplates(); showToast(`"${val}" назначен дефолтным`); closeTemplatesListModal();
+}
+
+document.getElementById('modal-overlay').addEventListener('click', e=>{ if(e.target===document.getElementById('modal-overlay'))closeModal(); });
+document.getElementById('template-overlay').addEventListener('click', e=>{ if(e.target===document.getElementById('template-overlay'))closeTemplateModal(); });
+document.getElementById('templates-list-overlay').addEventListener('click', e=>{ if(e.target===document.getElementById('templates-list-overlay'))closeTemplatesListModal(); });
+document.getElementById('overlaps-list-overlay').addEventListener('click', e=>{ if(e.target===document.getElementById('overlaps-list-overlay'))closeOverlapsModal(); });
+
+window.addEventListener('DOMContentLoaded', ()=>{
+  try {
+    loadState();
+    if (!STATE.settings) { document.getElementById('config-error').style.display = 'flex'; return; }
+    document.getElementById('date-input').value = getTodayStr();
+    document.getElementById('timeline-wrapper').style.height=`${TOTAL_HEIGHT}px`;
+    renderAxis(); populateSelectors(); renderActivities(); renderLegend();
+    STATE.selectedDate = getTodayStr();
+    if(!STATE.schedules[STATE.selectedDate]) STATE.schedules[STATE.selectedDate] = getDaySchedule();
+    persistAndRender();
+    setInterval(()=>{ updateTimeUI(); updateJsonEditor(); }, 60000);
+  } catch(err) { console.error('Init error:', err); alert('Ошибка загрузки: '+err.message); }
+});
+</script>
+</body>
+</html>
+
