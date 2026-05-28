@@ -67,6 +67,35 @@ graph LR
 ```
 
 
+Для презентации версия 3
+
+```mermaid
+graph LR
+       
+    tpo[Тестирование ПО. Уровень 1, 40 а.ч.]
+
+    tpo21[Тестирование ПО. Уровень 2. Тест-дизайн, 24 а.ч.]
+    upkot[Тестирование ПО. Уровень 2. Управление командой тестирования, 16 а.ч.]
+    ai-qa["Нейросети в тестировании ПО, 24 а.ч."] 
+    avtest[Автоматизированное тестирование веб-приложений с использованием Selenium, 40 а.ч.]   
+    api-auto[Автоматизированное тестирование API, 40 а.ч.]
+
+    tpo --> tpo21
+    tpo --> upkot
+    tpo --> ai-qa
+    tpo --> avtest
+    avtest --> api-auto
+
+    classDef defaultCourse fill:#e8e2d8,stroke:#ac9c8c,stroke-width:1.5px,color:#333
+    classDef usualCourse fill:#e8f0fe,stroke:#4a90e2,stroke-width:1.5px
+    classDef newCourse fill:#ffcdd2,stroke:#d32f2f,stroke-width:2.5px,font-weight:bold
+   
+    class bkp24,oprog-a,bkp2,ai-base defaultCourse
+    class tpo,tpo21,upkot,avtest usualCourse
+    class ai-qa,api-auto newCourse
+```
+
+
 
 
 # Курсы по тестированию и обеспечению качества
