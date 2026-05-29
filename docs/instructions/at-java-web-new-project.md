@@ -34,10 +34,14 @@ test {
 ## Что надо добавить в файл build.gradle
 
 Для подключения библиотек Selenide (и через зависимости подключится библиотека Selenium) в раздел dependencies:  
-```groovy testImplementation 'com.codeborne:selenide:7.7.3'  ```
+```groovy
+testImplementation 'com.codeborne:selenide:7.7.3'
+```
 
 Для того, чтобы избавиться от предупреждения об отсутсвии модуля логирования в раздел dependencies: 
-```groovy testImplementation 'org.slf4j:slf4j-simple:2.0.12'  ```
+```groovy 
+testImplementation 'org.slf4j:slf4j-simple:2.0.12'
+```
 
 Для того, чтобы корректно работать с кириллицей в конце файла:  
 ```groovy 
