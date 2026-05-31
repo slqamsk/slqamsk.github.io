@@ -58,16 +58,27 @@ test {
 
 ### Что надо добавить в файл build.gradle
 
-Для подключения библиотек Selenide (и через зависимости подключится библиотека Selenium) в раздел dependencies:  
+#### Selenide
+Для подключения библиотек Selenide (и через зависимости подключится библиотека Selenium) нужно добавить в раздел dependencies:  
 ```groovy
-testImplementation 'com.codeborne:selenide:7.7.3'
+testImplementation 'com.codeborne:selenide:7.16.2'
 ```
 
+Если хотите получить самую свежую версию - смотрите на список релизов: https://github.com/selenide/selenide/releases
+
+
+    
+#### SLF4J Simple Provider
 Для того, чтобы избавиться от предупреждения об отсутсвии модуля логирования в раздел dependencies: 
 ```groovy 
-testImplementation 'org.slf4j:slf4j-simple:2.0.12'
+testImplementation 'org.slf4j:slf4j-simple:2.0.18'
 ```
 
+Если хотите получить самую свежую версию - смотрите на список релизов: https://mvnrepository.com/artifact/org.slf4j/slf4j-simple
+
+
+    
+#### Настройки кириллицы
 Для того, чтобы корректно работать с кириллицей в конце файла:  
 ```groovy 
 tasks.withType(JavaCompile).configureEach {
@@ -75,7 +86,7 @@ tasks.withType(JavaCompile).configureEach {
 }
 ```
 
-### Итоговый вид файла build.gradle
+#### Итоговый вид файла build.gradle
 
 ```groovy
 plugins {
@@ -94,9 +105,9 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 // Добавляем для работы с библиотекой selenide:
-    testImplementation 'com.codeborne:selenide:7.7.3'
+    testImplementation 'com.codeborne:selenide:7.16.2'
 // Добавляем для устранения предупреждений:    
-    testImplementation 'org.slf4j:slf4j-simple:2.0.12'
+    testImplementation 'org.slf4j:slf4j-simple:2.0.18'
 }
 
 test {
