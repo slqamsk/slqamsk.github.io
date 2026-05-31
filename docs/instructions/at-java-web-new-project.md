@@ -30,7 +30,8 @@ title: Инструкции по установке и настройке инс
 
 ## Настройка нового проекта
 
-### Исходный файл build.gradle
+### файл сборки Gradle — build.gradle 
+#### Исходный файл build.gradle
 После создания проекта автоматически создаётся файл сборки Gradle — build.gradle:
 
 ```groovy
@@ -56,9 +57,9 @@ test {
 }
 ```
 
-### Что надо добавить в файл build.gradle
+#### Что надо добавить в файл build.gradle
 
-#### Selenide
+##### Selenide
 Для подключения библиотек Selenide (и через зависимости подключится библиотека Selenium) нужно добавить в раздел dependencies:  
 ```groovy
 testImplementation 'com.codeborne:selenide:7.16.2'
@@ -68,7 +69,7 @@ testImplementation 'com.codeborne:selenide:7.16.2'
 
 
     
-#### SLF4J Simple Provider
+##### SLF4J Simple Provider
 Для того, чтобы избавиться от предупреждения об отсутсвии модуля логирования в раздел dependencies: 
 ```groovy 
 testImplementation 'org.slf4j:slf4j-simple:2.0.18'
@@ -78,7 +79,7 @@ testImplementation 'org.slf4j:slf4j-simple:2.0.18'
 
 
     
-#### Настройки кириллицы
+##### Настройки кириллицы
 Для того, чтобы корректно работать с кириллицей в конце файла:  
 ```groovy 
 tasks.withType(JavaCompile).configureEach {
@@ -119,3 +120,10 @@ tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
 }
 ```
+
+### Отключение проверки орфографии
+Если вас раздражает, что IntelliJ IDEA подчёркивает неизвестные ей слова, то можно в меню:
+File - Settings
+выбрать:
+Editor - Inspections
+и в разделе Proofreading отключить галочку Spelling
