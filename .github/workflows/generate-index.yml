@@ -60,6 +60,8 @@ jobs:
               if [ -z "$title" ]; then
                 title="$name"
               fi
+
+              title=$(echo "$title" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
               
               # Записываем пункт списка
               echo "$((i+1)). [$title](./$file)" >> index.md
