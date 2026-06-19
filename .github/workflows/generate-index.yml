@@ -30,9 +30,10 @@ jobs:
           echo '' >> index.md
 
           # Собираем все .md и .html файлы, кроме самого index.md
-          i=1
+          i=0
           for file in *.md *.html; do
             if [[ $file != "index.md" && -f $file ]]; then
+              i=$((i+1))
               # Извлекаем имя файла без расширения
               name=$(basename "$file" .md)
               name=$(basename "$name" .html)
@@ -64,8 +65,7 @@ jobs:
               title=$(echo "$title" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
               
               # Записываем пункт списка
-              echo "$((i+1)). [$title](./$file)" >> index.md
-              i=$((i+1))
+              echo "$((i)). [$title](./$file)" >> index.md
             fi
           done
 
