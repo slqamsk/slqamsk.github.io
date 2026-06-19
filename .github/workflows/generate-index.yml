@@ -56,6 +56,10 @@ jobs:
                   title=$(sed -n '/^---$/,/^---$/p' "$file" | grep -m 1 '^title:' | sed 's/^title:\s*//; s/^"//; s/"$//')
                 fi
               fi
+
+              if [ -z "$title" ]; then
+                title="$name"
+              fi
               
               # Записываем пункт списка
               echo "$((i+1)). [$title](./$file)" >> index.md
