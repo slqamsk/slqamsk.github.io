@@ -1,0 +1,78 @@
+name: Generate instructions index
+
+on:
+  push:
+    paths:
+      - 'docs/instructions/*.md'
+      - 'docs/instructions/*.html'
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Generate index.md
+        run: |
+          cd docs/instructions
+          echo '---' > index.md
+          echo 'layout: instructions' >> index.md
+          echo 'title: Инструкции по настройке' >> index.md
+          echo '---' >> index.md
+          echo '' >> index.md
+          echo '# 📚 Список инструкций' >> index.md
+          echo 'В этом разделе собраны пошаговые руководства по настройке различных инструментов и сервисов.' >> index.md
+          echo '' >> index.md
+
+          # Собираем все .md и .html файлы, кроме самого index.md
+          i=0
+          for file in *.md *.html; do
+            if [[ $file != "index.md" && -f $file ]]; then
+              i=$((i+1))
+              # Извлекаем имя файла без расширения
+              name=$(basename "$file" .md)
+              name=$(basename "$name" .html)
+              
+              # Если не найдём заголовков, то заголовок будет - имя файла
+              title="$name"
+              
+              # Для MD извлекаем первый заголовок
+              if [[ "$file" == *.md ]]; then
+                title=$(grep -m 1 '^# ' "$file" | sed 's/^# //')
+              fi
+              
+              # Для HTML извлекаем <title> или заголовок из Front Matter
+              if [[ "$file" == *.html ]]; then
+                # Сначала пробуем найти <title>
+                title=$(grep -o '<title>[^<]*</title>' "$file" | sed 's/<title>//;s/<\/title>//' | head -1)
+                
+                # Если <title> не найден, пробуем извлечь title из Front Matter
+                if [ -z "$title" ]; then
+                  # Ищем блок --- ... --- и внутри строку title: 
+                  title=$(sed -n '/^---$/,/^---$/p' "$file" | grep -m 1 '^title:' | sed 's/^title:\s*//; s/^"//; s/"$//')
+                fi
+              fi
+
+              if [ -z "$title" ]; then
+                title="$name"
+              fi
+
+              title=$(echo "$title" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+              
+              # Записываем пункт списка
+              echo "$((i)). [$title](./$file)" >> index.md
+            fi
+          done
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/instructions/index.md
+          git diff --staged --quiet || git commit -m "Auto-generate instructions index"
+          git push
