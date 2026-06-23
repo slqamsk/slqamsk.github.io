@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>📊 Опрос студентов</title>
-    <!-- Supabase JS SDK -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * {
             box-sizing: border-box;
@@ -26,8 +24,15 @@
             margin-bottom: 20px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.08);
         }
-        h1 { font-size: 24px; margin-bottom: 8px; }
-        .subtitle { color: #666; font-size: 14px; margin-bottom: 20px; }
+        h1 {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+        .subtitle {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
         .course-btn {
             display: block;
             width: 100%;
@@ -83,6 +88,22 @@
         .btn-primary:disabled {
             opacity: 0.5;
             cursor: not-allowed;
+        }
+        .btn-secondary {
+            width: 100%;
+            padding: 14px;
+            background: #e0e0e0;
+            color: #333;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-top: 12px;
+        }
+        .btn-secondary:hover {
+            background: #d0d0d0;
         }
         .answer-item {
             padding: 12px;
@@ -141,6 +162,9 @@
             color: #888;
             font-size: 12px;
         }
+        .status-message {
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -148,16 +172,18 @@
     <div class="card">
         <h1>📊 Опрос студентов</h1>
         <p class="subtitle">Выберите курс и отправьте свой ответ</p>
-        
+
         <div id="userInfo" class="user-info hidden">
             <span class="name" id="userName">—</span>
             <span class="id" id="userIdDisplay">—</span>
         </div>
-        
+
         <div id="registrationForm">
             <p style="margin-bottom: 8px;">👋 Представьтесь:</p>
-            <input type="text" id="fullNameInput" placeholder="Фамилия Имя Отчество" style="width:100%; padding:12px; border:2px solid #e0e0e0; border-radius:10px; font-size:16px;">
+            <input type="text" id="fullNameInput" placeholder="Фамилия Имя Отчество"
+                   style="width:100%; padding:12px; border:2px solid #e0e0e0; border-radius:10px; font-size:16px;">
             <button class="btn-primary" id="registerBtn">Зарегистрироваться</button>
+            <div id="regStatus" class="status-message"></div>
         </div>
     </div>
 
@@ -168,6 +194,7 @@
             <div id="coursesList">
                 <div class="loader">Загрузка курсов...</div>
             </div>
+            <div id="courseStatus" class="status-message"></div>
         </div>
 
         <!-- Отправка ответа -->
@@ -175,13 +202,13 @@
             <h3>✏️ Ваш ответ</h3>
             <textarea id="answerInput" placeholder="Напишите ваш ответ здесь..."></textarea>
             <button class="btn-primary" id="sendAnswerBtn">Отправить ответ</button>
-            <div id="answerStatus"></div>
+            <div id="answerStatus" class="status-message"></div>
         </div>
 
         <!-- Мои ответы -->
         <div class="card">
             <h3>📋 Мои ответы</h3>
-            <button class="btn-primary" id="loadAnswersBtn" style="margin-top:0;">Обновить</button>
+            <button class="btn-secondary" id="loadAnswersBtn">Обновить</button>
             <div id="answersList" style="margin-top:12px;">
                 <div class="loader">Загрузите ответы</div>
             </div>
@@ -190,12 +217,9 @@
 
     <script>
         // ============================================================
-        // 1. НАСТРОЙКА SUPABASE
+        // 1. НАСТРОЙКА API (ВАШ РЕНДЕР)
         // ============================================================
-        const SUPABASE_URL = 'https://zxlutkqyhfdobmjothhu.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4bHV0a3F5aGZkb2Jtam90aGh1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIyMjMwNzcsImV4cCI6MjA5Nzc5OTA3N30.zKZhyRPvdj7h1Yg6vZloEvYSUCpGJfiCVTeZVSZlVPs';
-
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        const API_BASE = 'https://feedback-collector.onrender.com';
 
         // ============================================================
         // 2. РАБОТА С USER ID
@@ -203,7 +227,6 @@
         function getUserId() {
             let userId = localStorage.getItem('web_user_id');
             if (!userId) {
-                // Генерируем случайный UUID
                 userId = crypto.randomUUID ? crypto.randomUUID() : 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
                 localStorage.setItem('web_user_id', userId);
             }
@@ -225,7 +248,9 @@
         const userIdDisplay = document.getElementById('userIdDisplay');
         const fullNameInput = document.getElementById('fullNameInput');
         const registerBtn = document.getElementById('registerBtn');
+        const regStatus = document.getElementById('regStatus');
         const coursesList = document.getElementById('coursesList');
+        const courseStatus = document.getElementById('courseStatus');
         const answerInput = document.getElementById('answerInput');
         const sendAnswerBtn = document.getElementById('sendAnswerBtn');
         const answerStatus = document.getElementById('answerStatus');
@@ -247,16 +272,15 @@
         }
 
         // ============================================================
-        // 5. ЗАГРУЗКА КУРСОВ
+        // 5. ЗАГРУЗКА КУРСОВ (через API)
         // ============================================================
         async function loadCourses() {
             try {
-                const { data, error } = await supabase
-                    .from('courses')
-                    .select('id, name')
-                    .order('name');
-
-                if (error) throw error;
+                const response = await fetch(`${API_BASE}/api/courses`);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                const data = await response.json();
                 allCourses = data;
                 renderCourses();
             } catch (err) {
@@ -281,7 +305,6 @@
             });
             coursesList.innerHTML = html;
 
-            // Навешиваем обработчики
             document.querySelectorAll('.course-btn').forEach(btn => {
                 btn.addEventListener('click', async () => {
                     const courseId = parseInt(btn.dataset.courseId);
@@ -291,81 +314,67 @@
         }
 
         // ============================================================
-        // 6. ВЫБОР КУРСА
+        // 6. ВЫБОР КУРСА (через API)
         // ============================================================
         async function selectCourse(courseId) {
             if (!currentStudent) {
-                showMessage(answerStatus, 'Сначала зарегистрируйтесь!', 'error');
+                showMessage(courseStatus, 'Сначала зарегистрируйтесь!', 'error');
                 return;
             }
 
-            selectedCourseId = courseId;
-            
-            // Обновляем в БД
             try {
-                const { error } = await supabase
-                    .from('students')
-                    .update({ selected_course_id: courseId })
-                    .eq('id', currentStudent.id);
+                const response = await fetch(`${API_BASE}/api/student/select_course`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        student_id: currentStudent.id,
+                        course_id: courseId
+                    })
+                });
 
-                if (error) throw error;
-                
-                // Обновляем текущего студента
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `HTTP ${response.status}`);
+                }
+
+                selectedCourseId = courseId;
                 currentStudent.selected_course_id = courseId;
                 renderCourses();
-                showMessage(answerStatus, `✅ Выбран курс: ${allCourses.find(c => c.id === courseId)?.name}`, 'success');
+                showMessage(courseStatus, `✅ Выбран курс: ${allCourses.find(c => c.id === courseId)?.name}`, 'success');
             } catch (err) {
-                showMessage(answerStatus, `❌ Ошибка: ${err.message}`, 'error');
+                showMessage(courseStatus, `❌ Ошибка: ${err.message}`, 'error');
             }
         }
 
         // ============================================================
-        // 7. РЕГИСТРАЦИЯ
+        // 7. РЕГИСТРАЦИЯ (через API)
         // ============================================================
         async function registerUser() {
             const fullName = fullNameInput.value.trim();
             if (!fullName) {
-                showMessage(answerStatus, 'Пожалуйста, введите ваше полное имя', 'error');
+                showMessage(regStatus, 'Пожалуйста, введите ваше полное имя', 'error');
                 return;
             }
 
+            registerBtn.disabled = true;
+            registerBtn.textContent = 'Регистрация...';
+
             try {
-                // Проверяем, есть ли уже такой пользователь
-                const { data: existing, error: findError } = await supabase
-                    .from('students')
-                    .select('*')
-                    .eq('web_user_id', WEB_USER_ID)
-                    .maybeSingle();
+                const response = await fetch(`${API_BASE}/api/student`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        web_user_id: WEB_USER_ID,
+                        full_name: fullName
+                    })
+                });
 
-                if (findError && findError.code !== 'PGRST116') throw findError;
-
-                let student;
-                if (existing) {
-                    student = existing;
-                    // Обновляем имя если изменилось
-                    if (student.full_name !== fullName) {
-                        const { error: updateError } = await supabase
-                            .from('students')
-                            .update({ full_name: fullName })
-                            .eq('id', student.id);
-                        if (updateError) throw updateError;
-                        student.full_name = fullName;
-                    }
-                } else {
-                    // Создаём нового
-                    const { data: newStudent, error: insertError } = await supabase
-                        .from('students')
-                        .insert({
-                            web_user_id: WEB_USER_ID,
-                            full_name: fullName
-                        })
-                        .select()
-                        .single();
-
-                    if (insertError) throw insertError;
-                    student = newStudent;
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `HTTP ${response.status}`);
                 }
 
+                const student = await response.json();
                 currentStudent = student;
                 selectedCourseId = student.selected_course_id || null;
 
@@ -376,23 +385,25 @@
                 userName.textContent = student.full_name;
                 userIdDisplay.textContent = `ID: ${WEB_USER_ID.slice(0, 8)}...`;
 
-                // Если есть выбранный курс — показываем
                 if (selectedCourseId) {
                     renderCourses();
                     const courseName = allCourses.find(c => c.id === selectedCourseId)?.name || 'выбранный курс';
-                    showMessage(answerStatus, `ℹ️ Использую последний курс: ${courseName}`, 'success');
+                    showMessage(courseStatus, `ℹ️ Использую последний курс: ${courseName}`, 'success');
                 }
 
-                // Загружаем ответы
                 await loadAnswers();
+                showMessage(regStatus, '✅ Регистрация успешна!', 'success');
 
             } catch (err) {
-                showMessage(answerStatus, `❌ Ошибка регистрации: ${err.message}`, 'error');
+                showMessage(regStatus, `❌ Ошибка регистрации: ${err.message}`, 'error');
+            } finally {
+                registerBtn.disabled = false;
+                registerBtn.textContent = 'Зарегистрироваться';
             }
         }
 
         // ============================================================
-        // 8. ОТПРАВКА ОТВЕТА
+        // 8. ОТПРАВКА ОТВЕТА (через API)
         // ============================================================
         async function sendAnswer() {
             const content = answerInput.value.trim();
@@ -412,17 +423,24 @@
                 return;
             }
 
+            sendAnswerBtn.disabled = true;
+            sendAnswerBtn.textContent = 'Отправка...';
+
             try {
-                const { data, error } = await supabase
-                    .from('answers')
-                    .insert({
+                const response = await fetch(`${API_BASE}/api/answers`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
                         student_id: currentStudent.id,
                         course_id: courseId,
                         content: content
                     })
-                    .select();
+                });
 
-                if (error) throw error;
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `HTTP ${response.status}`);
+                }
 
                 showMessage(answerStatus, '✅ Ответ сохранён!', 'success');
                 answerInput.value = '';
@@ -430,11 +448,14 @@
 
             } catch (err) {
                 showMessage(answerStatus, `❌ Ошибка: ${err.message}`, 'error');
+            } finally {
+                sendAnswerBtn.disabled = false;
+                sendAnswerBtn.textContent = 'Отправить ответ';
             }
         }
 
         // ============================================================
-        // 9. ЗАГРУЗКА ОТВЕТОВ
+        // 9. ЗАГРУЗКА ОТВЕТОВ (через API)
         // ============================================================
         async function loadAnswers() {
             if (!currentStudent) {
@@ -445,19 +466,13 @@
             answersList.innerHTML = '<div class="loader">Загрузка...</div>';
 
             try {
-                const { data, error } = await supabase
-                    .from('answers')
-                    .select(`
-                        id,
-                        content,
-                        created_at,
-                        courses:course_id (name)
-                    `)
-                    .eq('student_id', currentStudent.id)
-                    .order('created_at', { ascending: false })
-                    .limit(10);
+                const response = await fetch(`${API_BASE}/api/answers?student_id=${currentStudent.id}`);
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `HTTP ${response.status}`);
+                }
 
-                if (error) throw error;
+                const data = await response.json();
 
                 if (!data || data.length === 0) {
                     answersList.innerHTML = '<div class="loader">📭 У вас пока нет ответов</div>';
@@ -485,28 +500,40 @@
         }
 
         // ============================================================
-        // 10. ПРОВЕРКА СУЩЕСТВУЮЩЕГО ПОЛЬЗОВАТЕЛЯ
+        // 10. ПРОВЕРКА СУЩЕСТВУЮЩЕГО ПОЛЬЗОВАТЕЛЯ (через API)
         // ============================================================
         async function checkExistingUser() {
             try {
-                const { data, error } = await supabase
-                    .from('students')
-                    .select('*')
-                    .eq('web_user_id', WEB_USER_ID)
-                    .maybeSingle();
-
-                if (error && error.code !== 'PGRST116') throw error;
-
-                if (data) {
-                    currentStudent = data;
-                    selectedCourseId = data.selected_course_id || null;
-                    
-                    // Автоматически регистрируем
-                    fullNameInput.value = data.full_name;
-                    await registerUser();
-                    return true;
+                const response = await fetch(`${API_BASE}/api/student?web_user_id=${encodeURIComponent(WEB_USER_ID)}`);
+                if (response.status === 404) {
+                    return false;
                 }
-                return false;
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `HTTP ${response.status}`);
+                }
+
+                const student = await response.json();
+                currentStudent = student;
+                selectedCourseId = student.selected_course_id || null;
+
+                // Автоматически регистрируем
+                fullNameInput.value = student.full_name;
+                registrationForm.classList.add('hidden');
+                mainApp.classList.remove('hidden');
+                userInfo.classList.remove('hidden');
+                userName.textContent = student.full_name;
+                userIdDisplay.textContent = `ID: ${WEB_USER_ID.slice(0, 8)}...`;
+
+                if (selectedCourseId) {
+                    renderCourses();
+                    const courseName = allCourses.find(c => c.id === selectedCourseId)?.name || 'выбранный курс';
+                    showMessage(courseStatus, `ℹ️ Использую последний курс: ${courseName}`, 'success');
+                }
+
+                await loadAnswers();
+                return true;
+
             } catch (err) {
                 console.error('Ошибка проверки пользователя:', err);
                 return false;
@@ -524,7 +551,6 @@
             const hasUser = await checkExistingUser();
 
             if (!hasUser) {
-                // Показываем форму регистрации
                 registrationForm.classList.remove('hidden');
                 mainApp.classList.add('hidden');
                 userInfo.classList.add('hidden');
@@ -538,7 +564,6 @@
             sendAnswerBtn.addEventListener('click', sendAnswer);
             loadAnswersBtn.addEventListener('click', loadAnswers);
 
-            // Enter в поле ответа
             answerInput.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
@@ -548,9 +573,9 @@
 
             console.log('✅ Веб-версия опросника запущена!');
             console.log(`📌 Ваш ID: ${WEB_USER_ID}`);
+            console.log(`🔗 API: ${API_BASE}`);
         }
 
-        // Запускаем
         document.addEventListener('DOMContentLoaded', init);
     </script>
 
