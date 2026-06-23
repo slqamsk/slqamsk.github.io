@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📊 Опрос студентов</title>
+    <!-- Supabase JS SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f0f2f5;
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        h1 { font-size: 24px; margin-bottom: 8px; }
+        .subtitle { color: #666; font-size: 14px; margin-bottom: 20px; }
+        .course-btn {
+            display: block;
+            width: 100%;
+            padding: 12px 16px;
+            margin: 6px 0;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            background: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.2s;
+            text-align: left;
+        }
+        .course-btn:hover {
+            border-color: #6c5ce7;
+            background: #f8f7ff;
+        }
+        .course-btn.active {
+            border-color: #6c5ce7;
+            background: #6c5ce7;
+            color: white;
+        }
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 100px;
+        }
+        textarea:focus {
+            outline: none;
+            border-color: #6c5ce7;
+        }
+        .btn-primary {
+            width: 100%;
+            padding: 14px;
+            background: #6c5ce7;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-top: 12px;
+        }
+        .btn-primary:hover {
+            background: #5a4bd1;
+        }
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .answer-item {
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+        .answer-item .course-tag {
+            display: inline-block;
+            background: #6c5ce7;
+            color: white;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-bottom: 4px;
+        }
+        .answer-item .date {
+            color: #888;
+            font-size: 12px;
+        }
+        .hidden {
+            display: none !important;
+        }
+        .error {
+            color: #e74c3c;
+            padding: 12px;
+            background: #fde8e8;
+            border-radius: 8px;
+            margin: 8px 0;
+        }
+        .success {
+            color: #27ae60;
+            padding: 12px;
+            background: #e8f8ed;
+            border-radius: 8px;
+            margin: 8px 0;
+        }
+        .loader {
+            text-align: center;
+            color: #888;
+            padding: 20px;
+        }
+        .user-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8f9fa;
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin-bottom: 16px;
+        }
+        .user-info .name {
+            font-weight: 600;
+        }
+        .user-info .id {
+            color: #888;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h1>📊 Опрос студентов</h1>
+        <p class="subtitle">Выберите курс и отправьте свой ответ</p>
+        
+        <div id="userInfo" class="user-info hidden">
+            <span class="name" id="userName">—</span>
+            <span class="id" id="userIdDisplay">—</span>
+        </div>
+        
+        <div id="registrationForm">
+            <p style="margin-bottom: 8px;">👋 Представьтесь:</p>
+            <input type="text" id="fullNameInput" placeholder="Фамилия Имя Отчество" style="width:100%; padding:12px; border:2px solid #e0e0e0; border-radius:10px; font-size:16px;">
+            <button class="btn-primary" id="registerBtn">Зарегистрироваться</button>
+        </div>
+    </div>
+
+    <div id="mainApp" class="hidden">
+        <!-- Курсы -->
+        <div class="card">
+            <h3>📚 Выберите курс</h3>
+            <div id="coursesList">
+                <div class="loader">Загрузка курсов...</div>
+            </div>
+        </div>
+
+        <!-- Отправка ответа -->
+        <div class="card">
+            <h3>✏️ Ваш ответ</h3>
+            <textarea id="answerInput" placeholder="Напишите ваш ответ здесь..."></textarea>
+            <button class="btn-primary" id="sendAnswerBtn">Отправить ответ</button>
+            <div id="answerStatus"></div>
+        </div>
+
+        <!-- Мои ответы -->
+        <div class="card">
+            <h3>📋 Мои ответы</h3>
+            <button class="btn-primary" id="loadAnswersBtn" style="margin-top:0;">Обновить</button>
+            <div id="answersList" style="margin-top:12px;">
+                <div class="loader">Загрузите ответы</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================
+        // 1. НАСТРОЙКА SUPABASE
+        // ============================================================
+        const SUPABASE_URL = 'https://zxlutkqyhfdobmjothhu.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4bHV0a3F5aGZkb2Jtam90aGh1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIyMjMwNzcsImV4cCI6MjA5Nzc5OTA3N30.zKZhyRPvdj7h1Yg6vZloEvYSUCpGJfiCVTeZVSZlVPs';
+
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // ============================================================
+        // 2. РАБОТА С USER ID
+        // ============================================================
+        function getUserId() {
+            let userId = localStorage.getItem('web_user_id');
+            if (!userId) {
+                // Генерируем случайный UUID
+                userId = crypto.randomUUID ? crypto.randomUUID() : 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                localStorage.setItem('web_user_id', userId);
+            }
+            return userId;
+        }
+
+        const WEB_USER_ID = getUserId();
+        let currentStudent = null;
+        let selectedCourseId = null;
+        let allCourses = [];
+
+        // ============================================================
+        // 3. DOM ЭЛЕМЕНТЫ
+        // ============================================================
+        const registrationForm = document.getElementById('registrationForm');
+        const mainApp = document.getElementById('mainApp');
+        const userInfo = document.getElementById('userInfo');
+        const userName = document.getElementById('userName');
+        const userIdDisplay = document.getElementById('userIdDisplay');
+        const fullNameInput = document.getElementById('fullNameInput');
+        const registerBtn = document.getElementById('registerBtn');
+        const coursesList = document.getElementById('coursesList');
+        const answerInput = document.getElementById('answerInput');
+        const sendAnswerBtn = document.getElementById('sendAnswerBtn');
+        const answerStatus = document.getElementById('answerStatus');
+        const answersList = document.getElementById('answersList');
+        const loadAnswersBtn = document.getElementById('loadAnswersBtn');
+
+        // ============================================================
+        // 4. ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
+        // ============================================================
+        function showMessage(element, text, type = 'success') {
+            element.innerHTML = `<div class="${type}">${text}</div>`;
+            if (type !== 'error') {
+                setTimeout(() => { element.innerHTML = ''; }, 5000);
+            }
+        }
+
+        function clearMessage(element) {
+            element.innerHTML = '';
+        }
+
+        // ============================================================
+        // 5. ЗАГРУЗКА КУРСОВ
+        // ============================================================
+        async function loadCourses() {
+            try {
+                const { data, error } = await supabase
+                    .from('courses')
+                    .select('id, name')
+                    .order('name');
+
+                if (error) throw error;
+                allCourses = data;
+                renderCourses();
+            } catch (err) {
+                coursesList.innerHTML = `<div class="error">Ошибка загрузки курсов: ${err.message}</div>`;
+            }
+        }
+
+        function renderCourses() {
+            if (!allCourses.length) {
+                coursesList.innerHTML = '<div class="error">Курсов пока нет</div>';
+                return;
+            }
+
+            let html = '';
+            allCourses.forEach(course => {
+                const active = course.id === selectedCourseId ? 'active' : '';
+                html += `
+                    <button class="course-btn ${active}" data-course-id="${course.id}">
+                        ${course.name}
+                    </button>
+                `;
+            });
+            coursesList.innerHTML = html;
+
+            // Навешиваем обработчики
+            document.querySelectorAll('.course-btn').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    const courseId = parseInt(btn.dataset.courseId);
+                    await selectCourse(courseId);
+                });
+            });
+        }
+
+        // ============================================================
+        // 6. ВЫБОР КУРСА
+        // ============================================================
+        async function selectCourse(courseId) {
+            if (!currentStudent) {
+                showMessage(answerStatus, 'Сначала зарегистрируйтесь!', 'error');
+                return;
+            }
+
+            selectedCourseId = courseId;
+            
+            // Обновляем в БД
+            try {
+                const { error } = await supabase
+                    .from('students')
+                    .update({ selected_course_id: courseId })
+                    .eq('id', currentStudent.id);
+
+                if (error) throw error;
+                
+                // Обновляем текущего студента
+                currentStudent.selected_course_id = courseId;
+                renderCourses();
+                showMessage(answerStatus, `✅ Выбран курс: ${allCourses.find(c => c.id === courseId)?.name}`, 'success');
+            } catch (err) {
+                showMessage(answerStatus, `❌ Ошибка: ${err.message}`, 'error');
+            }
+        }
+
+        // ============================================================
+        // 7. РЕГИСТРАЦИЯ
+        // ============================================================
+        async function registerUser() {
+            const fullName = fullNameInput.value.trim();
+            if (!fullName) {
+                showMessage(answerStatus, 'Пожалуйста, введите ваше полное имя', 'error');
+                return;
+            }
+
+            try {
+                // Проверяем, есть ли уже такой пользователь
+                const { data: existing, error: findError } = await supabase
+                    .from('students')
+                    .select('*')
+                    .eq('web_user_id', WEB_USER_ID)
+                    .maybeSingle();
+
+                if (findError && findError.code !== 'PGRST116') throw findError;
+
+                let student;
+                if (existing) {
+                    student = existing;
+                    // Обновляем имя если изменилось
+                    if (student.full_name !== fullName) {
+                        const { error: updateError } = await supabase
+                            .from('students')
+                            .update({ full_name: fullName })
+                            .eq('id', student.id);
+                        if (updateError) throw updateError;
+                        student.full_name = fullName;
+                    }
+                } else {
+                    // Создаём нового
+                    const { data: newStudent, error: insertError } = await supabase
+                        .from('students')
+                        .insert({
+                            web_user_id: WEB_USER_ID,
+                            full_name: fullName
+                        })
+                        .select()
+                        .single();
+
+                    if (insertError) throw insertError;
+                    student = newStudent;
+                }
+
+                currentStudent = student;
+                selectedCourseId = student.selected_course_id || null;
+
+                // Обновляем UI
+                registrationForm.classList.add('hidden');
+                mainApp.classList.remove('hidden');
+                userInfo.classList.remove('hidden');
+                userName.textContent = student.full_name;
+                userIdDisplay.textContent = `ID: ${WEB_USER_ID.slice(0, 8)}...`;
+
+                // Если есть выбранный курс — показываем
+                if (selectedCourseId) {
+                    renderCourses();
+                    const courseName = allCourses.find(c => c.id === selectedCourseId)?.name || 'выбранный курс';
+                    showMessage(answerStatus, `ℹ️ Использую последний курс: ${courseName}`, 'success');
+                }
+
+                // Загружаем ответы
+                await loadAnswers();
+
+            } catch (err) {
+                showMessage(answerStatus, `❌ Ошибка регистрации: ${err.message}`, 'error');
+            }
+        }
+
+        // ============================================================
+        // 8. ОТПРАВКА ОТВЕТА
+        // ============================================================
+        async function sendAnswer() {
+            const content = answerInput.value.trim();
+            if (!content) {
+                showMessage(answerStatus, 'Пожалуйста, напишите ответ', 'error');
+                return;
+            }
+
+            if (!currentStudent) {
+                showMessage(answerStatus, 'Сначала зарегистрируйтесь!', 'error');
+                return;
+            }
+
+            let courseId = selectedCourseId || currentStudent.selected_course_id;
+            if (!courseId) {
+                showMessage(answerStatus, 'Пожалуйста, выберите курс', 'error');
+                return;
+            }
+
+            try {
+                const { data, error } = await supabase
+                    .from('answers')
+                    .insert({
+                        student_id: currentStudent.id,
+                        course_id: courseId,
+                        content: content
+                    })
+                    .select();
+
+                if (error) throw error;
+
+                showMessage(answerStatus, '✅ Ответ сохранён!', 'success');
+                answerInput.value = '';
+                await loadAnswers();
+
+            } catch (err) {
+                showMessage(answerStatus, `❌ Ошибка: ${err.message}`, 'error');
+            }
+        }
+
+        // ============================================================
+        // 9. ЗАГРУЗКА ОТВЕТОВ
+        // ============================================================
+        async function loadAnswers() {
+            if (!currentStudent) {
+                answersList.innerHTML = '<div class="loader">Зарегистрируйтесь, чтобы увидеть ответы</div>';
+                return;
+            }
+
+            answersList.innerHTML = '<div class="loader">Загрузка...</div>';
+
+            try {
+                const { data, error } = await supabase
+                    .from('answers')
+                    .select(`
+                        id,
+                        content,
+                        created_at,
+                        courses:course_id (name)
+                    `)
+                    .eq('student_id', currentStudent.id)
+                    .order('created_at', { ascending: false })
+                    .limit(10);
+
+                if (error) throw error;
+
+                if (!data || data.length === 0) {
+                    answersList.innerHTML = '<div class="loader">📭 У вас пока нет ответов</div>';
+                    return;
+                }
+
+                let html = '';
+                data.forEach(ans => {
+                    const courseName = ans.courses?.name || 'Без курса';
+                    const date = new Date(ans.created_at).toLocaleString('ru-RU');
+                    const content = ans.content.length > 100 ? ans.content.slice(0, 100) + '...' : ans.content;
+                    html += `
+                        <div class="answer-item">
+                            <div class="course-tag">${courseName}</div>
+                            <div>${content}</div>
+                            <div class="date">${date}</div>
+                        </div>
+                    `;
+                });
+                answersList.innerHTML = html;
+
+            } catch (err) {
+                answersList.innerHTML = `<div class="error">Ошибка: ${err.message}</div>`;
+            }
+        }
+
+        // ============================================================
+        // 10. ПРОВЕРКА СУЩЕСТВУЮЩЕГО ПОЛЬЗОВАТЕЛЯ
+        // ============================================================
+        async function checkExistingUser() {
+            try {
+                const { data, error } = await supabase
+                    .from('students')
+                    .select('*')
+                    .eq('web_user_id', WEB_USER_ID)
+                    .maybeSingle();
+
+                if (error && error.code !== 'PGRST116') throw error;
+
+                if (data) {
+                    currentStudent = data;
+                    selectedCourseId = data.selected_course_id || null;
+                    
+                    // Автоматически регистрируем
+                    fullNameInput.value = data.full_name;
+                    await registerUser();
+                    return true;
+                }
+                return false;
+            } catch (err) {
+                console.error('Ошибка проверки пользователя:', err);
+                return false;
+            }
+        }
+
+        // ============================================================
+        // 11. ИНИЦИАЛИЗАЦИЯ
+        // ============================================================
+        async function init() {
+            // Загружаем курсы
+            await loadCourses();
+
+            // Проверяем, есть ли уже пользователь
+            const hasUser = await checkExistingUser();
+
+            if (!hasUser) {
+                // Показываем форму регистрации
+                registrationForm.classList.remove('hidden');
+                mainApp.classList.add('hidden');
+                userInfo.classList.add('hidden');
+            }
+
+            // Обработчики событий
+            registerBtn.addEventListener('click', registerUser);
+            fullNameInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') registerUser();
+            });
+            sendAnswerBtn.addEventListener('click', sendAnswer);
+            loadAnswersBtn.addEventListener('click', loadAnswers);
+
+            // Enter в поле ответа
+            answerInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendAnswer();
+                }
+            });
+
+            console.log('✅ Веб-версия опросника запущена!');
+            console.log(`📌 Ваш ID: ${WEB_USER_ID}`);
+        }
+
+        // Запускаем
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+
+</body>
+</html>
