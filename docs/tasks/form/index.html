@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📝 Отправить сообщение</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f0f2f5;
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        h1 {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+        .subtitle {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 16px;
+        }
+        .form-group label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            font-family: inherit;
+        }
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #6c5ce7;
+        }
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+        .btn-primary {
+            width: 100%;
+            padding: 14px;
+            background: #6c5ce7;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-top: 12px;
+        }
+        .btn-primary:hover {
+            background: #5a4bd1;
+        }
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .btn-secondary {
+            width: 100%;
+            padding: 14px;
+            background: #e0e0e0;
+            color: #333;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-top: 12px;
+        }
+        .btn-secondary:hover {
+            background: #d0d0d0;
+        }
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+        .user-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8f9fa;
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin-bottom: 16px;
+        }
+        .user-info .name {
+            font-weight: 600;
+        }
+        .loader {
+            text-align: center;
+            color: #888;
+            padding: 20px;
+        }
+        .error {
+            color: #e74c3c;
+            padding: 12px;
+            background: #fde8e8;
+            border-radius: 8px;
+            margin: 8px 0;
+        }
+        .success {
+            color: #27ae60;
+            padding: 12px;
+            background: #e8f8ed;
+            border-radius: 8px;
+            margin: 8px 0;
+        }
+        .status-message {
+            margin-top: 10px;
+        }
+        .hidden {
+            display: none !important;
+        }
+        .auth-prompt {
+            text-align: center;
+            padding: 20px 0;
+        }
+        .auth-prompt .icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+        .auth-prompt .message {
+            font-size: 18px;
+            margin-bottom: 24px;
+        }
+        .login-btn {
+            display: inline-block;
+            padding: 12px 32px;
+            background: #6c5ce7;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .login-btn:hover {
+            background: #5a4bd1;
+        }
+        .success-msg {
+            color: #27ae60;
+            padding: 12px;
+            background: #e8f8ed;
+            border-radius: 8px;
+            margin: 8px 0;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Блок для неавторизованных пользователей -->
+    <div id="authRequired" class="card hidden">
+        <h1>📝 Отправить сообщение</h1>
+        <p class="subtitle">Для отправки сообщения необходимо войти в систему</p>
+        <div class="auth-prompt">
+            <div class="icon">🔐</div>
+            <div class="message">Пожалуйста, войдите, чтобы продолжить</div>
+            <button class="login-btn" id="loginRedirectBtn">Войти</button>
+        </div>
+    </div>
+
+    <!-- Основная форма (только для авторизованных) -->
+    <div id="appContainer" class="hidden">
+        <div class="card">
+            <div class="user-info">
+                <span class="name" id="userName">—</span>
+                <button class="btn-danger" id="logoutBtn">Выйти</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h1>📝 Отправить сообщение</h1>
+            <p class="subtitle">Выберите курс и напишите текст</p>
+
+            <div class="form-group">
+                <label for="courseSelect">Курс</label>
+                <select id="courseSelect">
+                    <option value="">Загрузка курсов...</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="messageInput">Текст сообщения</label>
+                <textarea id="messageInput" placeholder="Напишите ваш вопрос или ответ..."></textarea>
+            </div>
+
+            <button class="btn-primary" id="sendBtn">Отправить</button>
+            <div id="sendStatus" class="status-message"></div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================
+        // 1. НАСТРОЙКА API
+        // ============================================================
+        const API_BASE = 'https://feedback-collector-4hw0.onrender.com';
+
+        // ============================================================
+        // 2. РАБОТА С ТОКЕНОМ
+        // ============================================================
+        function getToken() {
+            return localStorage.getItem('jwt_token');
+        }
+
+        function setToken(token) {
+            localStorage.setItem('jwt_token', token);
+        }
+
+        function removeToken() {
+            localStorage.removeItem('jwt_token');
+        }
+
+        function getAuthHeaders() {
+            const token = getToken();
+            return token ? { 'Authorization': `Bearer ${token}` } : {};
+        }
+
+        // ============================================================
+        // 3. DOM ЭЛЕМЕНТЫ
+        // ============================================================
+        const authRequired = document.getElementById('authRequired');
+        const appContainer = document.getElementById('appContainer');
+        const userName = document.getElementById('userName');
+        const courseSelect = document.getElementById('courseSelect');
+        const messageInput = document.getElementById('messageInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const sendStatus = document.getElementById('sendStatus');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const loginRedirectBtn = document.getElementById('loginRedirectBtn');
+
+        let currentStudent = null;
+        let selectedCourseId = null;
+        let allCourses = [];
+
+        // ============================================================
+        // 4. ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
+        // ============================================================
+        function showMessage(element, text, type = 'success') {
+            element.innerHTML = `<div class="${type}">${text}</div>`;
+            if (type !== 'error') {
+                setTimeout(() => { element.innerHTML = ''; }, 5000);
+            }
+        }
+
+        function clearMessage(element) {
+            element.innerHTML = '';
+        }
+
+        function showAuthRequired() {
+            authRequired.classList.remove('hidden');
+            appContainer.classList.add('hidden');
+        }
+
+        function showApp() {
+            authRequired.classList.add('hidden');
+            appContainer.classList.remove('hidden');
+        }
+
+        // ============================================================
+        // 5. ЗАГРУЗКА КУРСОВ
+        // ============================================================
+        async function loadCourses() {
+            try {
+                const response = await fetch(`${API_BASE}/api/courses`);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                allCourses = await response.json();
+                renderCourseSelect();
+            } catch (err) {
+                courseSelect.innerHTML = `<option value="">Ошибка загрузки</option>`;
+                console.error('Ошибка загрузки курсов:', err);
+            }
+        }
+
+        function renderCourseSelect() {
+            if (!allCourses.length) {
+                courseSelect.innerHTML = `<option value="">Курсов пока нет</option>`;
+                return;
+            }
+            let html = '';
+            allCourses.forEach(course => {
+                const selected = course.id === selectedCourseId ? 'selected' : '';
+                html += `<option value="${course.id}" ${selected}>${course.name}</option>`;
+            });
+            courseSelect.innerHTML = html;
+        }
+
+        // ============================================================
+        // 6. ПРОВЕРКА АВТОРИЗАЦИИ
+        // ============================================================
+        async function checkAuth() {
+            const token = getToken();
+            if (!token) {
+                showAuthRequired();
+                return false;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/api/student/me`, {
+                    headers: getAuthHeaders()
+                });
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        removeToken();
+                        showAuthRequired();
+                        return false;
+                    }
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                currentStudent = await response.json();
+                selectedCourseId = currentStudent.selected_course_id || null;
+                userName.textContent = currentStudent.full_name || 'Студент';
+                showApp();
+                return true;
+            } catch (err) {
+                console.error('Ошибка проверки токена:', err);
+                removeToken();
+                showAuthRequired();
+                return false;
+            }
+        }
+
+        // ============================================================
+        // 7. ОТПРАВКА СООБЩЕНИЯ
+        // ============================================================
+        async function sendMessage() {
+            const courseId = parseInt(courseSelect.value);
+            const content = messageInput.value.trim();
+
+            if (!courseId) {
+                showMessage(sendStatus, 'Пожалуйста, выберите курс', 'error');
+                return;
+            }
+            if (!content) {
+                showMessage(sendStatus, 'Пожалуйста, напишите текст сообщения', 'error');
+                return;
+            }
+
+            sendBtn.disabled = true;
+            sendBtn.textContent = 'Отправка...';
+
+            try {
+                const response = await fetch(`${API_BASE}/api/answers`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...getAuthHeaders()
+                    },
+                    body: JSON.stringify({
+                        course_id: courseId,
+                        content: content
+                    })
+                });
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        handleUnauthorized();
+                        return;
+                    }
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `HTTP ${response.status}`);
+                }
+                showMessage(sendStatus, '✅ Сообщение отправлено!', 'success');
+                messageInput.value = '';
+                // Если пользователь выбрал курс, запоминаем его в БД
+                if (courseId) {
+                    try {
+                        await fetch(`${API_BASE}/api/student/select_course`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                ...getAuthHeaders()
+                            },
+                            body: JSON.stringify({ course_id: courseId })
+                        });
+                    } catch (e) {
+                        // Не критично
+                    }
+                }
+            } catch (err) {
+                showMessage(sendStatus, `❌ ${err.message}`, 'error');
+            } finally {
+                sendBtn.disabled = false;
+                sendBtn.textContent = 'Отправить';
+            }
+        }
+
+        function handleUnauthorized() {
+            removeToken();
+            currentStudent = null;
+            showAuthRequired();
+            showMessage(document.createElement('div'), 'Сессия истекла. Войдите снова.', 'error');
+        }
+
+        // ============================================================
+        // 8. ВЫХОД
+        // ============================================================
+        function logout() {
+            removeToken();
+            currentStudent = null;
+            selectedCourseId = null;
+            showAuthRequired();
+            messageInput.value = '';
+            courseSelect.innerHTML = `<option value="">Загрузка курсов...</option>`;
+            // Очищаем сообщение
+            sendStatus.innerHTML = '';
+        }
+
+        // ============================================================
+        // 9. ПЕРЕНАПРАВЛЕНИЕ НА СТРАНИЦУ ВХОДА
+        // ============================================================
+        function redirectToLogin() {
+            const redirect = encodeURIComponent(window.location.pathname);
+            window.location.href = `/tasks/login/?redirect=${redirect}`;
+        }
+
+        // ============================================================
+        // 10. ИНИЦИАЛИЗАЦИЯ
+        // ============================================================
+        async function init() {
+            // Обработчики
+            loginRedirectBtn.addEventListener('click', redirectToLogin);
+            logoutBtn.addEventListener('click', logout);
+            sendBtn.addEventListener('click', sendMessage);
+
+            // Загружаем курсы (даже если не авторизованы — они публичные)
+            await loadCourses();
+
+            // Проверяем авторизацию
+            await checkAuth();
+
+            // Если пользователь авторизован, но не выбран курс — можно показать первый из списка
+            if (currentStudent && allCourses.length > 0 && !selectedCourseId) {
+                // Выбираем первый курс по умолчанию
+                selectedCourseId = allCourses[0].id;
+                renderCourseSelect();
+                // Сохраняем выбор в БД
+                try {
+                    await fetch(`${API_BASE}/api/student/select_course`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            ...getAuthHeaders()
+                        },
+                        body: JSON.stringify({ course_id: selectedCourseId })
+                    });
+                    currentStudent.selected_course_id = selectedCourseId;
+                } catch (e) {
+                    // Не критично
+                }
+            }
+
+            console.log('✅ Страница формы запущена');
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
