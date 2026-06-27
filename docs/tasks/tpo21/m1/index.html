@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Демонстрация сортировки</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f7f9fc;
+        }
+        h1 { color: #2c3e50; }
+        .nav {
+            background: #34495e;
+            padding: 12px 20px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 25px;
+        }
+        .nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 6px 12px;
+            border-radius: 4px;
+            transition: 0.2s;
+        }
+        .nav a:hover { background: #2c3e50; }
+        .nav a.active { background: #2980b9; }
+        .page {
+            display: none;
+            animation: fade 0.3s;
+        }
+        .page.active { display: block; }
+        @keyframes fade { from { opacity: 0.4; } to { opacity: 1; } }
+
+        .info {
+            background: #ecf0f1;
+            padding: 10px 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        .controls {
+            margin-bottom: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+        .controls button {
+            background: #34495e;
+            color: white;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .controls button:hover { background: #2c3e50; }
+        .controls button.danger { background: #e74c3c; }
+        .controls button.danger:hover { background: #c0392b; }
+        .controls button.success { background: #27ae60; }
+        .controls button.success:hover { background: #1e8449; }
+        .controls button.warning { background: #f39c12; }
+        .controls button.warning:hover { background: #d68910; }
+
+        #addForm {
+            background: #fff;
+            padding: 15px 20px;
+            border-radius: 6px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            display: none;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px;
+        }
+        #addForm label { font-weight: bold; }
+        #addForm input {
+            padding: 6px 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: 120px;
+        }
+        #addForm input[type="text"] { width: 200px; }
+        #addForm button {
+            background: #2980b9;
+            color: white;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        #addForm button:hover { background: #1f618d; }
+        #addForm .close-btn {
+            background: #95a5a6;
+            margin-left: 5px;
+        }
+        #addForm .close-btn:hover { background: #7f8c8d; }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            background: white;
+        }
+        th, td {
+            padding: 10px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background: #34495e;
+            color: white;
+            cursor: pointer;
+            user-select: none;
+        }
+        th:hover { background: #2c3e50; }
+        th.active { background: #2980b9; }
+        .badge {
+            display: inline-block;
+            background: #e67e22;
+            color: white;
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 12px;
+            margin-left: 8px;
+        }
+        .note {
+            margin-top: 20px;
+            padding: 12px 18px;
+            background: #fff9e6;
+            border-left: 4px solid #f1c40f;
+            border-radius: 4px;
+        }
+        .note code {
+            background: #eee;
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+        .row-num { color: #7f8c8d; font-weight: bold; }
+        .empty-msg {
+            text-align: center;
+            color: #95a5a6;
+            padding: 30px 0;
+            font-style: italic;
+        }
+        .page-description {
+            max-width: 800px;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .page-description h2 { color: #2c3e50; }
+        .page-description ul { line-height: 1.8; }
+        .gen-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-width: 400px;
+            margin-top: 20px;
+        }
+        .gen-buttons button {
+            padding: 14px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .gen-buttons .rel { background: #27ae60; color: white; }
+        .gen-buttons .rel:hover { background: #1e8449; }
+        .gen-buttons .irrel { background: #f39c12; color: white; }
+        .gen-buttons .irrel:hover { background: #d68910; }
+        .gen-buttons .clear { background: #e74c3c; color: white; }
+        .gen-buttons .clear:hover { background: #c0392b; }
+        .gen-desc {
+            margin-top: 15px;
+            padding: 12px;
+            background: #ecf0f1;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Навигация -->
+<div class="nav">
+    <a href="#" data-page="page-description" class="active">📖 Описание</a>
+    <a href="#" data-page="page-data">📊 Данные</a>
+    <a href="#" data-page="page-generation">⚙️ Генерация тестов</a>
+</div>
+
+<!-- Страница 1: Описание -->
+<div id="page-description" class="page active">
+    <div class="page-description">
+        <h2>📘 О системе</h2>
+        <p>Данное приложение демонстрирует разницу между <strong>символьной (лексикографической)</strong> и <strong>числовой (математической)</strong> сортировкой на примере списка клиентов.</p>
+        <ul>
+            <li><strong>Номер клиента</strong> – сортируется как <em>строка</em> (посимвольно). Это нужно, чтобы порядок в системе совпадал с порядком файлов в папках (например, клиент с ID 10 идёт после ID 1, но до ID 2).</li>
+            <li><strong>Расстояние до клиента</strong> – сортируется как <em>число</em> (по значению). Это нужно для маршрутизации и приоритезации.</li>
+        </ul>
+        <p>Перейдите на страницу <strong>«Данные»</strong>, чтобы увидеть таблицу и попробовать сортировку.</p>
+        <p>На странице <strong>«Генерация тестов»</strong> вы можете добавить специальные наборы данных или очистить все записи.</p>
+        <p style="margin-top: 20px;"><i>Все данные автоматически сохраняются в localStorage браузера.</i></p>
+    </div>
+</div>
+
+<!-- Страница 2: Данные (только просмотр, сортировка, добавление) -->
+<div id="page-data" class="page">
+    <h1>📊 Данные клиентов</h1>
+    <div class="info">
+        <strong>Номер клиента</strong> → сортируется <strong>как строка</strong> (символьная)<br>
+        <strong>Расстояние</strong> → сортируется <strong>как число</strong> (математическая)
+    </div>
+
+    <div class="controls">
+        <button id="btnAddClient" class="success">👤 Добавить клиента</button>
+        <!-- Кнопка очистки удалена отсюда -->
+    </div>
+
+    <!-- Форма добавления -->
+    <div id="addForm">
+        <label>ID: <input type="number" id="newId" min="1" max="9999" placeholder="1-9999"></label>
+        <label>Название: <input type="text" id="newName" placeholder="Название"></label>
+        <label>Расстояние (км): <input type="number" id="newDist" min="1" max="9999" placeholder="1-9999"></label>
+        <button id="submitAdd">Добавить</button>
+        <button class="close-btn" id="cancelAdd">Отмена</button>
+    </div>
+
+    <table id="clientTable">
+        <thead>
+            <tr>
+                <th>№</th>
+                <th id="sortId" class="active">Номер клиента <span class="badge">символьная</span></th>
+                <th>Название</th>
+                <th id="sortDist">Расстояние, км <span class="badge">числовая</span></th>
+            </tr>
+        </thead>
+        <tbody id="tableBody">
+            <!-- данные вставляются JS -->
+        </tbody>
+    </table>
+
+    <div class="note">
+        <strong>🔍 Как это работает:</strong><br>
+        • При сортировке по <strong>номеру клиента</strong> числа сравниваются как строки: 
+        <code>"10" &lt; "100" &lt; "1000" &lt; "2"</code> — все начинающиеся с "1" идут вместе.<br>
+        • При сортировке по <strong>расстоянию</strong> сравнение числовое: 
+        <code>1 &lt; 2 &lt; 3 &lt; ...</code>.<br>
+        • Нажмите на заголовок колонки, чтобы переключить сортировку.
+    </div>
+</div>
+
+<!-- Страница 3: Генерация тестов и очистка -->
+<div id="page-generation" class="page">
+    <h1>⚙️ Генерация тестовых данных</h1>
+    <p>Добавьте специальные наборы данных или очистите всю таблицу.</p>
+    <div class="gen-buttons">
+        <button id="btnGenerateRel" class="rel">➕ Сгенерировать релевантные данные</button>
+        <button id="btnGenerateIrrel" class="irrel">🌀 Сгенерировать нерелевантные данные</button>
+        <button id="btnClear" class="clear">🗑️ Очистить все данные</button>
+    </div>
+    <div class="gen-desc">
+        <p><strong>Релевантные</strong> – содержат числа с разной разрядностью (например, 2 и 10). При символьной сортировке они идут в порядке "10" перед "2", а при числовой — наоборот. Это наглядно показывает разницу.</p>
+        <p><strong>Нерелевантные</strong> – содержат только четырёхзначные числа (от 1000 до 9999). В этом случае символьная и числовая сортировки дают одинаковый результат, так как все числа имеют одинаковую длину.</p>
+        <p><i>При нажатии кнопок генерации данные добавляются к уже существующим, ничего не удаляется.</i></p>
+        <p style="color: #c0392b;"><strong>Очистка</strong> – удаляет абсолютно все записи (с подтверждением).</p>
+    </div>
+</div>
+
+<script>
+    // ---- Хранилище ----
+    const STORAGE_KEY = 'clientsData';
+
+    // ---- Генерация случайных клиентов (релевантные) ----
+    function generateRandomClients(count = 7) {
+        const names = ['Альфа', 'Бета', 'Гамма', 'Дельта', 'Эпсилон', 'Зета', 'Эта', 'Тета', 'Йота', 'Каппа',
+                       'Лямбда', 'Мю', 'Ню', 'Кси', 'Омикрон', 'Пи', 'Ро', 'Сигма', 'Тау', 'Ипсилон',
+                       'Фи', 'Хи', 'Пси', 'Омега'];
+        const result = [];
+        for (let i = 0; i < count; i++) {
+            const id = Math.floor(Math.random() * 9999) + 1;
+            const dist = Math.floor(Math.random() * 9999) + 1;
+            const name = names[Math.floor(Math.random() * names.length)] + ' ' + (Math.floor(Math.random() * 100) + 1);
+            result.push({ id, name, dist });
+        }
+        return result;
+    }
+
+    // ---- Проверка и добавление контрастных пар (для релевантных) ----
+    function ensureContrastPairs(clients) {
+        let hasIdContrast = false;
+        let hasDistContrast = false;
+        const contrastPairs = [
+            { small: 2, large: 10 },
+            { small: 20, large: 100 },
+            { small: 200, large: 1000 },
+            { small: 2000, large: 9999 }
+        ];
+        for (let pair of contrastPairs) {
+            if (clients.some(c => c.id === pair.small) && clients.some(c => c.id === pair.large)) {
+                hasIdContrast = true;
+                break;
+            }
+        }
+        for (let pair of contrastPairs) {
+            if (clients.some(c => c.dist === pair.small) && clients.some(c => c.dist === pair.large)) {
+                hasDistContrast = true;
+                break;
+            }
+        }
+        if (!hasIdContrast) {
+            if (!clients.some(c => c.id === 2)) {
+                clients.push({ id: 2, name: 'Контраст (малый)', dist: Math.floor(Math.random() * 9999) + 1 });
+            }
+            if (!clients.some(c => c.id === 10)) {
+                clients.push({ id: 10, name: 'Контраст (большой)', dist: Math.floor(Math.random() * 9999) + 1 });
+            }
+        }
+        if (!hasDistContrast) {
+            if (!clients.some(c => c.dist === 2)) {
+                let newId = 1;
+                while (clients.some(c => c.id === newId)) newId++;
+                clients.push({ id: newId, name: 'Контраст (малый dist)', dist: 2 });
+            }
+            if (!clients.some(c => c.dist === 10)) {
+                let newId = 1;
+                while (clients.some(c => c.id === newId)) newId++;
+                clients.push({ id: newId, name: 'Контраст (большой dist)', dist: 10 });
+            }
+        }
+        return clients;
+    }
+
+    // ---- Генерация нерелевантных данных (только 4-значные ID) ----
+    function generateIrrelevantData() {
+        const names = ['Нерел1', 'Нерел2', 'Нерел3', 'Нерел4', 'Нерел5', 'Нерел6', 'Нерел7'];
+        const count = 5 + Math.floor(Math.random() * 3);
+        const result = [];
+        const usedIds = new Set();
+        for (let i = 0; i < count; i++) {
+            let id;
+            do {
+                id = 1000 + Math.floor(Math.random() * 9000);
+            } while (usedIds.has(id) || result.some(c => c.id === id));
+            usedIds.add(id);
+            const dist = Math.floor(Math.random() * 9999) + 1;
+            const name = names[i % names.length] + ' ' + (Math.floor(Math.random() * 100) + 1);
+            result.push({ id, name, dist });
+        }
+        return result;
+    }
+
+    // ---- Сохранение/загрузка ----
+    function saveToStorage(clients) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(clients));
+    }
+    function loadFromStorage() {
+        const data = localStorage.getItem(STORAGE_KEY);
+        if (data) {
+            try { return JSON.parse(data); } catch (e) { return null; }
+        }
+        return null;
+    }
+
+    // ---- Инициализация данных ----
+    function getInitialData() {
+        let clients = loadFromStorage();
+        if (!clients || clients.length === 0) {
+            clients = generateRandomClients(10);
+            clients = ensureContrastPairs(clients);
+            saveToStorage(clients);
+        }
+        return clients;
+    }
+
+    // ---- Глобальные переменные ----
+    let clients = getInitialData();
+    let currentSort = 'id';
+
+    // ---- Сортировка ----
+    function sortData(by) {
+        if (by === 'id') {
+            clients.sort((a, b) => String(a.id).localeCompare(String(b.id), 'en', { numeric: false }));
+        } else if (by === 'dist') {
+            clients.sort((a, b) => a.dist - b.dist);
+        }
+    }
+
+    // ---- Рендеринг ----
+    function renderTable(sortBy) {
+        const tbody = document.getElementById('tableBody');
+        if (clients.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" class="empty-msg">Нет данных. Перейдите на вкладку «Генерация тестов».</td></tr>`;
+        } else {
+            tbody.innerHTML = '';
+            clients.forEach((client, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="row-num">${index + 1}</td>
+                    <td>${client.id}</td>
+                    <td>${client.name}</td>
+                    <td>${client.dist}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        document.getElementById('sortId').classList.toggle('active', sortBy === 'id');
+        document.getElementById('sortDist').classList.toggle('active', sortBy === 'dist');
+    }
+
+    function refreshView() {
+        sortData(currentSort);
+        renderTable(currentSort);
+        saveToStorage(clients);
+    }
+
+    // ---- Добавление клиента (через форму) ----
+    function addClient(id, name, dist) {
+        if (isNaN(id) || id < 1 || id > 9999) { alert('ID должно быть числом от 1 до 9999'); return false; }
+        if (name.trim() === '') { alert('Введите название'); return false; }
+        if (isNaN(dist) || dist < 1 || dist > 9999) { alert('Расстояние должно быть числом от 1 до 9999'); return false; }
+        clients.push({ id: Number(id), name: name.trim(), dist: Number(dist) });
+        refreshView();
+        return true;
+    }
+
+    // ---- Обработчики навигации ----
+    document.querySelectorAll('.nav a').forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const pageId = this.dataset.page;
+            document.querySelectorAll('.nav a').forEach(a => a.classList.remove('active'));
+            this.classList.add('active');
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+        });
+    });
+
+    // ---- Обработчики событий на странице 2 (Данные) ----
+    document.addEventListener('DOMContentLoaded', function() {
+        refreshView();
+
+        // Сортировка по ID
+        document.getElementById('sortId').addEventListener('click', function() {
+            if (currentSort === 'id') {
+                clients.reverse();
+            } else {
+                currentSort = 'id';
+                sortData('id');
+            }
+            renderTable(currentSort);
+            saveToStorage(clients);
+        });
+
+        // Сортировка по расстоянию
+        document.getElementById('sortDist').addEventListener('click', function() {
+            if (currentSort === 'dist') {
+                clients.reverse();
+            } else {
+                currentSort = 'dist';
+                sortData('dist');
+            }
+            renderTable(currentSort);
+            saveToStorage(clients);
+        });
+
+        // Показать/скрыть форму добавления
+        const addForm = document.getElementById('addForm');
+        document.getElementById('btnAddClient').addEventListener('click', function() {
+            addForm.style.display = addForm.style.display === 'none' ? 'flex' : 'none';
+            document.getElementById('newId').value = '';
+            document.getElementById('newName').value = '';
+            document.getElementById('newDist').value = '';
+            document.getElementById('newId').focus();
+        });
+        document.getElementById('cancelAdd').addEventListener('click', function() {
+            addForm.style.display = 'none';
+        });
+
+        // Отправка формы добавления
+        document.getElementById('submitAdd').addEventListener('click', function() {
+            const id = parseInt(document.getElementById('newId').value);
+            const name = document.getElementById('newName').value;
+            const dist = parseInt(document.getElementById('newDist').value);
+            if (addClient(id, name, dist)) {
+                addForm.style.display = 'none';
+            }
+        });
+
+        // ---- Обработчики на странице 3 (Генерация) ----
+        document.getElementById('btnGenerateRel').addEventListener('click', function() {
+            const newClients = generateRandomClients(7 + Math.floor(Math.random() * 4));
+            clients = clients.concat(newClients);
+            clients = ensureContrastPairs(clients);
+            refreshView();
+            alert('Добавлено ' + newClients.length + ' релевантных записей.');
+        });
+
+        document.getElementById('btnGenerateIrrel').addEventListener('click', function() {
+            const irrelevants = generateIrrelevantData();
+            clients = clients.concat(irrelevants);
+            refreshView();
+            alert('Добавлено ' + irrelevants.length + ' нерелевантных записей.');
+        });
+
+        // Кнопка очистки теперь на третьей странице
+        document.getElementById('btnClear').addEventListener('click', function() {
+            if (confirm('Удалить все данные?')) {
+                clients = [];
+                saveToStorage(clients);
+                refreshView();
+            }
+        });
+    });
+</script>
+
+</body>
+</html>

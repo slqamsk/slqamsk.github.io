@@ -33,39 +33,50 @@
             font-size: 14px;
             margin-bottom: 20px;
         }
-        .course-btn {
-            display: block;
-            width: 100%;
-            padding: 12px 16px;
-            margin: 6px 0;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            background: white;
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #e0e0e0;
+            margin-bottom: 20px;
+        }
+        .tabs button {
+            flex: 1;
+            padding: 10px;
+            background: none;
+            border: none;
             font-size: 16px;
+            font-weight: 600;
             cursor: pointer;
+            color: #888;
             transition: 0.2s;
-            text-align: left;
+            border-bottom: 3px solid transparent;
         }
-        .course-btn:hover {
-            border-color: #6c5ce7;
-            background: #f8f7ff;
+        .tabs button.active {
+            color: #6c5ce7;
+            border-bottom-color: #6c5ce7;
         }
-        .course-btn.active {
-            border-color: #6c5ce7;
-            background: #6c5ce7;
-            color: white;
+        .tab-content {
+            display: none;
         }
-        textarea {
+        .tab-content.active {
+            display: block;
+        }
+        .form-group {
+            margin-bottom: 16px;
+        }
+        .form-group label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+        .form-group input {
             width: 100%;
             padding: 12px;
             border: 2px solid #e0e0e0;
             border-radius: 10px;
             font-size: 16px;
             font-family: inherit;
-            resize: vertical;
-            min-height: 100px;
         }
-        textarea:focus {
+        .form-group input:focus {
             outline: none;
             border-color: #6c5ce7;
         }
@@ -104,6 +115,55 @@
         }
         .btn-secondary:hover {
             background: #d0d0d0;
+        }
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+        .course-btn {
+            display: block;
+            width: 100%;
+            padding: 12px 16px;
+            margin: 6px 0;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            background: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.2s;
+            text-align: left;
+        }
+        .course-btn:hover {
+            border-color: #6c5ce7;
+            background: #f8f7ff;
+        }
+        .course-btn.active {
+            border-color: #6cce7;
+            background: #6c5ce7;
+            color: white;
+        }
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 100px;
+        }
+        textarea:focus {
+            outline: none;
+            border-color: #6c5ce7;
         }
         .answer-item {
             padding: 12px;
@@ -165,29 +225,73 @@
         .status-message {
             margin-top: 10px;
         }
+        .auth-container {
+            max-width: 400px;
+            margin: 0 auto;
+        }
     </style>
 </head>
 <body>
 
-    <div class="card">
-        <h1>📊 Опрос студентов</h1>
-        <p class="subtitle">Выберите курс и отправьте свой ответ</p>
+    <!-- ============================================================ -->
+    <!-- БЛОК АВТОРИЗАЦИИ (показывается, если нет токена)              -->
+    <!-- ============================================================ -->
+    <div id="authContainer" class="auth-container">
+        <div class="card">
+            <h1>📊 Опрос студентов</h1>
+            <p class="subtitle">Войдите или зарегистрируйтесь</p>
 
-        <div id="userInfo" class="user-info hidden">
-            <span class="name" id="userName">—</span>
-            <span class="id" id="userIdDisplay">—</span>
-        </div>
+            <!-- Вкладки -->
+            <div class="tabs">
+                <button id="tabLogin" class="active">Вход</button>
+                <button id="tabRegister">Регистрация</button>
+            </div>
 
-        <div id="registrationForm">
-            <p style="margin-bottom: 8px;">👋 Представьтесь:</p>
-            <input type="text" id="fullNameInput" placeholder="Фамилия Имя Отчество"
-                   style="width:100%; padding:12px; border:2px solid #e0e0e0; border-radius:10px; font-size:16px;">
-            <button class="btn-primary" id="registerBtn">Зарегистрироваться</button>
-            <div id="regStatus" class="status-message"></div>
+            <!-- Форма входа -->
+            <div id="loginForm" class="tab-content active">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="loginEmail" placeholder="student@example.com">
+                </div>
+                <div class="form-group">
+                    <label>Пароль</label>
+                    <input type="password" id="loginPassword" placeholder="••••••••">
+                </div>
+                <button class="btn-primary" id="loginBtn">Войти</button>
+                <div id="loginStatus" class="status-message"></div>
+            </div>
+
+            <!-- Форма регистрации -->
+            <div id="registerForm" class="tab-content">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="regEmail" placeholder="student@example.com">
+                </div>
+                <div class="form-group">
+                    <label>Пароль</label>
+                    <input type="password" id="regPassword" placeholder="••••••••">
+                </div>
+                <div class="form-group">
+                    <label>Полное имя (опционально)</label>
+                    <input type="text" id="regFullName" placeholder="Иванов Иван Иванович">
+                </div>
+                <button class="btn-primary" id="registerBtn">Зарегистрироваться</button>
+                <div id="regStatus" class="status-message"></div>
+            </div>
         </div>
     </div>
 
-    <div id="mainApp" class="hidden">
+    <!-- ============================================================ -->
+    <!-- ОСНОВНОЕ ПРИЛОЖЕНИЕ (показывается после авторизации)          -->
+    <!-- ============================================================ -->
+    <div id="appContainer" class="hidden">
+        <div class="card">
+            <div class="user-info">
+                <span class="name" id="userName">—</span>
+                <button class="btn-danger" id="logoutBtn">Выйти</button>
+            </div>
+        </div>
+
         <!-- Курсы -->
         <div class="card">
             <h3>📚 Выберите курс</h3>
@@ -217,38 +321,53 @@
 
     <script>
         // ============================================================
-        // 1. НАСТРОЙКА API (ВАШ РЕНДЕР)
+        // 1. НАСТРОЙКА API
         // ============================================================
         const API_BASE = 'https://feedback-collector-4hw0.onrender.com';
 
         // ============================================================
-        // 2. РАБОТА С USER ID
+        // 2. РАБОТА С ТОКЕНОМ
         // ============================================================
-        function getUserId() {
-            let userId = localStorage.getItem('web_user_id');
-            if (!userId) {
-                userId = crypto.randomUUID ? crypto.randomUUID() : 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-                localStorage.setItem('web_user_id', userId);
-            }
-            return userId;
+        function getToken() {
+            return localStorage.getItem('jwt_token');
         }
 
-        const WEB_USER_ID = getUserId();
-        let currentStudent = null;
-        let selectedCourseId = null;
-        let allCourses = [];
+        function setToken(token) {
+            localStorage.setItem('jwt_token', token);
+        }
+
+        function removeToken() {
+            localStorage.removeItem('jwt_token');
+        }
+
+        function getAuthHeaders() {
+            const token = getToken();
+            return token ? { 'Authorization': `Bearer ${token}` } : {};
+        }
 
         // ============================================================
         // 3. DOM ЭЛЕМЕНТЫ
         // ============================================================
-        const registrationForm = document.getElementById('registrationForm');
-        const mainApp = document.getElementById('mainApp');
-        const userInfo = document.getElementById('userInfo');
+        const authContainer = document.getElementById('authContainer');
+        const appContainer = document.getElementById('appContainer');
         const userName = document.getElementById('userName');
-        const userIdDisplay = document.getElementById('userIdDisplay');
-        const fullNameInput = document.getElementById('fullNameInput');
+
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+        const tabLogin = document.getElementById('tabLogin');
+        const tabRegister = document.getElementById('tabRegister');
+
+        const loginEmail = document.getElementById('loginEmail');
+        const loginPassword = document.getElementById('loginPassword');
+        const loginBtn = document.getElementById('loginBtn');
+        const loginStatus = document.getElementById('loginStatus');
+
+        const regEmail = document.getElementById('regEmail');
+        const regPassword = document.getElementById('regPassword');
+        const regFullName = document.getElementById('regFullName');
         const registerBtn = document.getElementById('registerBtn');
         const regStatus = document.getElementById('regStatus');
+
         const coursesList = document.getElementById('coursesList');
         const courseStatus = document.getElementById('courseStatus');
         const answerInput = document.getElementById('answerInput');
@@ -256,6 +375,11 @@
         const answerStatus = document.getElementById('answerStatus');
         const answersList = document.getElementById('answersList');
         const loadAnswersBtn = document.getElementById('loadAnswersBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+
+        let currentStudent = null;
+        let selectedCourseId = null;
+        let allCourses = [];
 
         // ============================================================
         // 4. ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
@@ -271,17 +395,24 @@
             element.innerHTML = '';
         }
 
+        function toggleAuth(show) {
+            if (show) {
+                authContainer.classList.remove('hidden');
+                appContainer.classList.add('hidden');
+            } else {
+                authContainer.classList.add('hidden');
+                appContainer.classList.remove('hidden');
+            }
+        }
+
         // ============================================================
-        // 5. ЗАГРУЗКА КУРСОВ (через API)
+        // 5. ЗАГРУЗКА КУРСОВ
         // ============================================================
         async function loadCourses() {
             try {
                 const response = await fetch(`${API_BASE}/api/courses`);
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}`);
-                }
-                const data = await response.json();
-                allCourses = data;
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                allCourses = await response.json();
                 renderCourses();
             } catch (err) {
                 coursesList.innerHTML = `<div class="error">Ошибка загрузки курсов: ${err.message}</div>`;
@@ -293,7 +424,6 @@
                 coursesList.innerHTML = '<div class="error">Курсов пока нет</div>';
                 return;
             }
-
             let html = '';
             allCourses.forEach(course => {
                 const active = course.id === selectedCourseId ? 'active' : '';
@@ -304,7 +434,6 @@
                 `;
             });
             coursesList.innerHTML = html;
-
             document.querySelectorAll('.course-btn').forEach(btn => {
                 btn.addEventListener('click', async () => {
                     const courseId = parseInt(btn.dataset.courseId);
@@ -314,29 +443,30 @@
         }
 
         // ============================================================
-        // 6. ВЫБОР КУРСА (через API)
+        // 6. ВЫБОР КУРСА (защищённый)
         // ============================================================
         async function selectCourse(courseId) {
             if (!currentStudent) {
-                showMessage(courseStatus, 'Сначала зарегистрируйтесь!', 'error');
+                showMessage(courseStatus, 'Сначала авторизуйтесь!', 'error');
                 return;
             }
-
             try {
                 const response = await fetch(`${API_BASE}/api/student/select_course`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        student_id: currentStudent.id,
-                        course_id: courseId
-                    })
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...getAuthHeaders()
+                    },
+                    body: JSON.stringify({ course_id: courseId })
                 });
-
                 if (!response.ok) {
+                    if (response.status === 401) {
+                        handleUnauthorized();
+                        return;
+                    }
                     const errorData = await response.json();
                     throw new Error(errorData.error || `HTTP ${response.status}`);
                 }
-
                 selectedCourseId = courseId;
                 currentStudent.selected_course_id = courseId;
                 renderCourses();
@@ -347,12 +477,15 @@
         }
 
         // ============================================================
-        // 7. РЕГИСТРАЦИЯ (через API)
+        // 7. РЕГИСТРАЦИЯ
         // ============================================================
         async function registerUser() {
-            const fullName = fullNameInput.value.trim();
-            if (!fullName) {
-                showMessage(regStatus, 'Пожалуйста, введите ваше полное имя', 'error');
+            const email = regEmail.value.trim();
+            const password = regPassword.value.trim();
+            const fullName = regFullName.value.trim();
+
+            if (!email || !password) {
+                showMessage(regStatus, 'Пожалуйста, заполните email и пароль', 'error');
                 return;
             }
 
@@ -360,42 +493,23 @@
             registerBtn.textContent = 'Регистрация...';
 
             try {
-                const response = await fetch(`${API_BASE}/api/student`, {
+                const response = await fetch(`${API_BASE}/api/register`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        web_user_id: WEB_USER_ID,
-                        full_name: fullName
-                    })
+                    body: JSON.stringify({ email, password, full_name: fullName || undefined })
                 });
-
+                const data = await response.json();
                 if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || `HTTP ${response.status}`);
+                    throw new Error(data.error || `HTTP ${response.status}`);
                 }
-
-                const student = await response.json();
-                currentStudent = student;
-                selectedCourseId = student.selected_course_id || null;
-
-                // Обновляем UI
-                registrationForm.classList.add('hidden');
-                mainApp.classList.remove('hidden');
-                userInfo.classList.remove('hidden');
-                userName.textContent = student.full_name;
-                userIdDisplay.textContent = `ID: ${WEB_USER_ID.slice(0, 8)}...`;
-
-                if (selectedCourseId) {
-                    renderCourses();
-                    const courseName = allCourses.find(c => c.id === selectedCourseId)?.name || 'выбранный курс';
-                    showMessage(courseStatus, `ℹ️ Использую последний курс: ${courseName}`, 'success');
-                }
-
-                await loadAnswers();
+                // Успешная регистрация — сразу логинимся
+                setToken(data.token);
+                currentStudent = data.student;
+                selectedCourseId = currentStudent.selected_course_id || null;
                 showMessage(regStatus, '✅ Регистрация успешна!', 'success');
-
+                await enterApp();
             } catch (err) {
-                showMessage(regStatus, `❌ Ошибка регистрации: ${err.message}`, 'error');
+                showMessage(regStatus, `❌ ${err.message}`, 'error');
             } finally {
                 registerBtn.disabled = false;
                 registerBtn.textContent = 'Зарегистрироваться';
@@ -403,7 +517,97 @@
         }
 
         // ============================================================
-        // 8. ОТПРАВКА ОТВЕТА (через API)
+        // 8. ВХОД
+        // ============================================================
+        async function loginUser() {
+            const email = loginEmail.value.trim();
+            const password = loginPassword.value.trim();
+
+            if (!email || !password) {
+                showMessage(loginStatus, 'Пожалуйста, заполните email и пароль', 'error');
+                return;
+            }
+
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Вход...';
+
+            try {
+                const response = await fetch(`${API_BASE}/api/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.error || `HTTP ${response.status}`);
+                }
+                setToken(data.token);
+                currentStudent = data.student;
+                selectedCourseId = currentStudent.selected_course_id || null;
+                showMessage(loginStatus, '✅ Вход выполнен!', 'success');
+                await enterApp();
+            } catch (err) {
+                showMessage(loginStatus, `❌ ${err.message}`, 'error');
+            } finally {
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Войти';
+            }
+        }
+
+        // ============================================================
+        // 9. ВХОД В ПРИЛОЖЕНИЕ
+        // ============================================================
+        async function enterApp() {
+            toggleAuth(false);
+            userName.textContent = currentStudent.full_name || 'Студент';
+            if (selectedCourseId) {
+                renderCourses();
+                const courseName = allCourses.find(c => c.id === selectedCourseId)?.name || 'выбранный курс';
+                showMessage(courseStatus, `ℹ️ Использую последний курс: ${courseName}`, 'success');
+            }
+            await loadAnswers();
+        }
+
+        // ============================================================
+        // 10. ПРОВЕРКА ТОКЕНА ПРИ ЗАГРУЗКЕ
+        // ============================================================
+        async function checkAuth() {
+            const token = getToken();
+            if (!token) {
+                toggleAuth(true);
+                return;
+            }
+            try {
+                const response = await fetch(`${API_BASE}/api/student/me`, {
+                    headers: getAuthHeaders()
+                });
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        handleUnauthorized();
+                    } else {
+                        throw new Error(`HTTP ${response.status}`);
+                    }
+                    return;
+                }
+                currentStudent = await response.json();
+                selectedCourseId = currentStudent.selected_course_id || null;
+                await enterApp();
+            } catch (err) {
+                console.error('Ошибка проверки токена:', err);
+                handleUnauthorized();
+            }
+        }
+
+        function handleUnauthorized() {
+            removeToken();
+            currentStudent = null;
+            selectedCourseId = null;
+            toggleAuth(true);
+            showMessage(loginStatus, 'Сессия истекла. Войдите снова.', 'error');
+        }
+
+        // ============================================================
+        // 11. ОТПРАВКА ОТВЕТА (защищённый)
         // ============================================================
         async function sendAnswer() {
             const content = answerInput.value.trim();
@@ -411,12 +615,10 @@
                 showMessage(answerStatus, 'Пожалуйста, напишите ответ', 'error');
                 return;
             }
-
             if (!currentStudent) {
-                showMessage(answerStatus, 'Сначала зарегистрируйтесь!', 'error');
+                showMessage(answerStatus, 'Сначала авторизуйтесь!', 'error');
                 return;
             }
-
             let courseId = selectedCourseId || currentStudent.selected_course_id;
             if (!courseId) {
                 showMessage(answerStatus, 'Пожалуйста, выберите курс', 'error');
@@ -429,25 +631,28 @@
             try {
                 const response = await fetch(`${API_BASE}/api/answers`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...getAuthHeaders()
+                    },
                     body: JSON.stringify({
-                        student_id: currentStudent.id,
                         course_id: courseId,
                         content: content
                     })
                 });
-
                 if (!response.ok) {
+                    if (response.status === 401) {
+                        handleUnauthorized();
+                        return;
+                    }
                     const errorData = await response.json();
                     throw new Error(errorData.error || `HTTP ${response.status}`);
                 }
-
                 showMessage(answerStatus, '✅ Ответ сохранён!', 'success');
                 answerInput.value = '';
                 await loadAnswers();
-
             } catch (err) {
-                showMessage(answerStatus, `❌ Ошибка: ${err.message}`, 'error');
+                showMessage(answerStatus, `❌ ${err.message}`, 'error');
             } finally {
                 sendAnswerBtn.disabled = false;
                 sendAnswerBtn.textContent = 'Отправить ответ';
@@ -455,30 +660,31 @@
         }
 
         // ============================================================
-        // 9. ЗАГРУЗКА ОТВЕТОВ (через API)
+        // 12. ЗАГРУЗКА ОТВЕТОВ (защищённый)
         // ============================================================
         async function loadAnswers() {
             if (!currentStudent) {
-                answersList.innerHTML = '<div class="loader">Зарегистрируйтесь, чтобы увидеть ответы</div>';
+                answersList.innerHTML = '<div class="loader">Авторизуйтесь, чтобы увидеть ответы</div>';
                 return;
             }
-
             answersList.innerHTML = '<div class="loader">Загрузка...</div>';
-
             try {
-                const response = await fetch(`${API_BASE}/api/answers?student_id=${currentStudent.id}`);
+                const response = await fetch(`${API_BASE}/api/answers`, {
+                    headers: getAuthHeaders()
+                });
                 if (!response.ok) {
+                    if (response.status === 401) {
+                        handleUnauthorized();
+                        return;
+                    }
                     const errorData = await response.json();
                     throw new Error(errorData.error || `HTTP ${response.status}`);
                 }
-
                 const data = await response.json();
-
                 if (!data || data.length === 0) {
                     answersList.innerHTML = '<div class="loader">📭 У вас пока нет ответов</div>';
                     return;
                 }
-
                 let html = '';
                 data.forEach(ans => {
                     const courseName = ans.courses?.name || 'Без курса';
@@ -493,77 +699,70 @@
                     `;
                 });
                 answersList.innerHTML = html;
-
             } catch (err) {
                 answersList.innerHTML = `<div class="error">Ошибка: ${err.message}</div>`;
             }
         }
 
         // ============================================================
-        // 10. ПРОВЕРКА СУЩЕСТВУЮЩЕГО ПОЛЬЗОВАТЕЛЯ (через API)
+        // 13. ВЫХОД
         // ============================================================
-        async function checkExistingUser() {
-            try {
-                const response = await fetch(`${API_BASE}/api/student?web_user_id=${encodeURIComponent(WEB_USER_ID)}`);
-                if (response.status === 404) {
-                    return false;
-                }
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || `HTTP ${response.status}`);
-                }
-
-                const student = await response.json();
-                currentStudent = student;
-                selectedCourseId = student.selected_course_id || null;
-
-                // Автоматически регистрируем
-                fullNameInput.value = student.full_name;
-                registrationForm.classList.add('hidden');
-                mainApp.classList.remove('hidden');
-                userInfo.classList.remove('hidden');
-                userName.textContent = student.full_name;
-                userIdDisplay.textContent = `ID: ${WEB_USER_ID.slice(0, 8)}...`;
-
-                if (selectedCourseId) {
-                    renderCourses();
-                    const courseName = allCourses.find(c => c.id === selectedCourseId)?.name || 'выбранный курс';
-                    showMessage(courseStatus, `ℹ️ Использую последний курс: ${courseName}`, 'success');
-                }
-
-                await loadAnswers();
-                return true;
-
-            } catch (err) {
-                console.error('Ошибка проверки пользователя:', err);
-                return false;
-            }
+        function logout() {
+            removeToken();
+            currentStudent = null;
+            selectedCourseId = null;
+            toggleAuth(true);
+            answerInput.value = '';
+            answersList.innerHTML = '<div class="loader">Загрузите ответы</div>';
+            coursesList.innerHTML = '<div class="loader">Загрузка курсов...</div>';
+            showMessage(loginStatus, 'Вы вышли из системы.', 'success');
+            // Очищаем поля форм
+            loginEmail.value = '';
+            loginPassword.value = '';
+            regEmail.value = '';
+            regPassword.value = '';
+            regFullName.value = '';
         }
 
         // ============================================================
-        // 11. ИНИЦИАЛИЗАЦИЯ
+        // 14. ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК
+        // ============================================================
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tabs button').forEach(el => el.classList.remove('active'));
+            if (tab === 'login') {
+                loginForm.classList.add('active');
+                tabLogin.classList.add('active');
+            } else {
+                registerForm.classList.add('active');
+                tabRegister.classList.add('active');
+            }
+            // Очищаем сообщения
+            clearMessage(loginStatus);
+            clearMessage(regStatus);
+        }
+
+        // ============================================================
+        // 15. ИНИЦИАЛИЗАЦИЯ
         // ============================================================
         async function init() {
-            // Загружаем курсы
-            await loadCourses();
+            // Обработчики вкладок
+            tabLogin.addEventListener('click', () => switchTab('login'));
+            tabRegister.addEventListener('click', () => switchTab('register'));
 
-            // Проверяем, есть ли уже пользователь
-            const hasUser = await checkExistingUser();
-
-            if (!hasUser) {
-                registrationForm.classList.remove('hidden');
-                mainApp.classList.add('hidden');
-                userInfo.classList.add('hidden');
-            }
-
-            // Обработчики событий
+            // Обработчики форм
+            loginBtn.addEventListener('click', loginUser);
             registerBtn.addEventListener('click', registerUser);
-            fullNameInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') registerUser();
-            });
             sendAnswerBtn.addEventListener('click', sendAnswer);
             loadAnswersBtn.addEventListener('click', loadAnswers);
+            logoutBtn.addEventListener('click', logout);
 
+            // Enter в полях
+            loginEmail.addEventListener('keypress', (e) => { if (e.key === 'Enter') loginUser(); });
+            loginPassword.addEventListener('keypress', (e) => { if (e.key === 'Enter') loginUser(); });
+            regEmail.addEventListener('keypress', (e) => { if (e.key === 'Enter') registerUser(); });
+            regPassword.addEventListener('keypress', (e) => { if (e.key === 'Enter') registerUser(); });
+            regFullName.addEventListener('keypress', (e) => { if (e.key === 'Enter') registerUser(); });
             answerInput.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
@@ -571,8 +770,13 @@
                 }
             });
 
+            // Загружаем курсы (всегда, они публичные)
+            await loadCourses();
+
+            // Проверяем авторизацию
+            await checkAuth();
+
             console.log('✅ Веб-версия опросника запущена!');
-            console.log(`📌 Ваш ID: ${WEB_USER_ID}`);
             console.log(`🔗 API: ${API_BASE}`);
         }
 
