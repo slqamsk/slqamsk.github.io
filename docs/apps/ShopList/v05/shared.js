@@ -31,6 +31,10 @@ function addProduct(name) {
     return { success: false, message: 'Name is required' };
   }
 
+  if (trimmed.length < 2 || trimmed.length > 80) {
+    return { success: false, message: 'Название должно содержать от 2 до 80 символов' };
+  }
+
   const products = getProducts();
   const lastId = products.length > 0 ? Math.max(...products.map(p => p.id)) : 0;
   const newProduct = { id: lastId + 1, name: name.trim() };
@@ -45,6 +49,10 @@ function addProduct(name) {
 function updateProduct(id, name) {
   if (!id || !name || name.trim() === '') {
     return { success: false, message: 'ID and name are required' };
+  }
+
+  if (trimmed.length < 2 || trimmed.length > 80) {
+    return { success: false, message: 'Название должно содержать от 2 до 80 символов' };
   }
 
   const products = getProducts();
