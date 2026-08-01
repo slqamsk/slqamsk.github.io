@@ -31,9 +31,14 @@ function addProduct(name) {
     return { success: false, message: 'Name is required' };
   }
 
+  const trimmedName = name.trim();
+  if (trimmedName.length < 2 || trimmedName.length > 80) {
+    return { success: false, message: 'Название должно содержать от 2 до 80 символов' };
+  }
+
   const products = getProducts();
   const lastId = products.length > 0 ? Math.max(...products.map(p => p.id)) : 0;
-  const newProduct = { id: lastId + 1, name: name.trim() };
+  const newProduct = { id: lastId + 1, name: trimmedName };
   
   products.push(newProduct);
   localStorage.setItem('shoplist-products', JSON.stringify(products));
@@ -47,6 +52,11 @@ function updateProduct(id, name) {
     return { success: false, message: 'ID and name are required' };
   }
 
+  const trimmedName = name.trim();
+  if (trimmedName.length < 2 || trimmedName.length > 80) {
+    return { success: false, message: 'Название должно содержать от 2 до 80 символов' };
+  }
+
   const products = getProducts();
   const index = products.findIndex(p => p.id == id);
   
@@ -54,7 +64,7 @@ function updateProduct(id, name) {
     return { success: false, message: 'Product not found' };
   }
   
-  products[index].name = name.trim();
+  products[index].name = trimmedName;
   localStorage.setItem('shoplist-products', JSON.stringify(products));
   
   return { success: true };
