@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Добавить продукт</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header></header>
+
+  <main>
+    <h1 id="page-title">Добавить новый продукт</h1>
+
+    <div style="margin-bottom: 20px;">
+      <label for="product-name">Название продукта:</label><br>
+      <input type="text" id="product-name" placeholder="Введите название продукта">
+    </div>
+
+    <div>
+      <button id="save-product" class="primary">Сохранить</button>
+      <button id="cancel" class="primary">Отмена</button>
+      <button id="delete-product" class="danger">Удалить</button>
+    </div>
+  </main>
+
+  <div id="error-log" class="error-box"></div>
+
+  <script src="shared.js"></script>
+</body>
+</html>

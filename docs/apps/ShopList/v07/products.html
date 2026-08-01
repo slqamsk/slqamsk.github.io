@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Общий список продуктов</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header></header>
+
+  <main>
+    <h1>Общий список продуктов</h1>
+
+    <div class="switch">
+      <button id="view-all" class="primary">Все</button>
+      <button id="view-not-in-list">Не в списке</button>
+    </div>
+
+    <ul id="products-list">
+      <!-- Список будет заполнен через JS -->
+    </ul>
+
+    <p>
+      <a href="add-product.html"><button class="primary">Добавить новый продукт</button></a>
+    </p>
+  </main>
+
+  <div id="error-log" class="error-box"></div>
+
+  <script src="shared.js"></script>
+</body>
+</html>
